@@ -1,0 +1,23 @@
+Package: AnNet
+Title: Analysis of Networks
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Colin", "Mclean", 
+        email="Colin.D.Mclean@ed.ac.uk", role=c("aut", "cre")), 
+    person("Anatoly", "Sorokin", 
+        email="lptolik@gmail.com", role="aut"), 
+    person("Oksana", "Sorokina", 
+        email="oksana.sorokina@ed.ac.uk", role="aut"),
+    person("J. Douglas", "Armstrong", role = "aut") )
+Description: What the package does (one paragraph).
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
