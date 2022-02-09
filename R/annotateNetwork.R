@@ -12,12 +12,12 @@
 #' @examples
 removeVertexTerm <- function(GG,NAME){
 
-  if( !is.null(igraph::get.vertex.attribute(GG,NAME)) ){
-    GG <- igraph::remove.vertex.attribute(GG,name=NAME)
+  if( !is.null(get.vertex.attribute(GG,NAME)) ){
+    GG <- remove.vertex.attribute(GG,name=NAME)
   }
 
-  if( !is.null(igraph::get.vertex.attribute(GG,gsub("_","",NAME))) ){
-    GG <- igraph::remove.vertex.attribute(GG,name=gsub("_","",NAME))
+  if( !is.null(get.vertex.attribute(GG,gsub("_","",NAME))) ){
+    GG <- remove.vertex.attribute(GG,name=gsub("_","",NAME))
   }
 
   return(GG)
@@ -29,7 +29,7 @@ removeVertexTerm <- function(GG,NAME){
 #' Annotate graph from list of files
 #'
 #' @param GG igraph object
-#' @param FILES list of file path strings
+#' @param FILES list of file path strings to read annotation from
 #' @param NAME name of the vertex property
 #' @param IDS vertex IDs
 #' @param addIDS if TRUE NAME_ID property will be added
@@ -51,7 +51,7 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS){
     if( file.exists(sprintf("./%s",FILES[f])) ){
 
       #--- Set Disease (geneRIF db) attributes in .gml graph
-      igraph::set.vertex.attribute(GG, NAME[f],V(GG),"")
+      set.vertex.attribute(GG, NAME[f],V(GG),"")
 
       annoF    <- read.table(FILES[f],sep="\t",skip=1,strip.white=T,quote="")
       annoFIDS <- as.character(annoF[,3])
@@ -99,10 +99,10 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS){
 
       }
 
-      GG <- igraph::set.vertex.attribute(GG,NAME[f],V(GG),as.character(oo[,2]))
+      GG <- set.vertex.attribute(GG,NAME[f],V(GG),as.character(oo[,2]))
 
       if( addIDS ){
-        GG <- igraph::set.vertex.attribute(GG,sprintf("%s_ID",NAME[f]),V(GG),as.character(oo[,3]))
+        GG <- set.vertex.attribute(GG,sprintf("%s_ID",NAME[f]),V(GG),as.character(oo[,3]))
       }
 
 
@@ -122,6 +122,7 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS){
 #'
 #' @return
 #' @export
+#' @import igraph
 #'
 #' @examples
 annotateGeneNames<-function(gg){
@@ -131,23 +132,23 @@ annotateGeneNames<-function(gg){
 
   gg <- removeVertexTerm(gg,"GeneName")
 
-  igraph::set.vertex.attribute(gg,"GeneName",V(gg),"")
+  set.vertex.attribute(gg,"GeneName",V(gg),"")
   V(gg)$GeneName = gn
   return(gg)
 }
 
 #Add topOnto_ovg
-annotate_topOnto_ovg<-function(gg){
+annotate_topOnto_ovg<-function(gg,dis){
   ids = V(gg)$name
   gg <- removeVertexTerm(gg,"TopOnto_OVG")
   gg <- removeVertexTerm(gg,"TopOnto_OVG_HDO_ID")
 
   #--- Set Disease (geneRIF db) attributes in .gml graph
-  igraph::set.vertex.attribute(gg,"TopOnto_OVG",V(gg),"")
-  igraph::set.vertex.attribute(gg,"TopOnto_OVG_HDO_ID",V(gg),"")
+  set.vertex.attribute(gg,"TopOnto_OVG",V(gg),"")
+  set.vertex.attribute(gg,"TopOnto_OVG_HDO_ID",V(gg),"")
 
   #par    <- read.table("flatfile_human_gene2HDO.parentTerm.csv",sep="\t",skip=1,strip.white=T,quote="")
-  dis    <- read.table("flatfile_human_gene2HDO.csv",sep="\t",skip=1,header=F,strip.white=T,quote="")
+  #dis    <- read.table("flatfile_human_gene2HDO.csv",sep="\t",skip=1,header=F,strip.white=T,quote="")
 
   #dis    <- rbind(dis,par)
 
@@ -193,17 +194,17 @@ annotate_topOnto_ovg<-function(gg){
   return(gg)
 }
 #Add topOnto_ov_P140papers
-annotate_topOnto_ov_P140papers<-function(gg){
+annotate_topOnto_ov_P140papers<-function(gg,par,dis){
   ids = V(gg)$name
   gg <- removeVertexTerm(gg,"TopOnto_OV_PAPERS")
   gg <- removeVertexTerm(gg,"TopOnto_OV_PAPERS_HDO_ID")
 
   #--- Set Disease (geneRIF db) attributes in .gml graph
-  igraph::set.vertex.attribute(gg,"TopOnto_OV_PAPERS",V(gg),"")
-  igraph::set.vertex.attribute(gg,"TopOnto_OVG_PAPERS_HDO_ID",V(gg),"")
+  set.vertex.attribute(gg,"TopOnto_OV_PAPERS",V(gg),"")
+  set.vertex.attribute(gg,"TopOnto_OVG_PAPERS_HDO_ID",V(gg),"")
 
-  par    <- read.table("flatfile_human_gene2HDO.parentTerm.csv",sep="\t",skip=1,strip.white=T,quote="")
-  dis    <- read.table("flatfile_human_ov_PAPERS.csv",sep="\t",skip=1,strip.white=T,quote="")
+  #par    <- read.table("flatfile_human_gene2HDO.parentTerm.csv",sep="\t",skip=1,strip.white=T,quote="")
+  #dis    <- read.table("flatfile_human_ov_PAPERS.csv",sep="\t",skip=1,strip.white=T,quote="")
 
   dis    <- rbind(dis,par)
 
@@ -249,14 +250,14 @@ annotate_topOnto_ov_P140papers<-function(gg){
   return(gg)
 }
 #Add SCHanno synaptic functional groups
-annotate_SCHanno<-function(gg){
+annotate_SCHanno<-function(gg,anno){
   ids = V(gg)$name
   gg <- removeVertexTerm(gg,"SCHanno")
 
   #--- Set Family attributes in .gml graph
-  igraph::set.vertex.attribute(gg,"SCHanno",V(gg),"")
+  set.vertex.attribute(gg,"SCHanno",V(gg),"")
 
-  anno    <- read.table("SCH_flatfile.csv",sep="\t",skip=1,strip.white=T)
+  #anno    <- read.table("SCH_flatfile.csv",sep="\t",skip=1,strip.white=T)
   annoIDS <- as.character(anno[,3])
 
   type <- unique(unlist(strsplit(as.character(unique(anno[,2])),",")))
@@ -282,14 +283,14 @@ annotate_SCHanno<-function(gg){
   return(gg)
 }
 #Add CHUA synaptic functional groups
-annotate_CHUA<-function(gg){
+annotate_CHUA<-function(gg,anno){
   ids = V(gg)$name
   gg <- removeVertexTerm(gg,"chua")
 
   #--- Set Family attributes in .gml graph
-  igraph::set.vertex.attribute(gg,"chua",V(gg),"")
+  set.vertex.attribute(gg,"chua",V(gg),"")
 
-  anno    <- read.table("flatfile_chua.csv",sep="\t",skip=1,strip.white=T)
+  #anno    <- read.table("flatfile_chua.csv",sep="\t",skip=1,strip.white=T)
   annoIDS <- as.character(anno[,3])
 
   type <- unique(unlist(strsplit(as.character(unique(anno[,2])),",")))
@@ -314,7 +315,7 @@ annotate_CHUA<-function(gg){
   return(gg)
 }
 #Add InterPro Family and Domain synaptic functional groups
-annotate_Interpro<-function(gg){
+annotate_Interpro<-function(gg,annoF,annoD){
   ids = V(gg)$name
   gg <- removeVertexTerm(gg,"InterProFamilyID")
   gg <- removeVertexTerm(gg,"InterProFamily")
@@ -323,17 +324,17 @@ annotate_Interpro<-function(gg){
   gg <- removeVertexTerm(gg,"InterProDomain")
 
   #--- Set interproFamily attributes in .gml graph
-  igraph::set.vertex.attribute(gg,"InterProFamilyID",V(gg),"")
-  igraph::set.vertex.attribute(gg,"InterProFamily",V(gg),"")
-  igraph::set.vertex.attribute(gg,"InterProDomainID",V(gg),"")
-  igraph::set.vertex.attribute(gg,"InterProDomain",V(gg),"")
+  set.vertex.attribute(gg,"InterProFamilyID",V(gg),"")
+  set.vertex.attribute(gg,"InterProFamily",V(gg),"")
+  set.vertex.attribute(gg,"InterProDomainID",V(gg),"")
+  set.vertex.attribute(gg,"InterProDomain",V(gg),"")
 
-  annoF    <- read.table("flatfile.interpro.Family.csv",sep="\t",skip=1,strip.white=T)
+  #annoF    <- read.table("flatfile.interpro.Family.csv",sep="\t",skip=1,strip.white=T)
   annoFIDS <- as.character(annoF[,3])
 
   typeF <- unique(unlist(strsplit(as.character(unique(annoF[,2])),",")))
 
-  annoD    <- read.table("flatfile.interpro.Domain.csv",sep="\t",skip=1,strip.white=T)
+  #annoD    <- read.table("flatfile.interpro.Domain.csv",sep="\t",skip=1,strip.white=T)
   annoDIDS <- as.character(annoD[,3])
 
   typeD <- unique(unlist(strsplit(as.character(unique(annoD[,2])),",")))
@@ -384,20 +385,22 @@ annotate_Interpro<-function(gg){
   return(gg)
 }
 #Add Core PSD and Pre-synpatic compartmental genes
-annotate_compartments<-function(gg){
+annotate_compartments<-function(gg,preSet,psd95Set){
   ids = V(gg)$name
   gg <- removeVertexTerm(gg,"COREPRE")
   gg <- removeVertexTerm(gg,"CORESPD")
 
 
   #---ADD VIP gene lists
-  VIP <- vector(length=2)
-  VIP[1] <- "SynsysBaits.csv"
-  VIP[2] <- "CorePSD95Complex.csv"
-  set1 <- read.table(sprintf("%s/%s",OUT[4],VIP[1]),sep="\t",header=F)[[1]]
-  set2 <- read.table(sprintf("%s/%s",OUT[4],VIP[2]),sep="\t",header=F)[[1]]
+  # VIP <- vector(length=2)
+  # VIP[1] <- "SynsysBaits.csv"
+  # VIP[2] <- "CorePSD95Complex.csv"
+  # set1 <- read.table(sprintf("%s/%s",OUT[4],VIP[1]),sep="\t",header=F)[[1]]
+  # set2 <- read.table(sprintf("%s/%s",OUT[4],VIP[2]),sep="\t",header=F)[[1]]
+  set1 <- preSet
+  set2 <- psd95Set
 
-  igraph::set.vertex.attribute(gg,"COREPRE",V(gg),"")
+  set.vertex.attribute(gg,"COREPRE",V(gg),"")
   for( i in 1:length(ids) ){
 
     ind1 = which(set1==ids[i])
@@ -413,7 +416,7 @@ annotate_compartments<-function(gg){
 
   }
 
-  igraph::set.vertex.attribute(gg,"CORESPD",V(gg),"")
+  set.vertex.attribute(gg,"CORESPD",V(gg),"")
   for( i in 1:length(ids) ){
 
     ind1 = which(set2==ids[i])
@@ -448,7 +451,7 @@ annotate_bridgeness_regions<-function(gg,str){
 
       ff <- read.table(sprintf("%s/%s",str,files[i]),sep="\t",header=F)
 
-      gg <- igraph::set.vertex.attribute(gg,fn[i],V(gg),ff[match(ff[,1],ids),2])
+      gg <- set.vertex.attribute(gg,fn[i],V(gg),ff[match(ff[,1],ids),2])
 
     }
   }
@@ -461,8 +464,8 @@ annotate_go_mf<-function(gg,annoF){
   gg <- removeVertexTerm(gg,"GO_MF_ID")
 
   #--- Set Disease (geneRIF db) attributes in .gml graph
-  igraph::set.vertex.attribute(gg,"GO_MF",V(gg),"")
-  igraph::set.vertex.attribute(gg,"GO_MF_ID",V(gg),"")
+  set.vertex.attribute(gg,"GO_MF",V(gg),"")
+  set.vertex.attribute(gg,"GO_MF_ID",V(gg),"")
 
 #  annoF    <- read.table("flatfile.go.MF.csv",sep="\t",skip=1,strip.white=T,quote="")
   annoFIDS <- as.character(annoF[,3])
@@ -499,8 +502,8 @@ annotate_go_bp<-function(gg,annoF){
   gg <- removeVertexTerm(gg,"GO_BP_ID")
 
   #--- Set Disease (geneRIF db) attributes in .gml graph
-  igraph::set.vertex.attribute(gg,"GO_BP",V(gg),"")
-  igraph::set.vertex.attribute(gg,"GO_BP_ID",V(gg),"")
+  set.vertex.attribute(gg,"GO_BP",V(gg),"")
+  set.vertex.attribute(gg,"GO_BP_ID",V(gg),"")
 
   #annoF    <- read.table("flatfile.go.BP.csv",sep="\t",skip=1,strip.white=T,quote="")
   annoFIDS <- as.character(annoF[,3])
@@ -537,8 +540,8 @@ annotate_go_cc<-function(gg,annoF){
   gg <- removeVertexTerm(gg,"GO_CC_ID")
 
   #--- Set Disease (geneRIF db) attributes in .gml graph
-  igraph::set.vertex.attribute(gg,"GO_CC",V(gg),"")
-  igraph::set.vertex.attribute(gg,"GO_CC_ID",V(gg),"")
+  set.vertex.attribute(gg,"GO_CC",V(gg),"")
+  set.vertex.attribute(gg,"GO_CC_ID",V(gg),"")
 
   #annoF    <- read.table("flatfile.go.CC.csv",sep="\t",skip=1,strip.white=T,quote="")
   annoFIDS <- as.character(annoF[,3])
