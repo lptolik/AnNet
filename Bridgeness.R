@@ -15,8 +15,8 @@ if( !file_test("-d",subDIR[S]) ){
 
 #---Set Options
 runBridge  <- vector(length=2)
-runBridge[1] <- 0  #Calculate Bridgeness
-runBridge[2] <- 1  #Plot Bridgeness
+runBridge[1] <- 1  #Calculate Bridgeness
+runBridge[2] <- 0  #Plot Bridgeness
 
 #---declare clustering algorithms in graph, and with a corresponding consensus matrix
 alg <- c("Spectral")
@@ -26,15 +26,16 @@ gg <- igraph::read.graph(sprintf("%s/%s/%s.gml",OUT[1],subDIR[S],subDIR[S]),form
 
 if(runBridge[1]){
 
-    #---number of nodes/genes
+    #---number of vertices/genes
     N    <- length(V(gg))
 
     #---number of edges/PPIs
     M    <- length(E(gg))
     
-    #---container to store Bridgeness for algorithm 'alg'
+    #---container column names
     CN   <- c('ENTREZ.ID','GENE.NAME',sprintf("BRIDGENESS.%s",alg))
 
+    #---container to store Bridgeness for algorithm 'alg'
     meas <- matrix(0, nrow=N, ncol=length(CN))
     colnames(meas) <- CN
 
@@ -44,7 +45,7 @@ if(runBridge[1]){
     ##START filling meas after PageRank column
     FROM <- 2
 
-    ## run over each algorithm
+    ## run over each algorithm, only one in this example
     for( a in 1:length(alg) ){
 
         cat("calculating Bridgeness for: ", alg[a], "\n")
@@ -154,7 +155,7 @@ if(runBridge[1]){
     write.table(meas, file=outfile, append=T, row.names=F, col.names=T, sep="\t",quote=F);
     close(outfile);
 
-
+}
 
 
     
