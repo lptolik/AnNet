@@ -24,6 +24,10 @@ removeVertexTerm <- function(GG,NAME){
 
 }
 
+COLLAPSE <- vector(length=2)
+COLLAPSE[1] <- ";"
+COLLAPSE[2] <- "&"
+c=1
 
 
 #' Annotate graph from list of files
@@ -122,9 +126,12 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS){
 #'
 #' @return
 #' @export
-#' @import igraph
+#' @import org.Hs.eg.db
 #'
 #' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' agg<-annotateGeneNames(gg)
 annotateGeneNames<-function(gg){
   ids = V(gg)$name
 
@@ -138,6 +145,20 @@ annotateGeneNames<-function(gg){
 }
 
 #Add topOnto_ovg
+#' Title
+#'
+#' @param gg
+#' @param dis
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "AnNet")
+#' dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+#' #agg<-annotate_topOnto_ovg(gg,dis)
 annotate_topOnto_ovg<-function(gg,dis){
   ids = V(gg)$name
   gg <- removeVertexTerm(gg,"TopOnto_OVG")
@@ -250,6 +271,20 @@ annotate_topOnto_ov_P140papers<-function(gg,par,dis){
   return(gg)
 }
 #Add SCHanno synaptic functional groups
+#' Title
+#'
+#' @param gg
+#' @param anno
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' afile<-system.file("extdata", "SCH_flatfile.csv", package = "AnNet")
+#' dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+#' #agg<-annotate_SCHanno(gg,dis)
 annotate_SCHanno<-function(gg,anno){
   ids = V(gg)$name
   gg <- removeVertexTerm(gg,"SCHanno")
