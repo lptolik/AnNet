@@ -21,5 +21,5 @@ Build network from data.table
 }
 \examples{
 f<-data.frame(A=c('A','A','B'),B=c('B','C','C'))
-gg<-buildNetwork(ff)
+gg<-buildNetwork(f)
 }

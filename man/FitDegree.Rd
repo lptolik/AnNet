@@ -33,6 +33,6 @@ Legend[2] <- "PSP PPI"
 
 l=2;
 
-gg <- igraph::read.graph(sprintf("\%s/\%s/\%s.gml",OUT[3],subDIR[S],subDIR[S]),format="gml")
-pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), subDIR[S], bootStrap[b], Legend[l], WIDTH, HEIGHT )
+#gg <- igraph::read.graph(sprintf("\%s/\%s/\%s.gml",OUT[3],subDIR[S],subDIR[S]),format="gml")
+#pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), subDIR[S], bootStrap[b], Legend[l], WIDTH, HEIGHT )
 }

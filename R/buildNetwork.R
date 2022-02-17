@@ -164,7 +164,7 @@ addEdgeAtts <- function(GG, gg){
 #'
 #' @examples
 #' f<-data.frame(A=c('A','A','B'),B=c('B','C','C'))
-#' gg<-buildNetwork(ff)
+#' gg<-buildNetwork(f)
 buildNetwork<-function(ff,kw=NA){
   #--- build raw graph
   GG <- graph.data.frame(ff[,1:2],directed=F)

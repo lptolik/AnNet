@@ -82,8 +82,8 @@ changeSciNot <- function(n) {
 #'
 #' l=2;
 #'
-#' gg <- igraph::read.graph(sprintf("%s/%s/%s.gml",OUT[3],subDIR[S],subDIR[S]),format="gml")
-#' pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), subDIR[S], bootStrap[b], Legend[l], WIDTH, HEIGHT )
+#' #gg <- igraph::read.graph(sprintf("%s/%s/%s.gml",OUT[3],subDIR[S],subDIR[S]),format="gml")
+#' #pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), subDIR[S], bootStrap[b], Legend[l], WIDTH, HEIGHT )
 
 FitDegree <- function(DEG, title, Nsim, DATAleg, WIDTH, HEIGHT ){
 
