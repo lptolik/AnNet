@@ -161,6 +161,7 @@ addEdgeAtts <- function(GG, gg){
 #'
 #' @return igraph object of the largest connected component
 #' @export
+#' @import igraph
 #'
 #' @examples
 #' f<-data.frame(A=c('A','A','B'),B=c('B','C','C'))
@@ -186,6 +187,39 @@ buildNetwork<-function(ff,kw=NA){
   #---Find Largest CC
   gg  <- findLCC(gg)
   gg <- addEdgeAtts(GG,gg)
+}
 
+#' Title
+#'
+#' @return
+#' @export
+#' @import synaptome.db
+#'
+#' @examples
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+buildFromSynaptomeByEntrez<-function(entrez){
+  t<-findGenesByEntrez(entrez)
+  gg<-buildFromSynaptomeGeneTable(t)
+  return(gg)
+}
 
+#' Title
+#'
+#' @param t
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t)
+buildFromSynaptomeGeneTable<-function(t){
+  p<-getPPIbyIDs(t$GeneID,type = 'limited')
+  aidx<-match(p$A,t$GeneID)
+  bidx<-match(p$B,t$GeneID)
+  gg<-buildNetwork(data.frame(A=t$HumanEntrez[aidx],B=t$HumanEntrez[bidx]))
+  return(gg)
 }
