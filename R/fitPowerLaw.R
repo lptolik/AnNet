@@ -65,27 +65,23 @@ changeSciNot <- function(n) {
 #'
 #' @return
 #' @export
+#' @import poweRlaw latex2exp
+#' @importFrom stringr str_sub
 #'
 #' @examples
 #' ##No: of bootstrap iterations
-#' bootStrap    <- vector(length=3)
-#' bootStrap[1] <- 100
-#' bootStrap[2] <- 1000
-#' bootStrap[3] <- 5000
-#'
-#' b=2 #we'll stick with 1000 iteteractions
+#' bootStrap <- 100
 #'
 #' ##Legend Titles
-#' Legend <- vector(length=2)
-#' Legend[1] <- "Presynaptic PPI"
-#' Legend[2] <- "PSP PPI"
+#' Legend <- "Presynaptic PPI"
 #'
-#' l=2;
+#' dir<-'.'
 #'
-#' #gg <- igraph::read.graph(sprintf("%s/%s/%s.gml",OUT[3],subDIR[S],subDIR[S]),format="gml")
-#' #pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), subDIR[S], bootStrap[b], Legend[l], WIDTH, HEIGHT )
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), dir, bootStrap, Legend )
 
-FitDegree <- function(DEG, title, Nsim, DATAleg, WIDTH, HEIGHT ){
+FitDegree <- function(DEG, dir, Nsim, DATAleg, WIDTH=480, HEIGHT=480 ){
 
   #WIDTH=480
   #HEIGHT=480
@@ -110,7 +106,7 @@ FitDegree <- function(DEG, title, Nsim, DATAleg, WIDTH, HEIGHT ){
   leg_x = max(data)
   leg_y = 1
 
-  png(filename=sprintf("PLOTS/%s_cdf.png",title), width=WIDTH, height=HEIGHT, units="px")
+  png(filename=sprintf("%s/degree_cdf.png",dir), width=WIDTH, height=HEIGHT, units="px")
 
   d = plot(m_pl,draw=F)
 

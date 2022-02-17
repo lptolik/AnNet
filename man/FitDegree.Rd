@@ -4,7 +4,7 @@
 \alias{FitDegree}
 \title{Fit Power Law to degree distribution.}
 \usage{
-FitDegree(DEG, title, Nsim, DATAleg, WIDTH, HEIGHT)
+FitDegree(DEG, dir, Nsim, DATAleg, WIDTH = 480, HEIGHT = 480)
 }
 \arguments{
 \item{DEG}{degree distribution}
@@ -19,20 +19,14 @@ Fit Power Law to degree distribution.
 }
 \examples{
 ##No: of bootstrap iterations
-bootStrap    <- vector(length=3)
-bootStrap[1] <- 100
-bootStrap[2] <- 1000
-bootStrap[3] <- 5000
-
-b=2 #we'll stick with 1000 iteteractions
+bootStrap <- 100
 
 ##Legend Titles
-Legend <- vector(length=2)
-Legend[1] <- "Presynaptic PPI"
-Legend[2] <- "PSP PPI"
+Legend <- "Presynaptic PPI"
 
-l=2;
+dir<-'.'
 
-#gg <- igraph::read.graph(sprintf("\%s/\%s/\%s.gml",OUT[3],subDIR[S],subDIR[S]),format="gml")
-#pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), subDIR[S], bootStrap[b], Legend[l], WIDTH, HEIGHT )
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+gg <- igraph::read.graph(file,format="gml")
+pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), dir, bootStrap, Legend )
 }
