@@ -223,3 +223,5 @@ buildFromSynaptomeGeneTable<-function(t){
   gg<-buildNetwork(data.frame(A=t$HumanEntrez[aidx],B=t$HumanEntrez[bidx]))
   return(gg)
 }
+
+
