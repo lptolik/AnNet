@@ -144,6 +144,29 @@ annotateGeneNames<-function(gg){
   return(gg)
 }
 
+#' Title
+#'
+#' @return vector of diseas IDs of interest
+#' @export
+#'
+#' @examples
+getDiseases<-function(){
+  #---HDO ID DISEASES of INTEREST
+  disn    <- vector(length=12);
+  disn[1]  <- "DOID:10652"#Alzheimer's_disease"
+  disn[2]  <- "DOID:3312"#bipolar_disorder"
+  disn[3]  <- "DOID:12849"#autistic_disorder"
+  disn[4]  <- "DOID:5419"#schizophrenia"
+  disn[5]  <- "DOID:0060041"#autism_spectrum_disorder
+  disn[6]  <- "DOID:1826"#epilepsy_syndrome
+  disn[7]  <- "DOID:1059"
+  disn[8]  <- "DOID:10763"
+  disn[9]  <- "DOID:12858"
+  disn[10] <- "DOID:14330"
+  disn[11] <- "DOID:9255"
+  disn[12] <- "DOID:2377"
+  return(disn)
+}
 #Add topOnto_ovg
 #' Title
 #'
@@ -183,8 +206,9 @@ annotate_topOnto_ovg<-function(gg,dis){
     Str2 <- "";
 
     if( length(ind1) != 0 ){
-
+#TDOD: refactor this code to work without disn
       disv <- as.vector(dis[ind1,1]);
+      disn <-getDiseases()
 
       indx <- match(disv,disn)
 
@@ -241,6 +265,7 @@ annotate_topOnto_ov_P140papers<-function(gg,par,dis){
     if( length(ind1) != 0 ){
 
       disv <- as.vector(dis[ind1,1]);
+      disn <-getDiseases()
 
       indx <- match(disv,disn)
 
