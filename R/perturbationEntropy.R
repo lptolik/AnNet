@@ -154,5 +154,14 @@ getEntropy<-function(gg){
     SRprime[v,5] <- sum( as.numeric(PIprime[,2]) * as.numeric(LSprime[,2]) )
 
   }
+  SRprime[,4] <- as.numeric(SRprime[,4])/maxSr
+  SRprime[,5] <- as.numeric(SRprime[,5])/maxSr
+
+  colnames(SRprime) <- c("ENTREZ.ID","GENE.NAME","DEGREE","UP","DOWN")
+
   return(SRprime)
+}
+
+plotEntropy<-function(SRprime){
+
 }
