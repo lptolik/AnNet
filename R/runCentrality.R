@@ -219,3 +219,5 @@ getCentralityMatrix<-function(gg){
   return(tmp)
 
 }
+
+#get centrality measures for random graph
