@@ -221,3 +221,24 @@ getCentralityMatrix<-function(gg){
 }
 
 #get centrality measures for random graph
+#' Title
+#'
+#' @param gg
+#' @param type:
+#' * gnp -- G(n,p) Erdos-Renyi model
+#' * pa --  Barabasi-Albert model
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getRandomGraphCentrality<-function(gg,type=c('gnp','pa'),...){
+  nv<-vcount(gg)
+  ne<-ecount(gg)
+  rg<-switch (type,
+    gnp = sample_gnp(nv,...),
+    pa  = sample_pa(nv,...)
+  )
+  m<-getCentralityMatrix(rg)
+  return(m)
+}
