@@ -220,6 +220,60 @@ getCentralityMatrix<-function(gg){
 
 }
 
+#' Add annotation to the vertex
+#'
+#' @param gg igraph object
+#' @param m matrix of values to be applied as vertex attributes.
+#'     matrix should contains column "ID" to map value to the vertex.
+#'
+#' @return modified igraph object
+applpMatrixToGraph<-function(gg,m){
+  ggm<-gg
+  measures<-colnames(m)
+  id.col<-which(measures=='ID')
+  meas.col<-which(measures!='ID')
+  for(i in meas.col){
+    #remove previous annotation of that name
+    #check does it really needed
+    ggm<-removeVertexTerm(ggm,measures[i])
+    idx<-match(V(gg)$name,m[,id.col])
+    naid<-which(is.na(idx))
+    if(length(naid)==0){
+      ggm<-set.vertex.attribute(graph=ggm,
+                                name=measures[i],
+                                index = V(ggm),
+                                value = m[idx,i])
+    }else{
+      gindex<-which(is.na(idx))
+      ggm<-set.vertex.attribute(graph=ggm,
+                                name=measures[i],
+                                index = gindex,
+                                value = m[idx[gindex],i])
+    }
+  }
+  return(ggm)
+}
+
+#' Calculate centrality measures for graph nodes and save them as vertex
+#' property.
+#'
+#' @param gg igraph object
+#'
+#' @return modified igraph object
+#' @export
+#'
+#' @examples
+#' library(synaptome.db)
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' ggm<-calcCentrality(gg)
+calcCentrality<-function(gg){
+  m<-getCentralityMatrix(gg)
+  ggm<-applpMatrixToGraph(gg,m)
+  return(ggm)
+}
+
 #get centrality measures for random graph
 #' Title
 #'
