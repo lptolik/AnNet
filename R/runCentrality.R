@@ -281,17 +281,23 @@ calcCentrality<-function(gg){
 #' @param type:
 #' * gnp -- G(n,p) Erdos-Renyi model
 #' * pa --  Barabasi-Albert model
+#' * cgnp -- new random graph from a given graph by randomly adding/removing edges
 #'
 #' @return
 #' @export
 #'
 #' @examples
-getRandomGraphCentrality<-function(gg,type=c('gnp','pa'),...){
+#' library(synaptome.db)
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp'),...){
   nv<-vcount(gg)
   ne<-ecount(gg)
   rg<-switch (type,
     gnp = sample_gnp(nv,...),
     pa  = sample_pa(nv,...)
+    cgnp = sample_correlated_gnp(gg,...)
   )
   m<-getCentralityMatrix(rg)
   return(m)
