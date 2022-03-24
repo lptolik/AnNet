@@ -223,7 +223,6 @@ gplot <- ggplot(df,aes(x=as.numeric(as.vector(X)),y=as.numeric(as.vector(Y)) ))+
     GAnno4 +
     GAnno5
 
-png(sprintf("%s/%s_%s_BrV%s.png",plotDIR,subDIR[S],alg[a],Xmeas),width=WIDTH,height=HEIGHT,units="px")
+png(sprintf("%s/%s_%s_BrVCl.png",plotDIR,subDIR[S],alg),width=WIDTH,height=HEIGHT,units="px")
 print(gplot)
 dev.off()
-    
