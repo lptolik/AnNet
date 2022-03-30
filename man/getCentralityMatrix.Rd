@@ -25,3 +25,10 @@ matrix with following columns:
 \description{
 Calculate centrality measures for graph nodes.
 }
+\examples{
+library(synaptome.db)
+cid<-match('Presynaptic',getCompartments()$Name)
+t<-getAllGenes4Compartment(cid)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+m<-getCentralityMatrix(gg)
+}

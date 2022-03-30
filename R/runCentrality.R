@@ -196,6 +196,11 @@ MAD <- function( X ){
 #' @export
 #'
 #' @examples
+#' library(synaptome.db)
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' m<-getCentralityMatrix(gg)
 getCentralityMatrix<-function(gg){
   ID <- V(gg)$name
   N  <- length(ID)
@@ -209,7 +214,8 @@ getCentralityMatrix<-function(gg){
   tmp[,2] <- as.vector(igraph::degree(graph=gg))
   tmp[,3] <- as.character(round(betweenness(gg),3))
   tmp[,4] <- as.character(round(transitivity(gg,"local"),3))
-  tmp[,5] <- as.character(round(Semilocal(gg),3))
+  sl<- Semilocal(gg)
+  tmp[,5] <- as.character(round(sl,3))
 
   res <- as.matrix(calShorestPaths(gg))
   tmp[,6]  <- as.character(res[,2])
@@ -294,11 +300,47 @@ calcCentrality<-function(gg){
 getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp'),...){
   nv<-vcount(gg)
   ne<-ecount(gg)
+  prob<-(2*ne)/(nv*(nv-1))
   rg<-switch (type,
-    gnp = sample_gnp(nv,...),
-    pa  = sample_pa(nv,...)
-    cgnp = sample_correlated_gnp(gg,...)
+    gnp = getGNP(gg,...),
+    pa  = getPA(gg,...),
+    cgnp = sample_correlated_gnp(gg,corr=0.75,...)
   )
+  V(rg)$name<-V(gg)$name
   m<-getCentralityMatrix(rg)
   return(m)
+}
+
+getGNP<-function(gg,...){
+  nv<-vcount(gg)
+  ne<-ecount(gg)
+  prob<-(2*ne)/(nv*(nv-1))
+  g<-sample_gnp(nv,p=prob,...)
+  return(g)
+}
+
+getPA<-function(gg,...){
+  nv<-vcount(gg)
+  fp<-pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), Nsim=100, plot=FALSE )
+  pwr <- pFit@alpha
+  g<- sample_pa(nv,power=pwr,...)
+  return(g)
+}
+
+#' Convert centrality matrix into
+#'
+#' @param m
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getGraphCentralityECDF<-function(m){
+  idx<-which(colnames(m)!='ID')
+  l<-list()
+  for(i in 2:8){
+    n<-colnames(m)[i]
+    l[[n]]<-ecdf(as.numeric(m[,i]))
+  }
+  return(l)
 }

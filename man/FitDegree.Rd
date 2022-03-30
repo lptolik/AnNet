@@ -4,7 +4,15 @@
 \alias{FitDegree}
 \title{Fit Power Law to degree distribution.}
 \usage{
-FitDegree(DEG, dir, Nsim, DATAleg, WIDTH = 480, HEIGHT = 480)
+FitDegree(
+  DEG,
+  Nsim = 100,
+  plot = FALSE,
+  dir = ".",
+  DATAleg = "Fit power-law",
+  WIDTH = 480,
+  HEIGHT = 480
+)
 }
 \arguments{
 \item{DEG}{degree distribution}
@@ -28,5 +36,5 @@ dir<-'.'
 
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 gg <- igraph::read.graph(file,format="gml")
-pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), dir, bootStrap, Legend )
+pFit <- FitDegree( as.vector(igraph::degree(graph=gg)))#, Nsim=bootStrap,dir=dir, DATAleg= Legend,plot=TRUE )
 }

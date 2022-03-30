@@ -4,12 +4,13 @@
 \alias{getRandomGraphCentrality}
 \title{Title}
 \usage{
-getRandomGraphCentrality(gg, type = c("gnp", "pa"), ...)
+getRandomGraphCentrality(gg, type = c("gnp", "pa", "cgnp"), ...)
 }
 \arguments{
 \item{type:}{\itemize{
 \item gnp -- G(n,p) Erdos-Renyi model
 \item pa --  Barabasi-Albert model
+\item cgnp -- new random graph from a given graph by randomly adding/removing edges
 }}
 }
 \value{
@@ -17,4 +18,10 @@ getRandomGraphCentrality(gg, type = c("gnp", "pa"), ...)
 }
 \description{
 Title
+}
+\examples{
+library(synaptome.db)
+cid<-match('Presynaptic',getCompartments()$Name)
+t<-getAllGenes4Compartment(cid)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 }
