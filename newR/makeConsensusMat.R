@@ -2,12 +2,12 @@ rm(list=ls())
 
 library(data.table);
 
-## divide columns of matrix X by Y
+## divide columns of matrix X by Y 
 matrixDiv <- function(x,y){
 
     N    = length(x)
     res  = rep(0,N)
-    indx = y != 0
+    indx = y != 0    
     if( sum(indx) != 0 ){
         res[indx] = x[indx]/y[indx]
     }
@@ -17,24 +17,24 @@ matrixDiv <- function(x,y){
 
 
 ## calculate the identity matrix "I" and tally matrix "M"
-## given each node pairs community assignment
+## given each node pairs community assignment  
 calculateConsensusMat <- function( data=NULL ){
 
     I = NULL
     M = NULL
-
+    
     if( !is.null(data) ){
 
-        N     = dim(data)[1]
+        N     = dim(data)[1]     
         tempI = matrix(0,nrow=N,ncol=N)
-        tempM = matrix(0,nrow=N,ncol=N)
-
+        tempM = matrix(0,nrow=N,ncol=N)        
+        
         for( i in 1:N ){
             comi = as.numeric(data[i,3])
             keyi = as.numeric(data[i,2])
             jj   = seq(i,N,1)
             if( keyi != -1 ){
-
+                
                 comj = as.numeric(data[jj,3])
                 keyj = as.numeric(data[jj,2])
 
@@ -48,18 +48,18 @@ calculateConsensusMat <- function( data=NULL ){
                 ## M
                 indxC = jj[comj != -1 & comi == comj]
                 Nindx = length(indxC)
-
+                
                 tempM[i,indxC] = as.numeric(rep(1,Nindx))
                 tempM[i,i]     = as.numeric(0.5)
 
             }
         }
-
-        M = tempM + t(tempM)
+       
+        M = tempM + t(tempM)        
         I = tempI + t(tempI)
 
         rm(tempM,tempI)
-
+            
     }
 
     return(list(M=M,I=I))
@@ -68,7 +68,7 @@ calculateConsensusMat <- function( data=NULL ){
 
 ## build consensus matrix "C" from a set
 ## of randomised results files from a
-## clustering algorithm
+## clustering algorithm 
 buildConsensusMat <- function(Dir,file.name,skip=1,sep="\t"){
 
     subdirs  = list.files(path=sprintf("%s/",Dir));
@@ -78,17 +78,17 @@ buildConsensusMat <- function(Dir,file.name,skip=1,sep="\t"){
     I        = NULL
     M        = NULL
     C        = NULL
-    initM    = TRUE
-
+    initM    = TRUE            
+    
     NJobs    = 0
     max_com  = 0
     min_com  = 500
 
     cat("build consensus matrix...")
-
+    
     for( s in 1:nstudies ){
-
-        filein = sprintf("%s/%s/%s",Dir,subdirs[s],file.name);
+        
+        filein = sprintf("%s/%s/%s",Dir,subdirs[s],file.name);	
         if( file.exists(filein) && file.info(filein)$size!=0 ){
 
             tb = read.delim(filein,
@@ -98,21 +98,21 @@ buildConsensusMat <- function(Dir,file.name,skip=1,sep="\t"){
 
             ## make sure node id == -1 if node com == -1
             indx = tb[,3] == -1
-            tb[indx,2] = -1
-
+            tb[indx,2] = -1 
+            
             if(initM){
                 N     = dim(tb)[1]
-                temp  = matrix(0,nrow=N,ncol=N)
+                temp  = matrix(0,nrow=N,ncol=N) 
                 I     = temp
                 M     = temp
                 initM = FALSE
                 rm(temp)
             }
 
-            k.coms    = tb[tb[,3] != -1,3]
+            k.coms    = tb[tb[,3] != -1,3]            
             k.max     = max(k.coms,na.rm=T)
             k.min     = min(k.coms,na.rm=T)
-
+            
             if( k.max > max_com   ){ max_com   = k.max; }
             if( k.min < min_com   ){ min_com   = k.min; }
 
@@ -128,7 +128,7 @@ buildConsensusMat <- function(Dir,file.name,skip=1,sep="\t"){
     }
 
     ## the consensus matrix
-    if( !is.null(N) ){
+    if( !is.null(N) ){ 
         C = do.call( cbind, lapply(1:N, function(s) matrixDiv(M[,s],I[,s])))
     }
     cat("done!\n")
@@ -149,8 +149,8 @@ Dir  <- as.character(args[1]); ##directory containing randomised files
 ##Dir[1] <- "../RESULTS"
 
 files    <- vector(length=2)
-files[1] <- "consensusout.txt"
-files[2] <- "consensusmatrix.txt"
+files[1] <- "consensusout.txt" 
+files[2] <- "consensusmatrix.txt" 
 
 C = buildConsensusMat( Dir=Dir, file.name=files[1] )
 
@@ -160,4 +160,4 @@ write.table(C,
             sep=",",
             row.names=F,
             col.names=F,
-            quote=F)
+            quote=F) 

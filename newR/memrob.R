@@ -9,25 +9,25 @@ memrob <- function(x,rm=data.frame()){
 			cmref <- rm
 		}
 	}
-
+	
 	consensus <- x@cm
-
+	
   #BUG - fixed to ensure deals with >100 clusters
 	mem_rob = matrix(0,dim(consensus)[1],length(levels(as.factor(cmref$cm))),dimnames = list(row.names(consensus),1:length(levels(as.factor(cmref$cm)))))
-
+	
 	for(k in 1:length(levels(as.factor(cmref$cm)))){ #BUG - fixed to ensure deals with >100 clusters
 		for(i in 1:dim(consensus)[1]){
 			Ik = row.names(cmref)[cmref$cm==k] #where k is the cluster number
-
+			
 			ind = Ik[Ik != row.names(consensus)[i]] # exclude the index for i = j if it is there
-
+			
 			sigma = apply(as.matrix(consensus[ind,i]),2,sum) #perform the sigma sum on index
-
+			
 			ei = row.names(consensus)[i] # get the current member we are checking
-
+			
 			Nk = summary(as.factor(cmref$cm),maxsum=10000)[k] # get the current cluster size note this is limited to a max of 10000 custers
-
-
+			
+			
 			if(sum(ei == Ik) ==1){		#if ei is a member of Ik
 				mik = (1/(Nk-1))*sigma
 			}
@@ -50,4 +50,4 @@ memrob <- function(x,rm=data.frame()){
 	mem_rob_list['algo']<- x@a;
 	mem_rob_list['type']<- class(x);
 	return(mem_rob_list)
-}
+};
