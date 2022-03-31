@@ -57,11 +57,13 @@ changeSciNot <- function(n) {
 #' Fit Power Law to degree distribution.
 #'
 #' @param DEG degree distribution
-#' @param title
 #' @param Nsim
 #' @param DATAleg
 #' @param WIDTH
 #' @param HEIGHT
+#' @param plot
+#' @param dir
+#' @param threads
 #'
 #' @return
 #' @export
@@ -79,9 +81,8 @@ changeSciNot <- function(n) {
 #'
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 #' gg <- igraph::read.graph(file,format="gml")
-#' pFit <- FitDegree( as.vector(igraph::degree(graph=gg)))#, Nsim=bootStrap,dir=dir, DATAleg= Legend,plot=TRUE )
-
-FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.', DATAleg='Fit power-law', WIDTH=480, HEIGHT=480 ){
+#' pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1)#, Nsim=bootStrap,dir=dir, DATAleg= Legend,plot=TRUE )
+FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.', DATAleg='Fit power-law', threads=4, WIDTH=480, HEIGHT=480 ){
 
   #WIDTH=480
   #HEIGHT=480
@@ -99,7 +100,9 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.', DATAleg='Fit power-law
 
   m_pl$setXmin(est)
 
-  gof <- bootstrap_p(m_pl, no_of_sims = Nsim, threads=4)
+  suppressMessages(
+    gof <- bootstrap_p(m_pl, no_of_sims = Nsim, threads=threads)
+  )
 
   if(plot){
     x_lab="k"    ##degree
