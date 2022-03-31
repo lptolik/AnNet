@@ -177,8 +177,9 @@ getDiseases<-function(){
 #' @export
 #'
 #' @examples
-#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
-#' gg <- igraph::read.graph(file,format="gml")
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "AnNet")
 #' dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
 #' #agg<-annotate_topOnto_ovg(gg,dis)
@@ -305,8 +306,9 @@ annotate_topOnto_ov_P140papers<-function(gg,par,dis){
 #' @export
 #'
 #' @examples
-#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
-#' gg <- igraph::read.graph(file,format="gml")
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' afile<-system.file("extdata", "SCH_flatfile.csv", package = "AnNet")
 #' dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
 #' #agg<-annotate_SCHanno(gg,dis)
