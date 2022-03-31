@@ -19,6 +19,45 @@
 
 
 
-normModularity<-function(gg){
+#' Calculates the normalized network modularity value.
+#'
+#' @param gg
+#' @param alg
+#' @param seed
+#' @param Nint
+#'
+#' @return
+#' @export
+#'
+#' @examples
+normModularity<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5'),seed=NULL,Nint=1000){
+  cl<-getClustering(gg,alg)
+  Qobs <- max(cl$modularity)
 
+  ##--- get max number of communities
+  Kmax <- max(as.numeric(cl$membership))
+
+  ##--- define Qmax
+  Qmax <- 1 - 1/Kmax
+
+  ##--- generate random graph from our graph using rewring function,
+  ##    preserving original graphs degree distribution.
+  ##    Using 1000 rewing studies to get random modularity for graph with cl clustering
+  Qrnd <- 0
+  if(!is.null(seed)){
+  set.seed(seed)
+  }
+  for( i in 1:Nints ){
+    gg.rnd      = igraph::rewire(graph=gg,with=keeping_degseq(loops=FALSE,niter=100))
+    cl.rnd = getClustering(gg.rnd,alg)
+    Qrnd        = Qrnd + max(as.numeric(cl.rnd$modularity))
+    rm(gg.rnd,cl.rnd)
+  }
+
+  ##--- random modularity for graph given cl clustering
+  Qrnd = Qrnd/Nints
+
+  ##--- normalised modularity for graph given cl clustering
+  Qnorm = (Qobs-Qrnd)/(Qmax-Qrnd)
+ return(Qnorm)
 }
