@@ -298,6 +298,7 @@ calcCentrality<-function(gg){
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp'),...){
+  type <- match.arg(type)
   nv<-vcount(gg)
   ne<-ecount(gg)
   prob<-(2*ne)/(nv*(nv-1))
@@ -310,6 +311,7 @@ getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp'),...){
   m<-getCentralityMatrix(rg)
   return(m)
 }
+
 
 getGNP<-function(gg,...){
   nv<-vcount(gg)
