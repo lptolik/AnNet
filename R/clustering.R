@@ -1,0 +1,68 @@
+
+#' Calculate cluster memberships for the graph.
+#'
+#' @param gg
+#' @param alg
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcMembership<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5')){
+  ids <- V(gg)$name
+  cl<-getClustering(gg,alg)
+  cc       <- as.data.frame(names=cl$names,membership=cl$membership)
+  return(cc)
+}
+
+#' Calculate memberships for all clustering algorithms and store them on the
+#' graph vertices.
+#'
+#' @param gg
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcClustering<-function(gg){
+  ids <- V(gg)$name
+  m      <- matrix(NA, ncol=9, nrow=length(ids))
+  colnames(m)<-c('ID','lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5')
+  m[,1]<-ids
+  for(ai in 2:9){
+    an<-colnames(m)[ai]
+    cm<-calcMembership(gg,an)
+    m[,ai]<-as.character(cm$membership)
+  }
+  ggm<-applpMatrixToGraph(gg,m)
+  return(ggm)
+}
+
+
+#' Get clustering results for the graph.
+#'
+#' @param gg
+#' @param alg
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5')){
+  alg <- match.arg(alg)
+  lec<-function(gg){
+    lec     <- igraph::leading.eigenvector.community(gg)
+    ll      <- igraph::leading.eigenvector.community(gg, start=membership(lec))
+  }
+  cl<-switch(alg,
+             lec=lec(gg),
+             wt=igraph::walktrap.community(gg),
+             fc=igraph::fastgreedy.community(gg),
+             infomap=igraph::cluster_infomap(gg),
+             louvain=igraph::cluster_louvain(gg),
+             sgG1=igraph::spinglass.community(gg, spins=as.numeric(500),gamma=1),
+             sgG2=igraph::spinglass.community(gg, spins=as.numeric(500),gamma=2),
+             sgG5=igraph::spinglass.community(gg, spins=as.numeric(500),gamma=5)
+  )
+  return(cl)
+}
