@@ -75,8 +75,8 @@ GNS <- V(gg)$name
 
 ##---Load HDO ID DISEASES of INTEREST
 ##---Use HDO Disease short names
-##   Note this information 
-source('annotationTYPES.R')
+##   these can be found in 'setUp.R'
+##source('annotationTYPES.R')
 
 ## load gda's for the ppi network
 GDA <- V(gg)$TopOntoOVG
