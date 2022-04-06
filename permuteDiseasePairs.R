@@ -94,7 +94,7 @@ if( length(remove) > 0 ){
    disn  <- disn [-remove]	
    dtype <- dtype[-remove]
 }    
-3#---  
+#---  
 
 ## for each gda, find the minimum shortest path to next gda (of the same disease)
 oo <- matrix(0,nrow=length(GNS),ncol=(length(dtype)+2))
