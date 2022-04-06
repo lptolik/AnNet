@@ -4,7 +4,7 @@ source('../setUp.R')
 require(cowplot)
 
 makeBold <- function(src, bolder) {
-    require(purrr)
+    require(purrr)                                            # make sure we've got purrr library
     if (!is.factor(src)) src <- factor(src)                   # make sure it's a factor
     src_levels <- levels(src)                                 # retrieve the levels in their order
     temp <- bolder %in% src_levels                          # make sure everything we want to make bold is actually in the factor levels
@@ -57,7 +57,7 @@ oo <- oo[!grepl("AUT",oo[,1]),]
 
 ## convert data into data.frame
 df <- as.data.frame(oo)
-df <- df[df$zscore < 0,]
+df <- df[df$zscore < 0,] ## select only overlapping disease-pairs for plotting
 
 ## reorder parameters according to the pvalue 
 ReOrder = order(as.numeric(df$pvalue),decreasing=T)
