@@ -84,6 +84,61 @@ buildConsensusMatFromFiles <- function(Dir,file.name,skip=1,sep="\t"){
 
 }
 
+#' Build consensus matrix from the list of clusterings
+#'
+#' @param lcc list of clustering matrices obtained from sampleGraph
+#'
+#' @return
+#' @export
+#'
+#' @examples
+buildConsensusMatrix<-function(lcc){
+  N        = NULL
+  I        = NULL
+  M        = NULL
+  C        = NULL
+  initM    = TRUE
+
+  NJobs    = 0
+  max_com  = 0
+  min_com  = 500
+  for(i in length(lcc)){
+    tb<-lcc[[i]]
+    ## make sure node id == -1 if node com == -1
+    indx = tb[,3] == -1
+    tb[indx,2] = -1
+
+    if(initM){
+      N     = dim(tb)[1]
+      temp  = matrix(0,nrow=N,ncol=N)
+      I     = temp
+      M     = temp
+      initM = FALSE
+      rm(temp)
+    }
+
+    # k.coms    = tb[tb[,3] != -1,3]
+    # k.max     = max(k.coms,na.rm=T)
+    # k.min     = min(k.coms,na.rm=T)
+    #
+    # if( k.max > max_com   ){ max_com   = k.max; }
+    # if( k.min < min_com   ){ min_com   = k.min; }
+
+    study = calculateConsensusMat( data=tb )
+
+    I = I + study$I
+    M = M + study$M
+
+    NJobs = NJobs + 1;
+
+    rm(tb,study)
+  }
+  if( !is.null(N) ){
+    C = do.call( cbind, lapply(1:N, function(s) matrixDiv(M[,s],I[,s])))
+  }
+  return(C)
+}
+
 ## divide columns of matrix X by Y
 matrixDiv <- function(x,y){
 
@@ -97,6 +152,33 @@ matrixDiv <- function(x,y){
   return(res)
 }
 
+#' Function to build consensus matrix in memory
+#'
+#' @param gg graph to perturb
+#' @param N number of perturbation steps
+#' @param mask percentage of elements to perturbe
+#' @param alg clustering alg.
+#' @param type edges=>1 or nodes=>2  to mask
+#' @param reclust logical to decide wether to invoke reclustering
+#' @param Cnmin Cn min for Spectral algorithm
+#' @param Cnmax Cn max for reclustering algorithms
+#'
+#' @return
+#' @export
+#'
+#' @examples
+makeConsensusMatrix<-function(gg,N,mask,alg,type,
+                              reclust=FALSE,Cnmin=-1,Cnmax=10){
+  lcc<-lapply(1:19, function(.x)sampleGraphClust(gg=gg,
+                                            mask=mask,
+                                            alg=alg,
+                                            type=type,
+                                            reclust=reclust,
+                                            Cnmin=Cnmin,
+                                            Cnmax=Cnmax))
+  mm<-buildConsensusMatrix(lcc)
+  return(mm)
+}
 
 ## calculate the identity matrix "I" and tally matrix "M"
 ## given each node pairs community assignment
