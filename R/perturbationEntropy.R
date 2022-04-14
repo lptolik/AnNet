@@ -17,7 +17,23 @@ maxLSi <- function( XX, BASE=0 ){
 
 }
 
+#' Calculates perturbation entropy
+#'
+#' @param gg igraph object
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-annotateGeneNames(gg)
+#' e<- getEntropy(gg)
 getEntropy<-function(gg){
+  if(!"GeneName"%in%vertex_attr_names(gg)){
+    V(gg)$GeneName<-V(gg)$name
+  }
   #--- initial entropy rate
   V    <- length(V(gg))
   E    <- length(E(gg))
