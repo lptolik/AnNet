@@ -144,6 +144,26 @@ annotateGeneNames<-function(gg){
   return(gg)
 }
 
+getDType<-function(){
+  #---HDO Disease short names
+  dtype  <- vector(length=12);
+  dtype[1]   = "AD";
+  dtype[2]   = "BD";
+  dtype[3]   = "AUT";
+  dtype[4]   = "SCH";
+  dtype[5]   = "ASD";
+  dtype[6]   = "Epi";
+  dtype[7]   = "ID";
+  dtype[8]   = "HTN";
+  dtype[9]   = "HD";
+  dtype[10]  = "PD";
+  dtype[11]  = "FTD";
+  dtype[12]  = "MS";
+  #dtype[12]  = "DMH";
+  #dtype[13]  = "CNSD";
+
+  return(dtype)
+}
 #' Title
 #'
 #' @return vector of diseas IDs of interest
@@ -199,6 +219,9 @@ annotate_topOnto_ovg<-function(gg,dis){
 
   disIDS <- dis[,3]
 
+  disn <-getDiseases()
+  dtype<- getDType()
+
   for( i in 1:length(ids) ){
 
     ind1 = which(disIDS==ids[i])
@@ -209,7 +232,6 @@ annotate_topOnto_ovg<-function(gg,dis){
     if( length(ind1) != 0 ){
 #TDOD: refactor this code to work without disn
       disv <- as.vector(dis[ind1,1]);
-      disn <-getDiseases()
 
       indx <- match(disv,disn)
 
@@ -255,6 +277,8 @@ annotate_topOnto_ov_P140papers<-function(gg,par,dis){
   dis    <- rbind(dis,par)
 
   disIDS <- dis[,3]
+  disn <-getDiseases()
+  dtype<- getDType()
 
   for( i in 1:length(ids) ){
 
@@ -266,7 +290,6 @@ annotate_topOnto_ov_P140papers<-function(gg,par,dis){
     if( length(ind1) != 0 ){
 
       disv <- as.vector(dis[ind1,1]);
-      disn <-getDiseases()
 
       indx <- match(disv,disn)
 
