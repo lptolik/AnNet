@@ -2,7 +2,6 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^R/Bridgeness\.R$
-^R/perturbationEntropy\.R$
 ^.*\.png$
 ^PLOTS$
 ^newR$
