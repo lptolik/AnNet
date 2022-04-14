@@ -20,3 +20,9 @@ normModularity(
 \description{
 Calculates the normalized network modularity value.
 }
+\examples{
+cid<-match('Presynaptic',getCompartments()$Name)
+t<-getAllGenes4Compartment(cid)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+nm<-normModularity(gg,alg='louvain')
+}
