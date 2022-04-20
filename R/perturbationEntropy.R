@@ -81,7 +81,7 @@ getEntropy<-function(gg,maxSr=NULL){
   A    <- get.adjacency(gg)
 
   if(is.null(maxSr)){
-    par<-getValues(gg)
+    par<-getEntropyRate(gg)
     maxSr<-par$maxSr
   }
 
