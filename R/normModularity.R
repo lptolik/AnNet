@@ -59,7 +59,7 @@ normModularity<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sg
   }
 
   ##--- random modularity for graph given cl clustering
-  Qrnd = Qrnd/Nints
+  Qrnd = Qrnd/Nint
 
   ##--- normalised modularity for graph given cl clustering
   Qnorm = (Qobs-Qrnd)/(Qmax-Qrnd)
