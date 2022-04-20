@@ -30,6 +30,10 @@
 #' @export
 #'
 #' @examples
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' nm<-normModularity(gg,alg='louvain')
 normModularity<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5'),seed=NULL,Nint=1000){
   cl<-getClustering(gg,alg)
   Qobs <- max(cl$modularity)
@@ -47,7 +51,7 @@ normModularity<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sg
   if(!is.null(seed)){
   set.seed(seed)
   }
-  for( i in 1:Nints ){
+  for( i in 1:Nint ){
     gg.rnd      = igraph::rewire(graph=gg,with=keeping_degseq(loops=FALSE,niter=100))
     cl.rnd = getClustering(gg.rnd,alg)
     Qrnd        = Qrnd + max(as.numeric(cl.rnd$modularity))

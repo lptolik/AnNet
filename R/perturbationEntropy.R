@@ -17,8 +17,15 @@ maxLSi <- function( XX, BASE=0 ){
 
 }
 
-getEntropy<-function(gg){
-  #--- initial entropy rate
+#' Calculate parameters for Entropy plot and calculations.
+#'
+#' @param gg igroph object
+#'
+#' @return list with values of maxSr and SRo
+#' @export
+#'
+#' @examples
+getEntropyRate<-function(gg){
   V    <- length(V(gg))
   E    <- length(E(gg))
   ki   <- as.vector(igraph::degree(gg))
@@ -44,6 +51,39 @@ getEntropy<-function(gg){
   Norm <- as.numeric(V*Kbar) #as.numeric(2*E)
   SRo  <- as.numeric(1/Norm)*sum(ki*log(ki))
 
+  return(list(maxSr=maxSr,SRo=SRo))
+}
+
+#' Calculates perturbation entropy
+#'
+#' @param gg igraph object
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-annotateGeneNames(gg)
+#' e<- getEntropy(gg)
+getEntropy<-function(gg,maxSr=NULL){
+  if(!"GeneName"%in%vertex_attr_names(gg)){
+    V(gg)$GeneName<-V(gg)$name
+  }
+  #--- initial entropy rate
+  V    <- length(V(gg))
+  E    <- length(E(gg))
+  ki   <- as.vector(igraph::degree(gg))
+  Kbar <- mean(ki)
+
+  #--- get adjacency matrix for graph
+  A    <- get.adjacency(gg)
+
+  if(is.null(maxSr)){
+    par<-getValues(gg)
+    maxSr<-par$maxSr
+  }
 
   #--- perturbated each PPI node/gene
 
@@ -154,14 +194,91 @@ getEntropy<-function(gg){
     SRprime[v,5] <- sum( as.numeric(PIprime[,2]) * as.numeric(LSprime[,2]) )
 
   }
+  # colnames(SRprime) <- c("ENTREZ.ID","GENE.NAME","DEGREE","UP","DOWN")
+  # SRprime <- as.data.frame(SRprime)
+  # SRprime$DEGREE<-as.numeric(SRprime$DEGREE)
+  # SRprime$UP <- as.numeric(SRprime$UP)/maxSr
+  # SRprime$DOWN <- as.numeric(SRprime$DOWN)/maxSr
+
   SRprime[,4] <- as.numeric(SRprime[,4])/maxSr
   SRprime[,5] <- as.numeric(SRprime[,5])/maxSr
 
   colnames(SRprime) <- c("ENTREZ.ID","GENE.NAME","DEGREE","UP","DOWN")
 
+
   return(SRprime)
 }
 
-plotEntropy<-function(SRprime){
+getEntropyOverExpressed<-function(SRprime,perc=1){
+  #--- Bottom 1% UP, i.e. OVER-EXPRESSED
+  V <- dim(SRprime)[1]
+  XX  <- as.numeric(SRprime[,4])
+  MIN <- min(XX)
+  MAX <- max(XX)
+  XX2 <- (XX-MIN)/(MAX-MIN)
+  oo2 <- cbind(SRprime[,2],XX2)
+  oo2 <- oo2[order(as.numeric(oo2[,2])),]
+  ii  <- floor(perc/100 * V)
+  GN  <- oo2[1:ii,1]
+  DF3 <- SRprime[match(GN,SRprime[,2]),c(1,2,3,4)]
+  DF3 <- cbind(DF3,rep(paste0(perc,"%"),length(GN)))
+  return(DF3)
+}
 
+#' Plot entropy values
+#'
+#' @param SRprime
+#' @param subTIT
+#' @param SRo
+#' @param maxSr
+#'
+#' @return
+#' @export
+#' @import ggplot2
+#'
+#' @examples
+plotEntropy<-function(SRprime,subTIT='Entropy',SRo=NULL,maxSr=NULL){
+  colours <- c('lawngreen','firebrick2')
+
+  V <- dim(SRprime)[1]
+  DF1 <- SRprime[,c(1,2,3,4)]
+  DF1 <- cbind(DF1,rep("SR_UP",length(SRprime[,1])))
+
+  DF2 <- SRprime[,c(1,2,3,5)]
+  DF2 <- cbind(DF2,rep("SR_DOWN",length(SRprime[,1])))
+
+  DF  <- rbind(DF1,DF2)
+  colnames(DF) <- c("ENTREZ.ID","GENE.NAME","DEGREE","SR","GROUP")
+
+  DF <- as.data.frame(DF)
+  DF$DEGREE<-as.numeric(DF$DEGREE)
+  DF$SR<-as.numeric(DF$SR)
+  DF$GROUP <- as.factor(DF$GROUP)
+
+  gplot <- ggplot(DF,aes(x=log(DEGREE),y=SR, colour=GROUP) )+
+    geom_point()+
+    labs(x="log(k)",y="SR",title=subTIT)+
+    guides(color=guide_legend(override.aes=list(fill=NA,size=4)),
+           fill  = FALSE,
+           group = FALSE,
+           alpha = FALSE)+
+    theme(
+      axis.title.x=element_text(face="bold",size=rel(2)),
+      axis.text.x =element_text(face="bold",size=rel(2)),
+      axis.title.y=element_text(face="bold",size=rel(2)),
+      axis.text.y =element_text(face="bold",size=rel(2)),
+      legend.title=element_text(face="bold",size=rel(1.5)),
+      legend.text=element_text(face="bold",size=rel(1.5)),
+      legend.position="top",
+      legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour = "grey40",size=0.2),
+          panel.grid.minor = element_line(colour="grey40",size=0.1),
+          panel.background = element_rect(fill = "white"),
+          panel.border = element_rect(linetype="solid",fill=NA))+
+    scale_color_manual("",breaks=levels(DF$GROUP),values=c(colours))#+
+  if(!is.null(SRo) && !is.null(maxSr)){
+    gplot <- gplot + geom_hline(yintercept=SRo/maxSr,colour="black",size=2,linetype=2,show.legend=F)
+  }
+  #geom_hline(yintercept=SRo/maxSr,colour="grey40",size=2,linetype=2,show.legend=F)
+  return(gplot)
 }

@@ -110,7 +110,7 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.', DATAleg='Fit power-law
     leg_x = max(data)
     leg_y = 1
 
-    png(filename=sprintf("%s/degree_cdf.png",dir), width=WIDTH, height=HEIGHT, units="px")
+#    png(filename=sprintf("%s/degree_cdf.png",dir), width=WIDTH, height=HEIGHT, units="px")
 
     d = plot(m_pl,draw=F)
 
@@ -141,14 +141,16 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.', DATAleg='Fit power-law
     errS2 = str_sub(as.character(sdS2),-1,-1)
 
 
-    fitl <- TeX(sprintf("Power-law $\\alpha = %.2f(%s), $k_{min} = %.0f(%s)",S2,errS2,S1,errS1))
+    suppressMessages(
+      fitl <- TeX(sprintf("Power-law $\\alpha = %.2f(%s), $k_{min} = %.0f(%s)",S2,errS2,S1,errS1))
+    )
 
     legend("bottomleft",c(DATAleg,fitl),lty=c(1,1),lwd=c(4,4),col=c('black',2),merge=TRUE, cex = 1.5)
 
     #legend("topright",c(DATAleg,expression(paste(P(k), " = ",frac(k^alpha,sigma1(alpha,k[min]))))),lty=c(1,1),lwd=c(4,4),col=c('black',2),merge=TRUE, cex = 1.5)
     #text(x=Xmax,y=0.2,substitute(paste(k[min], " = ", s1, ", ", alpha, " = ", s2), list(s1=S1,s2=S2)),cex=0.9)
 
-    dev.off()
+ #   dev.off()
   }
 
 

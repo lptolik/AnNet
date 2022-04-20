@@ -73,6 +73,7 @@ head(V(agg)$GeneName)
 afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "AnNet")
 dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
 ggo <- annotate_topOnto_ovg(agg, dis)
+summary(ggo)
 
 ```
 ##Shanno
@@ -83,23 +84,31 @@ sgg<-annotate_SCHanno(agg,shan)
 summary(sgg)
 ```
 #Esimate node centrality measures
-## Estimate centrality measures wiith values added as node attributes. 
+## Estimate centrality measures with values added as node attributes. 
 Centrality measures are as following:DEG - degree, BET - betweenness, CC - clustering coefficient, SL - semilocal centrality, mnSP - mean shortest path, PR - page rank, sdSP - standard deviation of the shortest path
 
 ```{r graph_cent}
 cgg <- calcCentrality(sgg)
 summary(cgg)
 ```
-##Get node centralilyes as a matrix. 
+##Get node centralities as a matrix. 
 The same centrality measures as before are presented in a matrix form.
 ```{r matrix_cent}
 mc <- getCentralityMatrix(sgg)
 head(mc)
 ```
-##Get the centralitymeasures for random graph
+##Get the centrality measures for random graph - NOT WORKING
 Sometimes one needs to compare the graph properties of the given network with the ones of the randomized graph. Command below provides three ways of randomization, including G(n,p) Erdos-Renyi model , Barabasi-Albert model and new random graph from a given graph by randomly adding/removing edges.
-```{r}
-ggr <- getRandomGraphCentrality(sgg, type = c("cgnp"))
-```
 
 ```
+{r}
+ggrm <- getRandomGraphCentrality(sgg, type = c("cgnp"))
+head(ggrm)
+```
+
+## Power low fit
+```{r powerLow,fig.height=9,fig.width=9}
+pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
+
+

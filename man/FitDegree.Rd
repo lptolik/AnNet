@@ -10,6 +10,7 @@ FitDegree(
   plot = FALSE,
   dir = ".",
   DATAleg = "Fit power-law",
+  threads = 4,
   WIDTH = 480,
   HEIGHT = 480
 )
@@ -17,7 +18,7 @@ FitDegree(
 \arguments{
 \item{DEG}{degree distribution}
 
-\item{HEIGHT}{}
+\item{threads}{}
 }
 \value{
 
@@ -36,5 +37,5 @@ dir<-'.'
 
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 gg <- igraph::read.graph(file,format="gml")
-pFit <- FitDegree( as.vector(igraph::degree(graph=gg)))#, Nsim=bootStrap,dir=dir, DATAleg= Legend,plot=TRUE )
+pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1)#, Nsim=bootStrap,dir=dir, DATAleg= Legend,plot=TRUE )
 }
