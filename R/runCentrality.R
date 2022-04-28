@@ -323,7 +323,7 @@ getGNP<-function(gg,...){
 
 getPA<-function(gg,...){
   nv<-vcount(gg)
-  fp<-pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), Nsim=100, plot=FALSE )
+  pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), Nsim=100, plot=FALSE )
   pwr <- pFit@alpha
   g<- sample_pa(nv,power=pwr,...)
   return(g)
@@ -334,7 +334,6 @@ getPA<-function(gg,...){
 #' @param m
 #'
 #' @return
-#' @export
 #'
 #' @examples
 getGraphCentralityECDF<-function(m){
@@ -346,3 +345,94 @@ getGraphCentralityECDF<-function(m){
   }
   return(l)
 }
+
+#' Extracts particular measure from matrix and convert for distance calculation
+#' by calcCentralityInternalDistances and calcCentralityExternalDistances
+#' functions.
+#'
+#' @param m matrix of centrality measures as returned by getCentralityMatrix
+#' @param nm name of the measure from m
+#' @param keepOrder if FALSE valuess will be sorted
+#'
+#' @return
+#'
+#' @examples
+getCM<-function(m,nm,keepOrder){
+  v<-as.numeric(m[,which(colnames(m)==nm)])
+  if(keepOrder){
+    return(v)
+  }else{
+    return(sort(v,decreasing = FALSE))
+  }
+}
+
+#' Function calculates matrix of distances between elements of list
+#'
+#' @param l
+#' @param keepOrder if FALSE valuess will be sorted
+#' @param dist methods available from dist function
+#'
+#' @return
+#'
+#' @examples
+calcCentralityInternalDistances<-function(l,keepOrder=FALSE,dist='euclidean'){
+  CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
+  resl<-list()
+  for(i in 2:length(CN)){
+    nm<-CN[i]
+    res<-sapply(l,getCM,nm=nm,keepOrder=keepOrder)
+    if(is.matrix(res)){
+    resl[[nm]]<-as.vector(dist(t(res),method=dist))
+    }
+  }
+  resm<-do.call(cbind,resl)
+  return(resm)
+}
+
+#' Function calculates matrix of distances between elements of list and
+#' the reference matrix
+#'
+#' @param m reference matrix
+#' @param l list of permuted matrix
+#' @param keepOrder if FALSE valuess will be sorted
+#' @param dist methods available from dist function
+#'
+#' @return
+#'
+#' @examples
+calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
+  CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
+  resl<-list()
+  for(i in 2:length(CN)){
+    nm<-CN[i]
+    rm<-getCM(m,nm=nm,keepOrder=keepOrder)
+    res<-sapply(l,getCM,nm=nm,keepOrder=keepOrder)
+    if(is.matrix(res)){
+    cmm<-cbind(rm,res)
+    cmd<-as.matrix(dist(t(cmm),method=dist))
+    resl[[nm]]<-as.vector(cmd[-1,1])
+    }
+  }
+  resm<-do.call(cbind,resl)
+  return(resm)
+}
+
+evalCentralitySignificance<-function(dmi,dme){
+  nmi<-colnames(dmi)
+  nme<-colnames(dme)
+  nms<-intersect(nmi,nme)
+  l<-list()
+  for(nm in nms){
+    mi<-dmi[,colnames(dmi)==nm]
+    me<-dme[,colnames(dme)==nm]
+    ks<-ks.test(mi,me)
+    l[[nm]]<-list(ks=ks,
+                  dt=data.frame(val=c(mi,me),
+                                cl=c(rep('perm',length(mi)),
+                                     rep('graph',length(me)))))
+  }
+  return(l)
+}
+
+
+
