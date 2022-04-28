@@ -11,7 +11,7 @@
 calcMembership<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5')){
   ids <- V(gg)$name
   cl<-getClustering(gg,alg)
-  cc       <- as.data.frame(names=cl$names,membership=cl$membership)
+  cc       <- data.frame(names=cl$names,membership=cl$membership)
   return(cc)
 }
 
