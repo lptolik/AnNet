@@ -310,7 +310,7 @@ calcCentrality<-function(gg){
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
-getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp',rw),...){
+getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp','rw'),...){
   type <- match.arg(type)
   nv<-vcount(gg)
   ne<-ecount(gg)
