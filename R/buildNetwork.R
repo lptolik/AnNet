@@ -224,4 +224,21 @@ buildFromSynaptomeGeneTable<-function(t){
   return(gg)
 }
 
-
+#' Calculate sparsness of the graph.
+#'
+#' @param gg graph to evaluate
+#'
+#' @return sparsness value
+#' @export
+#'
+#' @examples
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t)
+#' calcSparsness(gg)
+calcSparsness<-function(gg){
+  N<-igraph::vcount(gg)
+  E<-igraph::ecount(gg)
+  sp<-2.0*E/(N*(N-1))
+  return(sp)
+}
