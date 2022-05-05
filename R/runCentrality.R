@@ -50,6 +50,18 @@ Semilocal <- function(gg){
 
 }
 
+fSemilocal<-function(gg){
+  N    <- length(V(gg)$name)
+  meas <- matrix(0, nrow=N, ncol=3)
+  meas[,1]<-ego_size(gg,order = 2,mode='all')-1
+  neigSum<-function(i,graph,vec){
+    neig <- igraph::neighbors(graph,v=i,mode="all")
+    return(sum(vec[neig]))
+  }
+  meas[,2]<-sapply(1:N,neigSum,graph=gg,vec=meas[,1])
+  meas[,3]<-sapply(1:N,neigSum,graph=gg,vec=meas[,2])
+  return(as.numeric(meas[,3]))
+}
 
 ##calculate the mean and sd of the shortest paths for each gene
 calShorestPaths <- function(gg){
@@ -214,7 +226,7 @@ getCentralityMatrix<-function(gg){
   tmp[,2] <- as.vector(igraph::degree(graph=gg))
   tmp[,3] <- as.character(round(betweenness(gg),3))
   tmp[,4] <- as.character(round(transitivity(gg,"local"),3))
-  sl<- Semilocal(gg)
+  sl<- fSemilocal(gg)
   tmp[,5] <- as.character(round(sl,3))
 
   res <- as.matrix(calShorestPaths(gg))
