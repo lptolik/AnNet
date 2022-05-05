@@ -311,11 +311,12 @@ calcCentrality<-function(gg){
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp','rw'),...){
+  op<-options(warn= -1)
   type <- match.arg(type)
   nv<-vcount(gg)
   ne<-ecount(gg)
   prob<-(2*ne)/(nv*(nv-1))
-  rg<-switch (type,
+    rg<-switch (type,
     gnp = getGNP(gg,...),
     pa  = getPA(gg,...),
     cgnp = sample_correlated_gnp(gg,corr=0.75,...),
@@ -323,6 +324,7 @@ getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp','rw'),...){
   )
   V(rg)$name<-V(gg)$name
   m<-getCentralityMatrix(rg)
+  options(op)
   return(m)
 }
 
