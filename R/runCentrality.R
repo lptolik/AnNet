@@ -362,7 +362,7 @@ getCM<-function(m,nm,keepOrder){
   if(keepOrder){
     return(v)
   }else{
-    return(sort(v,decreasing = FALSE))
+    return(sort(v,decreasing = FALSE,na.last=TRUE))
   }
 }
 
@@ -428,8 +428,8 @@ evalCentralitySignificance<-function(dmi,dme){
     ks<-ks.test(mi,me)
     l[[nm]]<-list(ks=ks,
                   dt=data.frame(val=c(mi,me),
-                                cl=c(rep('perm',length(mi)),
-                                     rep('graph',length(me)))))
+                                cl=factor(c(rep('perm',length(mi)),
+                                     rep('graph',length(me))))))
   }
   return(l)
 }

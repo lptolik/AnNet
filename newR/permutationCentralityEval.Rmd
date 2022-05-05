@@ -1,0 +1,437 @@
+---
+title: "Evaluation of effectiveness of the permutation test on centrality measures "
+author: "A. Sorokin"
+date: '`r format(Sys.time(), "%d.%m.%Y")`'
+output:
+  pdf_document:
+    keep_tex: yes
+    number_sections: yes
+  html_document: default
+params:
+  format: !r if(opts_knit$get("rmarkdown.pandoc.to") == 'html') c('screen', 'print')
+    else 'print'
+  version: !r if(nchar(Sys.which("git"))) system("git describe --long --dirty --abbrev=10  --tags  --always",
+    intern=TRUE) else date()
+header-includes:
+- \usepackage[T2A]{fontenc}
+- \usepackage[utf8]{inputenc}
+- \usepackage[english,russian]{babel}
+- \usepackage{grffile}
+- \usepackage{rotating}
+- \usepackage{caption}
+- \usepackage{longtable}
+- \usepackage{lscape}
+---
+```{r loadPackages, include=FALSE, cache=FALSE}
+## load additional packages in this chunk
+library(pander)
+library(knitr)
+library(ggplot2)
+library(xtable)
+library(data.table)
+library(ggdendro)
+library(tidyr)
+library("FactoMineR")
+library(dendextend)
+library(factoextra)
+library(Matrix)
+library(wordspace)
+library(AnNet)
+library(RColorBrewer)
+library(UpSetR)
+library(ggvenn)
+library(synaptome.db)
+library(plyr)
+```
+
+```{r setup, include=FALSE, cache=FALSE}
+## This chunk should contain global configuration commands.
+## Use this to set knitr options and related things. Everything
+## in this chunk will be included in an appendix to document the
+## configuration used.
+#output <- opts_knit$get("rmarkdown.pandoc.to")
+opts_knit$set(stop_on_error = 2L)
+
+## By default R code is only included in HTML versions of the report
+## (where it can be collapsed). You can generate a PDF version
+## using rmarkdown::pdf_document to get a copy for print. Extensive
+## chunks of R code may or may not be desired in /hat setting. If you
+## want them simply change the following arguments to `echo = TRUE`.
+## In either case the default can be overwritten for individual chunks.
+#opts_chunk$set(echo = output=="html")
+#opts_chunk$set(warning = output=="html")
+#opts_chunk$set(message = output=="html")
+
+## Cache options
+opts_chunk$set(cache=TRUE,warning=FALSE)
+
+## Figure options
+## Set default figure format
+#options(reportmd.figure.format=params$format)
+
+## Set 'hide.fig.code' to FALSE to include code chunks that
+## produce Figures in the output. Note that this affects all chunks
+## that provide a figure caption.
+opts_chunk$set(hold=TRUE, hide.fig.code=FALSE)
+
+## Set up default plotting options for different formats.
+## These can be overwritten for individual chunks
+#interactiveFig()
+#screenFig()
+#printFig()
+
+## Pander options
+panderOptions("digits", 3)
+panderOptions("table.split.table", 160)
+#panderOptions("table.style", "grid")
+
+## Configure Figure and Table lables
+#options(figcap.prefix = "Figure", figcap.sep = ":", figcap.prefix.highlight = "**")
+#options(tabcap.prefix = "Table", tabcap.sep = ":", tabcap.prefix.highlight = "**")
+
+## Install required knitr hooks
+#installHooks()
+```
+
+```{r functions, include=FALSE}
+## Custom functions used in the analysis should go into this chunk.
+## They will be listed in their own section of the appendix.
+getCM<-function(m,nm,keepOrder){
+  v<-as.numeric(m[,which(colnames(m)==nm)])
+  if(keepOrder){
+    return(v)
+  }else{
+    return(sort(v,decreasing = FALSE,na.last=TRUE))
+  }
+}
+
+calcCentralityInternalDistances<-function(l,keepOrder=FALSE,dist='euclidean'){
+  CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
+  resl<-list()
+  for(i in 2:length(CN)){
+    nm<-CN[i]
+    res<-sapply(l,getCM,nm=nm,keepOrder=keepOrder)
+    if(is.matrix(res)){
+    resl[[nm]]<-as.vector(dist(t(res),method=dist))
+    }
+  }
+  resm<-do.call(cbind,resl)
+  return(resm)
+}
+
+calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
+  CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
+  resl<-list()
+  for(i in 2:length(CN)){
+    nm<-CN[i]
+    rm<-getCM(m,nm=nm,keepOrder=keepOrder)
+    res<-sapply(l,getCM,nm=nm,keepOrder=keepOrder)
+    if(is.matrix(res)){
+    cmm<-cbind(rm,res)
+    cmd<-as.matrix(dist(t(cmm),method=dist))
+    resl[[nm]]<-as.vector(cmd[-1,1])
+    }
+  }
+  resm<-do.call(cbind,resl)
+  return(resm)
+}
+
+evalCentralitySignificance<-function(dmi,dme){
+  nmi<-colnames(dmi)
+  nme<-colnames(dme)
+  nms<-intersect(nmi,nme)
+  l<-list()
+  for(nm in nms){
+    mi<-dmi[,colnames(dmi)==nm]
+    me<-dme[,colnames(dme)==nm]
+    ks<-ks.test(mi,me)
+    l[[nm]]<-list(ks=ks,
+                  dt=data.frame(val=c(mi,me),
+                                cl=factor(c(rep('perm',length(mi)),
+                                     rep('graph',length(me))))))
+  }
+  return(l)
+}
+
+
+
+
+```
+
+# Prepare graph
+```{r net_from_SynaptomeDB}
+
+cid<-match('Presynaptic',getCompartments()$Name) # Let's get the ID for presynaptic compartment
+cid
+t<-getAllGenes4Compartment(cid) # Now we need to collect all the gene IDs for presinaptic  compartment
+dim(t)
+head(t)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez) # finally, build the graph using respecctive gene EntrezIDs as node IDs
+summary(gg)
+
+```
+
+# Prepare centrality measure dataframe
+```{r get.gg.cm.df}
+m<-getCentralityMatrix(gg)
+```
+
+# Generate random graphs and get their centrality measure dataframes
+## Erdos-Renyi model
+```{r get.rgc.gnp.df}
+gnp<-list()
+for(i in 1:100){
+  gnp[[i]]<-getRandomGraphCentrality(gg,type = 'gnp')
+}
+```
+
+## Barabasi-Albert model
+```{r get.rgc.pa.df}
+pa<-list()
+for(i in 1:100){
+  pa[[i]]<-getRandomGraphCentrality(gg,type = 'pa')
+}
+```
+
+## Adjacency matrix perturbation 
+```{r get.rgc.cgnp.df}
+cgnp<-list()
+for(i in 1:100){
+  cgnp[[i]]<-getRandomGraphCentrality(gg,type = 'cgnp')
+}
+```
+
+## Rewiring graph
+```{r get.rgc.rw.df}
+rw<-list()
+for(i in 1:100){
+  rwg<-rewire(gg,keeping_degseq(niter = 100))
+  rw[[i]]<-getCentralityMatrix(rwg)
+}
+```
+
+# Calculate intra-perturbation distances for all samples with sorting
+## Erdos-Renyi model
+```{r get.intra.gnp.mat.ord}
+gnpIDist<-calcCentralityInternalDistances(gnp)
+summary(gnpIDist)
+```
+
+## Barabasi-Albert model
+```{r get.intra.pa.mat.ord}
+paIDist<-calcCentralityInternalDistances(pa)
+summary(paIDist)
+```
+
+## Adjacency matrix perturbation 
+```{r get.intra.cgnp.mat.ord}
+cgnpIDist<-calcCentralityInternalDistances(cgnp)
+summary(cgnpIDist)
+```
+
+## Rewiring graph
+```{r get.intra.rw.mat.ord}
+rwIDist<-calcCentralityInternalDistances(rw)
+summary(rwIDist)
+```
+
+# Calculate distances between original and random graphs for all samples with sorting
+## Erdos-Renyi model
+```{r get.ex.gnp.mat.ord}
+gnpEDist<-calcCentralityExternalDistances(m,gnp)
+summary(gnpEDist)
+```
+
+## Barabasi-Albert model
+```{r get.ex.pa.mat.ord}
+paEDist<-calcCentralityExternalDistances(m,pa)
+summary(paEDist)
+```
+
+## Adjacency matrix perturbation 
+```{r get.ex.cgnp.mat.ord}
+cgnpEDist<-calcCentralityExternalDistances(m,cgnp)
+summary(cgnpEDist)
+```
+
+## Rewiring graph
+```{r get.ex.rw.mat.ord}
+rwEDist<-calcCentralityExternalDistances(m,rw)
+summary(rwEDist)
+```
+
+# Compare distances between random graphs and random and original graphs
+## Erdos-Renyi model
+```{r comp.gnp.mat.ord}
+gnpL<-evalCentralitySignificance(gnpIDist,gnpEDist)
+gnpDF<-ldply(gnpL,function(.x){df<-.x$dt;return(df)})
+names(gnpDF)[1]<-'centrality'
+```
+
+```{r plot.gnp.mat.ord,fig.height=10,fig.width=10}
+ggplot(data=gnpDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality, scales = 'free_y')
+```
+
+## Barabasi-Albert model
+```{r comp.pa.mat.ord}
+paL<-evalCentralitySignificance(paIDist,paEDist)
+paDF<-ldply(paL,function(.x){df<-.x$dt;return(df)})
+names(paDF)[1]<-'centrality'
+```
+
+```{r plot.pa.mat.ord,fig.height=10,fig.width=10}
+ggplot(data=paDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality, scales = 'free_y')
+```
+
+## Adjacency matrix perturbation 
+```{r comp.cgnp.mat.ord}
+cgnpL<-evalCentralitySignificance(cgnpIDist,cgnpEDist)
+cgnpDF<-ldply(cgnpL,function(.x){df<-.x$dt;return(df)})
+names(cgnpDF)[1]<-'centrality'
+```
+
+```{r plot.cgnp.mat.ord,fig.height=10,fig.width=10}
+ggplot(data=cgnpDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality, scales = 'free_y')
+```
+
+## Rewiring graph
+```{r comp.rw.mat.ord}
+rwL<-evalCentralitySignificance(rwIDist,rwEDist)
+rwDF<-ldply(rwL,function(.x){df<-.x$dt;return(df)})
+names(rwDF)[1]<-'centrality'
+```
+
+```{r plot.rw.mat.ord,fig.height=10,fig.width=10}
+ggplot(data=rwDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality, scales = 'free_y')
+```
+
+
+# Calculate intra-perturbation distances for all samples with sorting
+## Erdos-Renyi model
+```{r get.intra.gnp.mat.nord}
+gnpIDist<-calcCentralityInternalDistances(gnp,keepOrder = TRUE)
+summary(gnpIDist)
+```
+
+## Barabasi-Albert model
+```{r get.intra.pa.mat.nord}
+paIDist<-calcCentralityInternalDistances(pa,keepOrder = TRUE)
+summary(paIDist)
+```
+
+## Adjacency matrix perturbation 
+```{r get.intra.cgnp.mat.nord}
+cgnpIDist<-calcCentralityInternalDistances(cgnp,keepOrder = TRUE)
+summary(cgnpIDist)
+```
+
+## Rewiring graph
+```{r get.intra.rw.mat.nord}
+rwIDist<-calcCentralityInternalDistances(rw,keepOrder = TRUE)
+summary(rwIDist)
+```
+
+# Calculate distances between original and random graphs for all samples without sorting
+## Erdos-Renyi model
+```{r get.ex.gnp.mat.nord}
+gnpEDist<-calcCentralityExternalDistances(m,gnp,keepOrder = TRUE)
+summary(gnpEDist)
+```
+
+## Barabasi-Albert model
+```{r get.ex.pa.mat.nord}
+paEDist<-calcCentralityExternalDistances(m,pa,keepOrder = TRUE)
+summary(paEDist)
+```
+
+## Adjacency matrix perturbation 
+```{r get.ex.cgnp.mat.nord}
+cgnpEDist<-calcCentralityExternalDistances(m,cgnp,keepOrder = TRUE)
+summary(cgnpEDist)
+```
+
+## Rewiring graph
+```{r get.ex.rw.mat.nord}
+rwEDist<-calcCentralityExternalDistances(m,rw,keepOrder = TRUE)
+summary(rwEDist)
+```
+
+# Compare distances between random graphs and random and original graphs
+## Erdos-Renyi model
+```{r comp.gnp.mat.nord}
+gnpL<-evalCentralitySignificance(gnpIDist,gnpEDist)
+gnpDF<-ldply(gnpL,function(.x){df<-.x$dt;return(df)})
+names(gnpDF)[1]<-'centrality'
+```
+```{r comp.gnp.ks.nord}
+gnpKS<-ldply(gnpL,function(.x){df<-.x$ks$p.value;return(df)})
+names(gnpKS)[1]<-'centrality'
+pander(gnpKS)
+```
+
+```{r plot.gnp.mat.nord,fig.height=10,fig.width=10}
+ggplot(data=gnpDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality, scales = 'free_y')
+```
+
+## Barabasi-Albert model
+```{r comp.pa.mat.nord}
+paL<-evalCentralitySignificance(paIDist,paEDist)
+paDF<-ldply(paL,function(.x){df<-.x$dt;return(df)})
+names(paDF)[1]<-'centrality'
+```
+```{r comp.pa.ks.nord}
+paKS<-ldply(paL,function(.x){df<-.x$ks$p.value;return(df)})
+names(paKS)[1]<-'centrality'
+pander(paKS)
+```
+
+```{r plot.pa.mat.nord,fig.height=10,fig.width=10}
+ggplot(data=paDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality, scales = 'free_y')
+```
+
+## Adjacency matrix perturbation 
+```{r comp.cgnp.mat.nord}
+cgnpL<-evalCentralitySignificance(cgnpIDist,cgnpEDist)
+cgnpDF<-ldply(cgnpL,function(.x){df<-.x$dt;return(df)})
+names(cgnpDF)[1]<-'centrality'
+```
+
+```{r plot.cgnp.mat.nord,fig.height=10,fig.width=10}
+ggplot(data=cgnpDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality, scales = 'free_y')
+```
+
+## Rewiring graph
+```{r comp.rw.mat.nord}
+rwL<-evalCentralitySignificance(rwIDist,rwEDist)
+rwDF<-ldply(rwL,function(.x){df<-.x$dt;return(df)})
+names(rwDF)[1]<-'centrality'
+```
+
+```{r plot.rw.mat.nord,fig.height=10,fig.width=10}
+ggplot(data=rwDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality, scales = 'free_y')
+```
+
+# Appendix {.tabset}
+## Functions
+```{r functions, eval=FALSE, include=TRUE}
+```
+
+## Setup R
+```{r setup, eval=FALSE}
+```
+
+## Versions
+### Document version
+```{r docVersion, echo=FALSE, results='asis', cache=FALSE}
+cat(params$version)
+```
+
+### Session Info
+```{r sessionInfo, echo=FALSE, results='asis', class='text', warning=FALSE}
+si<-devtools::session_info()
+cat('Platform\n\n')
+pander::pander(si$platform)
+cat('Packages\n\n')
+knitr::kable(as.data.frame(si$packages)[,c('ondiskversion','loadedversion','date','source')],align = c('l','l'))
+```
+
