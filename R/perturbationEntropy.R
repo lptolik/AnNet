@@ -23,6 +23,7 @@ maxLSi <- function( XX, BASE=0 ){
 #'
 #' @return list with values of maxSr and SRo
 #' @export
+#' @import RSpectra
 #'
 #' @examples
 getEntropyRate<-function(gg){
@@ -35,10 +36,13 @@ getEntropyRate<-function(gg){
   A    <- get.adjacency(gg)
 
   #--- get leading eigenvalue and vector
-  R     <- eigen(A)
-  Rindx <- which.max(R$values)
-  gamma <- R$values[Rindx]
-  nu    <- R$vectors[,Rindx]
+  #R     <- eigen(A)
+  #Rindx <- which.max(R$values)
+  #gamma <- R$values[Rindx]
+  #nu    <- R$vectors[,Rindx]
+  R<-RSpectra::eigs(A,1)
+  gamma <- R$values[1]
+  nu    <- R$vectors[,1]
 
 
   #--- calculate max entropy rate, maxSr
