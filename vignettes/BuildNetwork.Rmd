@@ -96,7 +96,7 @@ The same centrality measures as before are presented in a matrix form.
 mc <- getCentralityMatrix(sgg)
 head(mc)
 ```
-##Get the centrality measures for random graph - NOT WORKING
+##Get the centrality measures for random graph
 Sometimes one needs to compare the graph properties of the given network with the ones of the randomized graph. Command below provides three ways of randomization, including G(n,p) Erdos-Renyi model , Barabasi-Albert model and new random graph from a given graph by randomly adding/removing edges.
 
 ```{r}
@@ -104,8 +104,8 @@ ggrm <- getRandomGraphCentrality(sgg, type = c("cgnp"))
 head(ggrm)
 ```
 
-## Power low fit  -- NOT WORKING
-```{r powerLow,fig.height=9,fig.width=9}
+## Power law fit
+```{r powerLaw,fig.height=9,fig.width=9}
 pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
 
