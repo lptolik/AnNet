@@ -300,6 +300,7 @@ calcCentrality<-function(gg){
 #' * gnp -- G(n,p) Erdos-Renyi model
 #' * pa --  Barabasi-Albert model
 #' * cgnp -- new random graph from a given graph by randomly adding/removing edges
+#' * rw -- new random graph from a given graph by rewiring 25% of edges preserving the degree distribution
 #'
 #' @return
 #' @export
@@ -309,7 +310,7 @@ calcCentrality<-function(gg){
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
-getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp'),...){
+getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp',rw),...){
   type <- match.arg(type)
   nv<-vcount(gg)
   ne<-ecount(gg)
@@ -317,7 +318,8 @@ getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp'),...){
   rg<-switch (type,
     gnp = getGNP(gg,...),
     pa  = getPA(gg,...),
-    cgnp = sample_correlated_gnp(gg,corr=0.75,...)
+    cgnp = sample_correlated_gnp(gg,corr=0.75,...),
+    rw = rewire(gg,keeping_degseq(niter = 0.25*ne))
   )
   V(rg)$name<-V(gg)$name
   m<-getCentralityMatrix(rg)
