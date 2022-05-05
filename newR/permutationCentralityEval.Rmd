@@ -268,6 +268,12 @@ gnpDF<-ldply(gnpL,function(.x){df<-.x$dt;return(df)})
 names(gnpDF)[1]<-'centrality'
 ```
 
+```{r comp.gnp.ks.ord}
+gnpKS<-ldply(gnpL,function(.x){df<-log10(.x$ks$p.value)*-1.0;return(df)})
+names(gnpKS)[1]<-'centrality'
+pander(gnpKS)
+```
+
 ```{r plot.gnp.mat.ord,fig.height=10,fig.width=10}
 ggplot(data=gnpDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality, scales = 'free_y')
 ```
@@ -277,6 +283,13 @@ ggplot(data=gnpDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality,
 paL<-evalCentralitySignificance(paIDist,paEDist)
 paDF<-ldply(paL,function(.x){df<-.x$dt;return(df)})
 names(paDF)[1]<-'centrality'
+```
+
+
+```{r comp.pa.ks.ord}
+paKS<-ldply(paL,function(.x){df<-log10(.x$ks$p.value)*-1.0;return(df)})
+names(paKS)[1]<-'centrality'
+pander(paKS)
 ```
 
 ```{r plot.pa.mat.ord,fig.height=10,fig.width=10}
@@ -290,6 +303,12 @@ cgnpDF<-ldply(cgnpL,function(.x){df<-.x$dt;return(df)})
 names(cgnpDF)[1]<-'centrality'
 ```
 
+```{r comp.cgnp.ks.ord}
+cgnpKS<-ldply(cgnpL,function(.x){df<-log10(.x$ks$p.value)*-1.0;return(df)})
+names(cgnpKS)[1]<-'centrality'
+pander(cgnpKS)
+```
+
 ```{r plot.cgnp.mat.ord,fig.height=10,fig.width=10}
 ggplot(data=cgnpDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality, scales = 'free_y')
 ```
@@ -299,6 +318,13 @@ ggplot(data=cgnpDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality
 rwL<-evalCentralitySignificance(rwIDist,rwEDist)
 rwDF<-ldply(rwL,function(.x){df<-.x$dt;return(df)})
 names(rwDF)[1]<-'centrality'
+```
+
+
+```{r comp.rw.ks.ord}
+rwKS<-ldply(rwL,function(.x){df<-log10(.x$ks$p.value)*-1.0;return(df)})
+names(rwKS)[1]<-'centrality'
+pander(rwKS)
 ```
 
 ```{r plot.rw.mat.ord,fig.height=10,fig.width=10}
@@ -363,8 +389,9 @@ gnpL<-evalCentralitySignificance(gnpIDist,gnpEDist)
 gnpDF<-ldply(gnpL,function(.x){df<-.x$dt;return(df)})
 names(gnpDF)[1]<-'centrality'
 ```
+
 ```{r comp.gnp.ks.nord}
-gnpKS<-ldply(gnpL,function(.x){df<-.x$ks$p.value;return(df)})
+gnpKS<-ldply(gnpL,function(.x){df<-log10(.x$ks$p.value)*-1.0;return(df)})
 names(gnpKS)[1]<-'centrality'
 pander(gnpKS)
 ```
@@ -379,8 +406,9 @@ paL<-evalCentralitySignificance(paIDist,paEDist)
 paDF<-ldply(paL,function(.x){df<-.x$dt;return(df)})
 names(paDF)[1]<-'centrality'
 ```
+
 ```{r comp.pa.ks.nord}
-paKS<-ldply(paL,function(.x){df<-.x$ks$p.value;return(df)})
+paKS<-ldply(paL,function(.x){df<-log10(.x$ks$p.value)*-1.0;return(df)})
 names(paKS)[1]<-'centrality'
 pander(paKS)
 ```
@@ -396,6 +424,12 @@ cgnpDF<-ldply(cgnpL,function(.x){df<-.x$dt;return(df)})
 names(cgnpDF)[1]<-'centrality'
 ```
 
+```{r comp.cgnp.ks.nord}
+cgnpKS<-ldply(cgnpL,function(.x){df<-log10(.x$ks$p.value)*-1.0;return(df)})
+names(cgnpKS)[1]<-'centrality'
+pander(cgnpKS)
+```
+
 ```{r plot.cgnp.mat.nord,fig.height=10,fig.width=10}
 ggplot(data=cgnpDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality, scales = 'free_y')
 ```
@@ -405,6 +439,12 @@ ggplot(data=cgnpDF,aes(y=val,x=cl,fill=cl))+geom_violin()+facet_wrap(~centrality
 rwL<-evalCentralitySignificance(rwIDist,rwEDist)
 rwDF<-ldply(rwL,function(.x){df<-.x$dt;return(df)})
 names(rwDF)[1]<-'centrality'
+```
+
+```{r comp.rw.ks.nord}
+rwKS<-ldply(rwL,function(.x){df<-log10(.x$ks$p.value)*-1.0;return(df)})
+names(rwKS)[1]<-'centrality'
+pander(rwKS)
 ```
 
 ```{r plot.rw.mat.nord,fig.height=10,fig.width=10}
