@@ -229,7 +229,7 @@ getCentralityMatrix<-function(gg){
   sl<- fSemilocal(gg)
   tmp[,5] <- as.character(round(sl,3))
 
-  res <- as.matrix(calShorestPaths(gg))
+  res <- calShorestPaths(gg)
   tmp[,6]  <- as.character(res[,2])
   tmp[,7]  <- as.character(round(as.vector(page.rank(graph=gg,vids=V(gg),directed=F,options=igraph.arpack.default)$vector),6))
   tmp[,8]  <- as.character(res[,3])
