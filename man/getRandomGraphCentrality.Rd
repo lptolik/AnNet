@@ -4,13 +4,14 @@
 \alias{getRandomGraphCentrality}
 \title{Title}
 \usage{
-getRandomGraphCentrality(gg, type = c("gnp", "pa", "cgnp"), ...)
+getRandomGraphCentrality(gg, type = c("gnp", "pa", "cgnp", "rw"), ...)
 }
 \arguments{
 \item{type:}{\itemize{
 \item gnp -- G(n,p) Erdos-Renyi model
 \item pa --  Barabasi-Albert model
 \item cgnp -- new random graph from a given graph by randomly adding/removing edges
+\item rw -- new random graph from a given graph by rewiring 25\% of edges preserving the degree distribution
 }}
 }
 \value{

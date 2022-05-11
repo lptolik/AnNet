@@ -105,6 +105,7 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.', DATAleg='Fit power-law
   )
 
   if(plot){
+    op<-options(warn= -1)
     x_lab="k"    ##degree
     y_lab="P(k)" ## the CDFs P(k) for the PPI network data
     leg_x = max(data)
@@ -125,8 +126,8 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.', DATAleg='Fit power-law
          pch=22, bg='black', axes = F, cex.lab = 1.5, yaxt='n' )
     box(col='black')
 
-    axis(1, cex.axis = 1.5, font = 1.5, family = 'arial')
-    axis(2, cex.axis = 1.5, font = 1.5, family = 'arial', at=yTICKS, labels=yLABELS)
+      axis(1, cex.axis = 1.5, font = 1.5, family = 'arial')
+      axis(2, cex.axis = 1.5, font = 1.5, family = 'arial', at=yTICKS, labels=yLABELS)
 
     lines(m_pl, col=2, lwd=3)
 
@@ -149,7 +150,7 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.', DATAleg='Fit power-law
 
     #legend("topright",c(DATAleg,expression(paste(P(k), " = ",frac(k^alpha,sigma1(alpha,k[min]))))),lty=c(1,1),lwd=c(4,4),col=c('black',2),merge=TRUE, cex = 1.5)
     #text(x=Xmax,y=0.2,substitute(paste(k[min], " = ", s1, ", ", alpha, " = ", s2), list(s1=S1,s2=S2)),cex=0.9)
-
+    options(op)
  #   dev.off()
   }
 
