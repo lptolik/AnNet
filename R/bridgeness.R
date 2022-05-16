@@ -1,3 +1,13 @@
+#' Calculate bridginess from consensus matrix
+#'
+#' @param gg igraph object
+#' @param alg clustering algorithm
+#' @param conmat consensus matrix calculated with that algorithm
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getBridgeness <- function(gg, alg,conmat) {
   #---number of vertices/genes
   N    <- length(V(gg))

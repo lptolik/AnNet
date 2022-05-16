@@ -18,6 +18,27 @@ knitr::opts_chunk$set(
 library(AnNet)
 library(synaptome.db)
 library(pander)
+library(ggplot2)
+scale <- function(x, VALUE=NULL){
+
+    x = as.numeric(as.vector(x))
+
+    xmin <- min(x,na.rm=T)
+    xmax <- max(x,na.rm=T)
+   
+    if( is.null(VALUE) ){
+
+        x  <- x-xmin
+        x  <- ifelse(!is.na(x), x/(xmax-xmin), NA) 
+
+        return(x)
+    }
+
+    value = as.numeric(as.vector(value)[1])
+    value = value-xmin
+    value = ifelse(!is.na(value), value/(xmax-xmin), NA) 
+    return(value)
+}
 ```
 # Title   AnNet: library for comprehensive network analysis
 ##  Authors: Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong and Oksana Sorokina    
@@ -77,7 +98,38 @@ conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
 
 # Bridgeness 
 ```{r calc.bridge}
-bm<-AnNet:::getBridgeness(gg,alg,conmat)
+bm<-getBridgeness(gg,alg,conmat)
 pander(head(bm))
+```
+
+```{r plot,fig.height=8,fig.width=8}
+MainDivSize <- 0.8
+xmin        <- 0
+xmax        <- 1
+ymin        <- 0
+ymax        <- 1
+Xlab <- "Local Centrality (Cl)" 
+Ylab <- "Bridgeness (B)"
+X    <- as.numeric(igraph::get.vertex.attribute(gg,"SL",V(gg)))
+X    <- scale(X)
+Y       <- as.numeric(as.vector(bm[,dim(bm)[2]]))    
+dt<-data.frame(X=X,Y=Y)
+ggplot(dt,aes(x=X,y=Y))+geom_point()+
+      labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
+    scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
+    scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
+    theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+          panel.grid.minor = element_line(colour="grey40",size=0.1),
+          panel.background = element_rect(fill="white"),
+          panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)+
+    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
+
 ```
 
