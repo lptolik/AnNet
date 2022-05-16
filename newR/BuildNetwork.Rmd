@@ -1,0 +1,112 @@
+---
+title: "BuildNetwork"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BuildNetwork}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(AnNet)
+library(synaptome.db)
+```
+# Title   AnNet: library for comprehensive network analysis
+##  Authors: Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong and Oksana Sorokina    
+
+#Introduction
+
+# Overview of capabilities
+# Build the network
+
+The package allows building the network from the data frame, where the rows correspond to the edges of the graph, or for the list of nodes (genes), for which the information will be retrieved from the SynaptomeDB.
+
+## Build the network from data frame
+The command builds the graph from provided data frame, simplifies the graph (removing multiple edges and loops) and finds the MCC (maximum connected component)
+```{r network_from_scratch}
+
+file <- system.file("extdata", "PPI_Presynaptic.csv", package = "AnNet")
+tbl <- read.csv(file, sep="\t")
+head(tbl)
+gg <- buildNetwork(tbl)
+summary(gg)
+
+```
+## Build network for the node list extracted from SynaptomeDB
+
+```{r net_from_SynaptomeDB}
+
+cid<-match('Presynaptic',getCompartments()$Name) # Let's get the ID for presynaptic compartment
+cid
+t<-getAllGenes4Compartment(cid) # Now we need to collect all the gene IDs for presinaptic  compartment
+dim(t)
+head(t)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez) # finally, build the graph using respecctive gene EntrezIDs as node IDs
+summary(gg)
+
+```
+## Use the predifined network
+```{r net_predifind}
+
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+gg1 <- igraph::read.graph(file,format="gml")
+summary(gg1)
+```
+# Annotate the nodes with node attributes
+## Gene name
+```{r annotate_net}
+
+agg<-annotateGeneNames(gg)
+summary(agg)
+head(V(agg))
+head(V(agg)$GeneName)
+```
+## Diseases   NOT WORKING
+```{r annotate_topOnto}
+afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "AnNet")
+dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+ggo <- annotate_topOnto_ovg(agg, dis)
+
+```
+##Shanno
+```{r annotate_Shanno}
+sfile<-system.file("extdata", "SCH_flatfile.csv", package = "AnNet")
+shan    <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+sgg<-annotate_SCHanno(agg,shan)
+summary(sgg)
+```
+#Esimate node centrality measures
+## Estimate centrality measures with values added as node attributes. 
+Centrality measures are as following:DEG - degree, BET - betweenness, CC - clustering coefficient, SL - semilocal centrality, mnSP - mean shortest path, PR - page rank, sdSP - standard deviation of the shortest path
+
+```{r graph_cent}
+cgg <- calcCentrality(sgg)
+summary(cgg)
+```
+##Get node centralities as a matrix. 
+The same centrality measures as before are presented in a matrix form.
+```{r matrix_cent}
+mc <- getCentralityMatrix(sgg)
+head(mc)
+```
+##Get the centrality measures for random graph - NOT WORKING
+Sometimes one needs to compare the graph properties of the given network with the ones of the randomized graph. Command below provides three ways of randomization, including G(n,p) Erdos-Renyi model , Barabasi-Albert model and new random graph from a given graph by randomly adding/removing edges.
+
+```{r}
+ggrm <- getRandomGraphCentrality(sgg, type = c("cgnp"))
+head(ggrm)
+```
+
+## Power low fit  -- NOT WORKING
+```{r powerLow,fig.height=9,fig.width=9}
+pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
+
+
