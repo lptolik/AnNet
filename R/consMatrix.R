@@ -169,7 +169,7 @@ matrixDiv <- function(x,y){
 #' @examples
 makeConsensusMatrix<-function(gg,N,mask,alg,type,
                               reclust=FALSE,Cnmin=-1,Cnmax=10){
-  lcc<-lapply(1:19, function(.x)sampleGraphClust(gg=gg,
+  lcc<-lapply(1:N, function(.x)sampleGraphClust(gg=gg,
                                             mask=mask,
                                             alg=alg,
                                             type=type,
@@ -177,6 +177,8 @@ makeConsensusMatrix<-function(gg,N,mask,alg,type,
                                             Cnmin=Cnmin,
                                             Cnmax=Cnmax))
   mm<-buildConsensusMatrix(lcc)
+  colnames(mm)<-V(gg)$name
+  rownames(mm)<-V(gg)$name
   return(mm)
 }
 
