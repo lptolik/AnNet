@@ -102,7 +102,7 @@ buildConsensusMatrix<-function(lcc){
   NJobs    = 0
   max_com  = 0
   min_com  = 500
-  for(i in length(lcc)){
+  for(i in 1:length(lcc)){
     tb<-lcc[[i]]
     ## make sure node id == -1 if node com == -1
     indx = tb[,3] == -1
