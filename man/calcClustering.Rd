@@ -2,18 +2,18 @@
 % Please edit documentation in R/clustering.R
 \name{calcClustering}
 \alias{calcClustering}
-\title{Calculate memberships for all clustering algorithms and store them on the
+\title{Calculate memberships for particular clustering algorithms and store them on the
 graph vertices.}
 \usage{
-calcClustering(gg)
+calcClustering(gg, alg)
 }
 \arguments{
-\item{gg}{}
+\item{alg}{algorithm to apply}
 }
 \value{
 
 }
 \description{
-Calculate memberships for all clustering algorithms and store them on the
+Calculate memberships for particular clustering algorithms and store them on the
 graph vertices.
 }

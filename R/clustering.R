@@ -24,7 +24,7 @@ calcMembership<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sg
 #' @export
 #'
 #' @examples
-calcClustering<-function(gg){
+calcAllClustering<-function(gg){
   ids <- V(gg)$name
   m      <- matrix(NA, ncol=9, nrow=length(ids))
   colnames(m)<-c('ID','lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5')
@@ -38,6 +38,27 @@ calcClustering<-function(gg){
   return(ggm)
 }
 
+#' Calculate memberships for particular clustering algorithms and store them on the
+#' graph vertices.
+#'
+#'
+#' @param gg
+#' @param alg algorithm to apply
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcClustering<-function(gg,alg){
+  ids <- V(gg)$name
+  m      <- matrix(NA, ncol=2, nrow=length(ids))
+  colnames(m)<-c('ID',alg)
+  m[,1]<-ids
+    cm<-calcMembership(gg,alg)
+    m[,2]<-as.character(cm$membership)
+  ggm<-applpMatrixToGraph(gg,m)
+  return(ggm)
+}
 
 #' Get clustering results for the graph.
 #'
