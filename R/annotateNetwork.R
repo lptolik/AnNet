@@ -543,6 +543,15 @@ annotate_bridgeness_regions<-function(gg,str){
   return(gg)
 }
 #Add GO MF
+#' Title
+#'
+#' @param gg
+#' @param annoF
+#'
+#' @return
+#' @export
+#'
+#' @examples
 annotate_go_mf<-function(gg,annoF){
   ids = V(gg)$name
   gg <- removeVertexTerm(gg,"GO_MF")
@@ -581,6 +590,15 @@ annotate_go_mf<-function(gg,annoF){
   return(gg)
 }
 #Add GO BP
+#' Title
+#'
+#' @param gg
+#' @param annoF
+#'
+#' @return
+#' @export
+#'
+#' @examples
 annotate_go_bp<-function(gg,annoF){
   ids = V(gg)$name
   gg <- removeVertexTerm(gg,"GO_BP")
@@ -619,6 +637,15 @@ annotate_go_bp<-function(gg,annoF){
   return(gg)
 }
 #Add GO CC
+#' Title
+#'
+#' @param gg
+#' @param annoF
+#'
+#' @return
+#' @export
+#'
+#' @examples
 annotate_go_cc<-function(gg,annoF){
   ids = V(gg)$name
   gg <- removeVertexTerm(gg,"GO_CC")
