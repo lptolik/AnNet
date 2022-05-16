@@ -115,6 +115,12 @@ ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
           panel.border = element_rect(linetype="solid",fill=NA))
 ```
 
+# Cluster robustness
+```{r clcons}
+clrob<-getRobustness(gg,alg,conmat)
+pander(clrob)
+```
+
 # Bridgeness 
 ```{r calc.bridge}
 bm<-getBridgeness(gg,alg,conmat)
@@ -127,7 +133,7 @@ xmin        <- 0
 xmax        <- 1
 ymin        <- 0
 ymax        <- 1
-Xlab <- "Local Centrality (Cl)" 
+Xlab <- "Semilocal Centrality (SL)" 
 Ylab <- "Bridgeness (B)"
 X    <- as.numeric(igraph::get.vertex.attribute(gg,"SL",V(gg)))
 X    <- scale(X)
