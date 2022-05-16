@@ -96,13 +96,32 @@ Build consensus matrix for louvain clustering
 conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
 ```
 
+```{r plot.conmat.ecdf,fig.height=8,fig.width=8}
+steps <- 100
+Fn  <- ecdf(conmat[lower.tri(conmat)])
+X<-seq(0,1,length.out=steps+1)
+cdf<-Fn(X)
+dt<-data.frame(cons=X,cdf=cdf)
+ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
+      theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+          panel.grid.minor = element_line(colour="grey40",size=0.1),
+          panel.background = element_rect(fill="white"),
+          panel.border = element_rect(linetype="solid",fill=NA))
+```
+
 # Bridgeness 
 ```{r calc.bridge}
 bm<-getBridgeness(gg,alg,conmat)
 pander(head(bm))
 ```
 
-```{r plot,fig.height=8,fig.width=8}
+```{r plot.bridgeness,fig.height=8,fig.width=8}
 MainDivSize <- 0.8
 xmin        <- 0
 xmax        <- 1
