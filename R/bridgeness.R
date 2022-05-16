@@ -10,10 +10,10 @@ getBridgeness <- function(gg, alg,conmat) {
   #---container column names
   if ("GeneName" %in% names(vertex.attributes(gg))) {
     CN   <- c('ENTREZ.ID', 'GENE.NAME', sprintf("BRIDGENESS.%s", alg))
-    FROM <- 2
+    FROM <- 3
   } else{
     CN   <- c('ENTREZ.ID',  sprintf("BRIDGENESS.%s", alg))
-    FROM <- 1
+    FROM <- 2
   }
   #---container to store Bridgeness for algorithm 'alg'
   meas <- matrix(0, nrow = N, ncol = length(CN))
@@ -55,7 +55,7 @@ getBridgeness <- function(gg, alg,conmat) {
     ed[,6]  <- (as.numeric(elA)-as.numeric(elB))
 
     ##maximum number of communities found by clustering algorithm
-    Cmax  <- max(as.numeric(igraph::get.vertex.attribute(gg,alg[a],V(gg))))
+    Cmax  <- max(as.numeric(igraph::get.vertex.attribute(gg,alg,V(gg))))
 
     ##loop over each vertex in the graph
     for( i in 1:length(V(gg)) ){
@@ -64,7 +64,7 @@ getBridgeness <- function(gg, alg,conmat) {
       ind <- which(ed[,1] == V(gg)$name[i] | ed[,2] == V(gg)$name[i])
 
       ##get community belonging to the i'th vertex
-      c <- igraph::get.vertex.attribute(gg,alg[a],V(gg))[i]
+      c <- igraph::get.vertex.attribute(gg,alg,V(gg))[i]
 
       ##reorder edge communities, so ed[,3] equals current community no: 'c'
       for( k in 1:length(ind) ){
@@ -96,7 +96,7 @@ getBridgeness <- function(gg, alg,conmat) {
 
       ##store values
       ##BRIDGENESS.
-      meas[i,(FROM+a)]  <- 1-sqrt( Cmax/(Cmax-1) * b )
+      meas[i,(FROM)]  <- 1-sqrt( Cmax/(Cmax-1) * b )
 
     }
 
