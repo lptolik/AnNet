@@ -24,10 +24,7 @@ removeVertexTerm <- function(GG,NAME){
 
 }
 
-COLLAPSE <- vector(length=2)
-COLLAPSE[1] <- ";"
-COLLAPSE[2] <- "&"
-c=1
+COLLAPSE <- ";"
 
 
 #' Annotate graph from list of files
@@ -75,24 +72,24 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS){
         if( length(ind1) != 0 ){
 
           if( length(ind1) == 1 ){ Str1 <- as.character(annoF[ind1[1],2]) }
-          else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE[c]) }
+          else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE) }
 
           if( length(ind1) == 1 ){ Str2 <- as.character(annoF[ind1[1],1]) }
-          else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE[c]) }
+          else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE) }
 
-          if( grepl(COLLAPSE[c], Str1) ){
-            Str1 <- strsplit(Str1,COLLAPSE[c])[[1]]
+          if( grepl(COLLAPSE, Str1) ){
+            Str1 <- strsplit(Str1,COLLAPSE)[[1]]
             Str1 <- unique(Str1)
             if( length(Str1) > 1 ){
-              Str1 <- paste(as.character(Str1),collapse=COLLAPSE[c])
+              Str1 <- paste(as.character(Str1),collapse=COLLAPSE)
             }
           }
 
-          if( grepl(COLLAPSE[c], Str2) ){
-            Str2 <- strsplit(Str2,COLLAPSE[c])[[1]]
+          if( grepl(COLLAPSE, Str2) ){
+            Str2 <- strsplit(Str2,COLLAPSE)[[1]]
             Str2 <- unique(Str2)
             if( length(Str2) > 1 ){
-              Str2 <- paste(as.character(Str2),collapse=COLLAPSE[c])
+              Str2 <- paste(as.character(Str2),collapse=COLLAPSE)
             }
           }
 
@@ -263,18 +260,18 @@ annotate_topOnto_ovg<-function(gg,dis){
 
           if( Str1 == "" ) { Str1 <- as.character(dtype[indx[j]]) }
           else {
-            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),collapse=COLLAPSE[c]) }
+            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),collapse=COLLAPSE) }
 
           if( Str2 == "" ) { Str2 <- as.character(disn[indx[j]]) }
           else {
-            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),collapse=COLLAPSE[c]) }
+            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),collapse=COLLAPSE) }
         }
 
       }
     }
 
-    Str1 = paste(unique(strsplit(Str1,COLLAPSE[c])[[1]]),collapse=COLLAPSE[c])
-    Str2 = paste(unique(strsplit(Str2,COLLAPSE[c])[[1]]),collapse=COLLAPSE[c])
+    Str1 = paste(unique(strsplit(Str1,COLLAPSE)[[1]]),collapse=COLLAPSE)
+    Str2 = paste(unique(strsplit(Str2,COLLAPSE)[[1]]),collapse=COLLAPSE)
 
     V(gg)[i]$TopOnto_OVG = as.character(Str1);
     V(gg)[i]$TopOnto_OVG_HDO_ID = as.character(Str2);
@@ -321,18 +318,18 @@ annotate_topOnto_ov_P140papers<-function(gg,par,dis){
 
           if( Str1 == "" ) { Str1 <- as.character(dtype[indx[j]]) }
           else {
-            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),collapse=COLLAPSE[c]) }
+            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),collapse=COLLAPSE) }
 
           if( Str2 == "" ) { Str2 <- as.character(disn[indx[j]]) }
           else {
-            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),collapse=COLLAPSE[c]) }
+            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),collapse=COLLAPSE) }
         }
 
       }
     }
 
-    Str1 = paste(unique(strsplit(Str1,COLLAPSE[c])[[1]]),collapse=COLLAPSE[c])
-    Str2 = paste(unique(strsplit(Str2,COLLAPSE[c])[[1]]),collapse=COLLAPSE[c])
+    Str1 = paste(unique(strsplit(Str1,COLLAPSE)[[1]]),collapse=COLLAPSE)
+    Str2 = paste(unique(strsplit(Str2,COLLAPSE)[[1]]),collapse=COLLAPSE)
 
     V(gg)[i]$TopOnto_OV_PAPERS= as.character(Str1);
     V(gg)[i]$TopOnto_OV_PAPERS_HDO_ID = as.character(Str2);
@@ -379,7 +376,7 @@ annotate_SCHanno<-function(gg,anno){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str <- as.character(anno[ind1[1],2]) }
-      else { Str <- paste(as.character(anno[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str <- paste(as.character(anno[ind1,2]),collapse=COLLAPSE) }
 
     }
 
@@ -411,7 +408,7 @@ annotate_CHUA<-function(gg,anno){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str <- as.character(anno[ind1[1],2]) }
-      else { Str <- paste(as.character(anno[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str <- paste(as.character(anno[ind1,2]),collapse=COLLAPSE) }
 
     }
 
@@ -457,10 +454,10 @@ annotate_Interpro<-function(gg,annoF,annoD){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str1 <- as.character(annoF[ind1[1],2]) }
-      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE) }
 
       if( length(ind1) == 1 ){ Str2 <- as.character(annoF[ind1[1],1]) }
-      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE[c]) }
+      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE) }
 
     }
 
@@ -476,10 +473,10 @@ annotate_Interpro<-function(gg,annoF,annoD){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str1 <- as.character(annoD[ind1[1],2]) }
-      else { Str1 <- paste(as.character(annoD[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str1 <- paste(as.character(annoD[ind1,2]),collapse=COLLAPSE) }
 
       if( length(ind1) == 1 ){ Str2 <- as.character(annoD[ind1[1],1]) }
-      else { Str2 <- paste(as.character(annoD[ind1,1]),collapse=COLLAPSE[c]) }
+      else { Str2 <- paste(as.character(annoD[ind1,1]),collapse=COLLAPSE) }
 
     }
 
@@ -598,10 +595,10 @@ annotate_go_mf<-function(gg,annoF){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str1 <- as.character(annoF[ind1[1],2]) }
-      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE) }
 
       if( length(ind1) == 1 ){ Str2 <- as.character(annoF[ind1[1],1]) }
-      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE[c]) }
+      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE) }
 
     }
 
@@ -645,10 +642,10 @@ annotate_go_bp<-function(gg,annoF){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str1 <- as.character(annoF[ind1[1],2]) }
-      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE) }
 
       if( length(ind1) == 1 ){ Str2 <- as.character(annoF[ind1[1],1]) }
-      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE[c]) }
+      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE) }
 
     }
 
@@ -692,10 +689,10 @@ annotate_go_cc<-function(gg,annoF){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str1 <- as.character(annoF[ind1[1],2]) }
-      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE) }
 
       if( length(ind1) == 1 ){ Str2 <- as.character(annoF[ind1[1],1]) }
-      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE[c]) }
+      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE) }
 
     }
 
