@@ -187,6 +187,28 @@ getDiseases<-function(){
   disn[12] <- "DOID:2377"
   return(disn)
 }
+
+#' Generic annotation function. It takes name of the attribute, and two column
+#' data.frame with vertex ID in the first column and annotation in the second.
+#' As a first step all attributes with provided names will be removed.
+#'
+#' @param gg graph to annotate
+#' @param name name of the attribute
+#' @param values annotation data.frame
+#'
+#' @return
+#' @export
+#'
+#' @examples
+annotate_vertex<-function(gg,name,values){
+  ids = V(gg)$name
+  values[,2]<-as.character(values[,2])
+  vm<-as.matrix(values)
+  colnames(vm)<-c('ID',name)
+  res<-applpMatrixToGraph(gg,vm)
+  return(res)
+}
+
 #Add topOnto_ovg
 #' Title
 #'
@@ -696,6 +718,7 @@ annotate_celltypes<-function(gg,files){
   gg <- loopOverFiles(gg, files, fn, ids, FALSE)
   return(gg)
 }
+
 #Add pathways
 annotate_pathways<-function(gg,files){
   ids = V(gg)$name
