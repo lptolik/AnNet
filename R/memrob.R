@@ -73,6 +73,11 @@ memrob <- function(x,rm=data.frame()){
 #' @examples
 getRobustness<-function(gg,alg,conmat){
 
+  if(!alg%in%igraph::vertex.attr_names(gg)){
+    stop(paste("Membership for the ",alg,
+               "algorithm should be stored in the graph.\n",
+               "See calcClustering.\n"))
+  }
   rm<-data.frame(cm=as.numeric(igraph::get.vertex.attribute(gg,alg,V(gg))))
   cm           <- data.frame(conmat);
   names(cm)    <- rownames(rm);
