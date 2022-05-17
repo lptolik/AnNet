@@ -25,7 +25,7 @@ removeVertexTerm <- function(GG,NAME){
 }
 
 COLLAPSE <- ";"
-
+ESC      <- "|"
 
 #' Annotate graph from list of files
 #'
@@ -213,9 +213,68 @@ annotate_vertex<-function(gg,name,values){
                             name=name,
                             index = gidx,
                             value = annL)
+  return(ggm)
+}
+
+#' Escapes elements of list in annotation, so they'll be searchable by grep.
+#' In the case when annotation has not carefully planned, some annotations
+#' could be substring of other, for example search fo DOID:14 could return
+#' DOID:143, DOID:1433, and DOID:14330. To avoid this all names should be
+#' enclosed in escape characters, which unlikely to find within annotation
+#' itself.
+#'
+#' @param annVec vector of annotation strings
+#' @param col list separator character
+#' @param esc escape character
+#'
+#' @return
+#'
+#' @examples
+escapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
+  if(any(grepl(esc,annVec,fixed = TRUE))){
+    stop("Either already escaped or escape charecter found in annotation\n")
+  }
+  annList<-strsplit(annVec,col,fixed = TRUE)
+  res<-sapply(annList,function(.x)paste0(esc,.x,esc,collapse = ';'))
   return(res)
 }
 
+#' Perform opposite to escapeAnnotation operations: remove all escape
+#' characters from annotation strings
+#'
+#' @param annVec vector of annotation strings
+#' @param col list separator character
+#' @param esc escape character
+#'
+#' @return
+#'
+#' @examples
+unescapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
+  res<-gsub(esc,'',annVec,fixed = TRUE)
+  return(res)
+}
+
+#' Extract unique values from annotations.
+#' It is not uncommon that some nodes are annotated with list of terms and some
+#' terms annotates multiple nodes. This function creates vector of unique terms
+#' that were used in annotation.
+#'
+#' @param annVec vector of annotation strings
+#' @param col list separator character
+#' @param sort how to sort the result list
+#'
+#' @return
+#'
+#' @examples
+getAnnotationList<-function(annVec,col=COLLAPSE,sort=c('none','string','frequency')){
+  sort <- match.arg(sort)
+  res=switch (sort,
+    none = unique(unlist(strsplit(annVec,';'))),
+    string = sort(unique(unlist(strsplit(annVec,';')))),
+    frequency = names(sort(table(unlist(strsplit(annVec,';'))),decreasing = TRUE))
+  )
+  return(res)
+}
 #Add topOnto_ovg
 #' Title
 #'
