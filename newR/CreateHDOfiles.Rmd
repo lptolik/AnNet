@@ -68,8 +68,8 @@ tD<-t[t$HDOID%in%getDiseases(),]
 ```
 
 Now we can annotate graph with new data:
-```{r annot.graph.mf}
-gg<-annotate_go_mf(gg,flatfile)
+```{r annot.graph.hdo}
+gg<-annotate_topOnto_ovg(gg,tD[,1:3])
 summary(gg)
 ```
 
@@ -77,9 +77,9 @@ You can see two new vertex attributes: O_MF_ID and GO_MFfor lists of IDs and
 terms respectively. 
 
 For later use annotation data could be saved into the file:
-```{r write.file.mf}
-write.table(flatfile,
-            sprintf("flatfile.go.%s.csv",Onto),
+```{r write.file.hdo}
+write.table(tD[,1:3],
+           "flatfile.HDO.csv",
             sep="\t",
             col.names=F,
             row.names=F,
