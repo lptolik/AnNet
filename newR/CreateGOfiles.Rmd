@@ -1,0 +1,350 @@
+---
+title: "BuildNetwork"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BuildNetwork}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, cache=TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(AnNet)
+library(synaptome.db)
+library(pander)
+library(ggplot2)
+library(topGO)
+library(org.Hs.eg.db)
+```
+# Title   AnNet: library for comprehensive network analysis
+##  Authors: Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong and Oksana Sorokina    
+
+#Introduction
+
+# Overview of capabilities
+# Build the network
+
+The package allows building the network from the data frame, where the rows correspond to the edges of the graph, or for the list of nodes (genes), for which the information will be retrieved from the SynaptomeDB.
+
+## Build network for the node list extracted from SynaptomeDB
+
+```{r net_from_SynaptomeDB}
+
+cid<-match('Presynaptic',getCompartments()$Name) # Let's get the ID for presynaptic compartment
+cid
+t<-getAllGenes4Compartment(cid) # Now we need to collect all the gene IDs for presinaptic  compartment
+dim(t)
+head(t)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez) # finally, build the graph using respecctive gene EntrezIDs as node IDs
+summary(gg)
+
+```
+# Annotate the nodes with node attributes
+## Gene name
+```{r annotate_net}
+gg<-annotateGeneNames(gg)
+summary(gg)
+head(V(gg))
+head(V(gg)$GeneName)
+```
+
+# Prepare GO annotations
+
+Define constants required for the analysis: specie (TAX), specie genomics data
+base (TAXmap) and its name (TAXmapStr), minimum (thresMin) and maximum of 
+genes annotated by the term to be included in the annotation list.
+```{r get.go.init}
+## The GO Ontology to run the enrichment
+TAX       = "9606"
+TAXmap    = org.Hs.eg.db
+TAXmapStr = "org.Hs.eg.db"    
+TAXtitle  = "Human"
+thresMIN <- 10
+thresMAX <- 1000
+```
+
+# CC ontology annotation
+
+Set ontology name
+```{r set.ont.cc}
+Onto      = "CC"
+```
+
+
+```{r make.go.data.cc}
+## Get Gene Symbols 
+geneID2TERM <- revmap(topGO::annFUN.org(feasibleGenes=NULL,whichOnto=Onto, mapping = TAXmapStr, ID = "Entrez"))
+TERM2geneID <- revmap(geneID2TERM)
+
+geneIDs=names(geneID2TERM)
+
+myList <- as.vector(V(gg)$name)
+myList <- unique(myList)
+myList <- na.omit(myList)
+geneList <- factor(as.integer(geneIDs %in% myList))
+names(geneList) <- geneIDs
+
+## setup the topGO enrichment object 
+GOdata <- new("topGOdata", ontology=Onto, allGenes = geneList, annot = annFUN.gene2GO, gene2GO = geneID2TERM)
+```
+
+```{r prepare.terms.cc}
+##--- Run enrichment using topGO
+resultFisher        <- runTest(GOdata, algorithm = "classic", statistic = "fisher")
+resultFisher.elim   <- runTest(GOdata, algorithm = "elim", statistic = "fisher")
+        
+topnodes = resultFisher@geneData[[4]]
+
+if( resultFisher.elim@geneData[[4]] < topnodes ){
+    topnodes = resultFisher.elim@geneData[[4]]
+}
+
+## The GO object after running the enrichment analysis
+allRes <- GenTable(GOdata, classicFisher = resultFisher, elimFisher = resultFisher.elim, orderBy = "classicFisher", ranksOf = "classicFisher", topNodes = topnodes )
+##---
+
+## Add Entrez IDs to output GO object
+hits=lapply(allRes$GO.ID,function(x)
+                          intersect(sigGenes(GOdata),genesInTerm(GOdata, c(x))[[1]]))
+allRes$hits=hits
+```
+
+```{r prepare.annot.df.cc}
+NGOterms = dim(allRes)[1]
+
+flatfile <- data.frame()
+
+for( i in 1:NGOterms ){
+
+    ids  = allRes$hits[i][[1]]
+    Nids = length(ids)
+    if( Nids >= thresMIN && Nids <= thresMAX ){
+
+        if( i == 1 ){
+            flatfile = cbind(rep(allRes$GO.ID[i][[1]],Nids),
+                             rep(allRes$Term[i][[1]], Nids),
+                             ids)
+        } else {
+            tmp = cbind(rep(allRes$GO.ID[i][[1]],Nids),
+                        rep(allRes$Term[i][[1]], Nids),
+                        ids)
+            flatfile = rbind(flatfile, tmp)
+        }        
+
+    }
+    
+}
+
+```
+
+Now we can annotate graph with new data:
+```{r annot.graph.cc}
+gg<-annotate_go_cc(gg,flatfile)
+summary(gg)
+```
+
+You can see two new vertex attributes: O_CC_ID and GO_CC for lists of IDs and
+terms respectively. 
+
+For later use annotation data could be saved into the file:
+```{r write.file.cc}
+write.table(flatfile,
+            sprintf("flatfile.go.%s.csv",Onto),
+            sep="\t",
+            col.names=F,
+            row.names=F,
+            quote=F)
+```
+
+# BP ontology annotation
+
+Set ontology name
+```{r set.ont.bp}
+Onto      = "BP"
+```
+
+
+```{r make.go.data.bp}
+## Get Gene Symbols 
+geneID2TERM <- revmap(topGO::annFUN.org(feasibleGenes=NULL,whichOnto=Onto, mapping = TAXmapStr, ID = "Entrez"))
+TERM2geneID <- revmap(geneID2TERM)
+
+geneIDs=names(geneID2TERM)
+
+myList <- as.vector(V(gg)$name)
+myList <- unique(myList)
+myList <- na.omit(myList)
+geneList <- factor(as.integer(geneIDs %in% myList))
+names(geneList) <- geneIDs
+
+## setup the topGO enrichment object 
+GOdata <- new("topGOdata", ontology=Onto, allGenes = geneList, annot = annFUN.gene2GO, gene2GO = geneID2TERM)
+```
+
+```{r prepare.terms.bp}
+##--- Run enrichment using topGO
+resultFisher        <- runTest(GOdata, algorithm = "classic", statistic = "fisher")
+resultFisher.elim   <- runTest(GOdata, algorithm = "elim", statistic = "fisher")
+        
+topnodes = resultFisher@geneData[[4]]
+
+if( resultFisher.elim@geneData[[4]] < topnodes ){
+    topnodes = resultFisher.elim@geneData[[4]]
+}
+
+## The GO object after running the enrichment analysis
+allRes <- GenTable(GOdata, classicFisher = resultFisher, elimFisher = resultFisher.elim, orderBy = "classicFisher", ranksOf = "classicFisher", topNodes = topnodes )
+##---
+
+## Add Entrez IDs to output GO object
+hits=lapply(allRes$GO.ID,function(x)
+                          intersect(sigGenes(GOdata),genesInTerm(GOdata, c(x))[[1]]))
+allRes$hits=hits
+```
+
+```{r prepare.annot.df.bp}
+NGOterms = dim(allRes)[1]
+
+flatfile <- data.frame()
+
+for( i in 1:NGOterms ){
+
+    ids  = allRes$hits[i][[1]]
+    Nids = length(ids)
+    if( Nids >= thresMIN && Nids <= thresMAX ){
+
+        if( i == 1 ){
+            flatfile = cbind(rep(allRes$GO.ID[i][[1]],Nids),
+                             rep(allRes$Term[i][[1]], Nids),
+                             ids)
+        } else {
+            tmp = cbind(rep(allRes$GO.ID[i][[1]],Nids),
+                        rep(allRes$Term[i][[1]], Nids),
+                        ids)
+            flatfile = rbind(flatfile, tmp)
+        }        
+
+    }
+    
+}
+
+```
+
+Now we can annotate graph with new data:
+```{r annot.graph.bp}
+gg<-annotate_go_bp(gg,flatfile)
+summary(gg)
+```
+
+You can see two new vertex attributes: O_BP_ID and GO_BP for lists of IDs and
+terms respectively. 
+
+For later use annotation data could be saved into the file:
+```{r write.file.bp}
+write.table(flatfile,
+            sprintf("flatfile.go.%s.csv",Onto),
+            sep="\t",
+            col.names=F,
+            row.names=F,
+            quote=F)
+```
+
+
+# MF ontology annotation
+
+Set ontology name
+```{r set.ont.mf}
+Onto      = "MF"
+```
+
+
+```{r make.go.data.mf}
+## Get Gene Symbols 
+geneID2TERM <- revmap(topGO::annFUN.org(feasibleGenes=NULL,whichOnto=Onto, mapping = TAXmapStr, ID = "Entrez"))
+TERM2geneID <- revmap(geneID2TERM)
+
+geneIDs=names(geneID2TERM)
+
+myList <- as.vector(V(gg)$name)
+myList <- unique(myList)
+myList <- na.omit(myList)
+geneList <- factor(as.integer(geneIDs %in% myList))
+names(geneList) <- geneIDs
+
+## setup the topGO enrichment object 
+GOdata <- new("topGOdata", ontology=Onto, allGenes = geneList, annot = annFUN.gene2GO, gene2GO = geneID2TERM)
+```
+
+```{r prepare.terms.mf}
+##--- Run enrichment using topGO
+resultFisher        <- runTest(GOdata, algorithm = "classic", statistic = "fisher")
+resultFisher.elim   <- runTest(GOdata, algorithm = "elim", statistic = "fisher")
+        
+topnodes = resultFisher@geneData[[4]]
+
+if( resultFisher.elim@geneData[[4]] < topnodes ){
+    topnodes = resultFisher.elim@geneData[[4]]
+}
+
+## The GO object after running the enrichment analysis
+allRes <- GenTable(GOdata, classicFisher = resultFisher, elimFisher = resultFisher.elim, orderBy = "classicFisher", ranksOf = "classicFisher", topNodes = topnodes )
+##---
+
+## Add Entrez IDs to output GO object
+hits=lapply(allRes$GO.ID,function(x)
+                          intersect(sigGenes(GOdata),genesInTerm(GOdata, c(x))[[1]]))
+allRes$hits=hits
+```
+
+```{r prepare.annot.df.mf}
+NGOterms = dim(allRes)[1]
+
+flatfile <- data.frame()
+
+for( i in 1:NGOterms ){
+
+    ids  = allRes$hits[i][[1]]
+    Nids = length(ids)
+    if( Nids >= thresMIN && Nids <= thresMAX ){
+
+        if( i == 1 ){
+            flatfile = cbind(rep(allRes$GO.ID[i][[1]],Nids),
+                             rep(allRes$Term[i][[1]], Nids),
+                             ids)
+        } else {
+            tmp = cbind(rep(allRes$GO.ID[i][[1]],Nids),
+                        rep(allRes$Term[i][[1]], Nids),
+                        ids)
+            flatfile = rbind(flatfile, tmp)
+        }        
+
+    }
+    
+}
+
+```
+
+Now we can annotate graph with new data:
+```{r annot.graph.mf}
+gg<-annotate_go_mf(gg,flatfile)
+summary(gg)
+```
+
+You can see two new vertex attributes: O_MF_ID and GO_MFfor lists of IDs and
+terms respectively. 
+
+For later use annotation data could be saved into the file:
+```{r write.file.mf}
+write.table(flatfile,
+            sprintf("flatfile.go.%s.csv",Onto),
+            sep="\t",
+            col.names=F,
+            row.names=F,
+            quote=F)
+```

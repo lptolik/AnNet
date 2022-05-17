@@ -1,0 +1,160 @@
+---
+title: "BuildNetwork"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BuildNetwork}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, cache=TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(AnNet)
+library(synaptome.db)
+library(pander)
+library(ggplot2)
+scale <- function(x, VALUE=NULL){
+
+    x = as.numeric(as.vector(x))
+
+    xmin <- min(x,na.rm=T)
+    xmax <- max(x,na.rm=T)
+   
+    if( is.null(VALUE) ){
+
+        x  <- x-xmin
+        x  <- ifelse(!is.na(x), x/(xmax-xmin), NA) 
+
+        return(x)
+    }
+
+    value = as.numeric(as.vector(value)[1])
+    value = value-xmin
+    value = ifelse(!is.na(value), value/(xmax-xmin), NA) 
+    return(value)
+}
+```
+# Title   AnNet: library for comprehensive network analysis
+##  Authors: Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong and Oksana Sorokina    
+
+#Introduction
+
+# Overview of capabilities
+# Build the network
+
+The package allows building the network from the data frame, where the rows correspond to the edges of the graph, or for the list of nodes (genes), for which the information will be retrieved from the SynaptomeDB.
+
+## Build network for the node list extracted from SynaptomeDB
+
+```{r net_from_SynaptomeDB}
+
+cid<-match('Presynaptic',getCompartments()$Name) # Let's get the ID for presynaptic compartment
+cid
+t<-getAllGenes4Compartment(cid) # Now we need to collect all the gene IDs for presinaptic  compartment
+dim(t)
+head(t)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez) # finally, build the graph using respecctive gene EntrezIDs as node IDs
+summary(gg)
+
+```
+# Annotate the nodes with node attributes
+## Gene name
+```{r annotate_net}
+
+gg<-annotateGeneNames(gg)
+summary(gg)
+head(V(gg))
+head(V(gg)$GeneName)
+```
+
+# Clustering
+
+```{r cluster.graph, cache=TRUE}
+alg<- 'louvain'
+gg<-calcClustering(gg,alg = alg)
+```
+
+```
+{r cluster.graph, cache=TRUE}
+gg<-calcAllClustering(gg)
+```
+
+# Centrality
+```{r calc.centr}
+gg <- calcCentrality(gg)
+```
+
+# Consensus matrix
+Build consensus matrix for louvain clustering
+```{r build.conmat}
+conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
+```
+
+```{r plot.conmat.ecdf,fig.height=8,fig.width=8}
+steps <- 100
+Fn  <- ecdf(conmat[lower.tri(conmat)])
+X<-seq(0,1,length.out=steps+1)
+cdf<-Fn(X)
+dt<-data.frame(cons=X,cdf=cdf)
+ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
+      theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+          panel.grid.minor = element_line(colour="grey40",size=0.1),
+          panel.background = element_rect(fill="white"),
+          panel.border = element_rect(linetype="solid",fill=NA))
+```
+
+# Cluster robustness
+```{r clcons}
+clrob<-getRobustness(gg,alg,conmat)
+pander(clrob)
+```
+
+# Bridgeness 
+```{r calc.bridge}
+bm<-getBridgeness(gg,alg,conmat)
+pander(head(bm))
+```
+
+```{r plot.bridgeness,fig.height=8,fig.width=8}
+MainDivSize <- 0.8
+xmin        <- 0
+xmax        <- 1
+ymin        <- 0
+ymax        <- 1
+Xlab <- "Semilocal Centrality (SL)" 
+Ylab <- "Bridgeness (B)"
+X    <- as.numeric(igraph::get.vertex.attribute(gg,"SL",V(gg)))
+X    <- scale(X)
+Y       <- as.numeric(as.vector(bm[,dim(bm)[2]]))    
+dt<-data.frame(X=X,Y=Y)
+ggplot(dt,aes(x=X,y=Y))+geom_point()+
+      labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
+    scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
+    scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
+    theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+          panel.grid.minor = element_line(colour="grey40",size=0.1),
+          panel.background = element_rect(fill="white"),
+          panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)+
+    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
+
+```
+
