@@ -19,7 +19,7 @@ library(AnNet)
 library(synaptome.db)
 library(pander)
 library(ggplot2)
-library(topOnto) 
+#library(topOnto) 
 library(org.Hs.eg.db)
 ```
 # Create ontology annotation for Disease Ontology with TopOnto
@@ -59,7 +59,7 @@ myList <- as.vector(V(gg)$name)
 myList <- unique(myList)
 myList <- na.omit(myList)
 t<-getGeneDiseaseByEntres(myList)
-t<-t[,c('HDOID','Description','HumanEntrez','HumanName')]
+t<-as.data.frame(t[,c('HDOID','Description','HumanEntrez','HumanName')])
 ```
 
 and restrict the list to only subset of diseases:
@@ -69,8 +69,16 @@ tD<-t[t$HDOID%in%getDiseases(),]
 
 Now we can annotate graph with new data:
 ```{r annot.graph.hdo}
-gg<-annotate_topOnto_ovg(gg,tD[,1:3])
+gg<-annotate_topOnto_ovg(gg,as.data.frame(tD[,1:3]))
 summary(gg)
+```
+
+```{r check.annotation}
+annDT<-data.frame(ID=V(gg)$name,
+                  Name=V(gg)$GeneName,
+                  HDOID=gsub(';','; ',V(gg)$TopOnto_OVG_HDO_ID),
+                  Abb=gsub(';','; ',V(gg)$TopOnto_OVG))
+pander(annDT,split.tables=Inf,justify='llll')
 ```
 
 You can see two new vertex attributes: O_MF_ID and GO_MFfor lists of IDs and
