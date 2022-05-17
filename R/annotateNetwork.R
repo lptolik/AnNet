@@ -198,11 +198,21 @@ getDiseases<-function(){
 #'
 #' @examples
 annotate_vertex<-function(gg,name,values){
-  ids = V(gg)$name
-  values[,2]<-as.character(values[,2])
-  vm<-as.matrix(values)
-  colnames(vm)<-c('ID',name)
-  res<-applpMatrixToGraph(gg,vm)
+  ggm <- removeVertexTerm(gg,name)
+  ids = V(ggm)$name
+  vids<-as.character(values[,1])
+  idx<-match(vids,ids)
+  nidx<-which(!is.na(idx))
+  vids<-vids[nidx]
+  val<-as.character(values[nidx,2])
+  uids<-unique(vids)
+  gidx<-match(uids,ids)
+  annL<-sapply(uids,
+               function(.x) paste(unique(val[vids==.x]),collapse = ';'))
+  ggm<-set.vertex.attribute(graph=ggm,
+                            name=name,
+                            index = gidx,
+                            value = annL)
   return(res)
 }
 

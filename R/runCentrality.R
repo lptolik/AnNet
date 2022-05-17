@@ -238,7 +238,7 @@ getCentralityMatrix<-function(gg){
 
 }
 
-#' Add annotation to the vertex
+#' Add annotation to the vertex in the case of unique annotation per node.
 #'
 #' @param gg igraph object
 #' @param m matrix of values to be applied as vertex attributes.
