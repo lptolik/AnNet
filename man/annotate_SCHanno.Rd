@@ -9,9 +9,6 @@ annotate_SCHanno(gg, anno)
 \arguments{
 \item{anno}{}
 }
-\value{
-
-}
 \description{
 Title
 }

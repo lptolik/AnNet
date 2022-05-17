@@ -9,9 +9,6 @@ getEntropy(gg, maxSr = NULL)
 \arguments{
 \item{gg}{igraph object}
 }
-\value{
-
-}
 \description{
 Calculates perturbation entropy
 }

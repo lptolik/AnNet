@@ -14,9 +14,6 @@ normModularity(
 \arguments{
 \item{Nint}{}
 }
-\value{
-
-}
 \description{
 Calculates the normalized network modularity value.
 }

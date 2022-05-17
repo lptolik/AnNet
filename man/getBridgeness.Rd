@@ -13,9 +13,6 @@ getBridgeness(gg, alg, conmat)
 
 \item{conmat}{consensus matrix calculated with that algorithm}
 }
-\value{
-
-}
 \description{
 Calculate bridginess from consensus matrix
 }

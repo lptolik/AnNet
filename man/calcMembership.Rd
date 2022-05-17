@@ -12,9 +12,6 @@ calcMembership(
 \arguments{
 \item{alg}{}
 }
-\value{
-
-}
 \description{
 Calculate cluster memberships for the graph.
 }

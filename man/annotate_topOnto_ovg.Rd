@@ -9,9 +9,6 @@ annotate_topOnto_ovg(gg, dis)
 \arguments{
 \item{dis}{}
 }
-\value{
-
-}
 \description{
 Title
 }

@@ -10,9 +10,6 @@ calcClustering(gg, alg)
 \arguments{
 \item{alg}{algorithm to apply}
 }
-\value{
-
-}
 \description{
 Calculate memberships for particular clustering algorithms and store them on the
 graph vertices.

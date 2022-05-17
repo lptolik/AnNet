@@ -9,9 +9,6 @@ annotateGeneNames(gg)
 \arguments{
 \item{gg}{}
 }
-\value{
-
-}
 \description{
 Title
 }

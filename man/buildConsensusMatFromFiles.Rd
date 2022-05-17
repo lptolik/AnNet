@@ -9,9 +9,6 @@ buildConsensusMatFromFiles(Dir, file.name, skip = 1, sep = "\\t")
 \arguments{
 \item{sep}{}
 }
-\value{
-
-}
 \description{
 Build consensus matrix from set of files.
 }

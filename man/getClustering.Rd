@@ -12,9 +12,6 @@ getClustering(
 \arguments{
 \item{alg}{}
 }
-\value{
-
-}
 \description{
 Get clustering results for the graph.
 }
