@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup,results='hide', message=FALSE, warning=FALSE}
 library(AnNet)
 library(synaptome.db)
 library(pander)
