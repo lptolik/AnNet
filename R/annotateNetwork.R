@@ -141,6 +141,7 @@ annotateGeneNames<-function(gg){
   return(gg)
 }
 
+#' @export
 getDType<-function(){
   #---HDO Disease short names
   dtype  <- vector(length=12);
@@ -228,6 +229,7 @@ annotate_vertex<-function(gg,name,values){
 #' @param esc escape character
 #'
 #' @return
+#' @export
 #'
 #' @examples
 escapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
@@ -255,6 +257,7 @@ escapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
 #' @param esc escape character
 #'
 #' @return
+#' @export
 #'
 #' @examples
 unescapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
@@ -272,7 +275,7 @@ unescapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
 #' @param sort how to sort the result list
 #'
 #' @return
-#'
+#' @export
 #' @examples
 getAnnotationList<-function(annVec,col=COLLAPSE,sort=c('none','string','frequency')){
   sort <- match.arg(sort)

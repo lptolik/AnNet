@@ -43,6 +43,7 @@ permute <- function(GNS, N){
 # disA => name of disease A
 # disA => name of disease B
 # OO   => minimum shorest paths for each gda, and each disease
+#' @export
 diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 
   #disease A genes
@@ -79,6 +80,7 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 
 }
 
+#' @export
 degree.binned.GDAs <- function(gg,GDA,dtype){
 
   deg  = degree(gg)
@@ -98,6 +100,7 @@ degree.binned.GDAs <- function(gg,GDA,dtype){
 
 }
 
+#' @export
 sample.deg.binned.GDA <- function(org.map,GDA){
 
   gda.indx = match(GDA,colnames(org.map))
@@ -136,6 +139,7 @@ sample.deg.binned.GDA <- function(org.map,GDA){
 #' @param name
 #'
 #' @return
+#' @export
 #'
 #' @examples
 prepareGDA<-function(gg,name){
@@ -144,6 +148,17 @@ prepareGDA<-function(gg,name){
   return(gda)
 }
 
+#' Title
+#'
+#' @param gg
+#' @param name
+#' @param diseases
+#' @param permute
+#'
+#' @return
+#' @export
+#'
+#' @examples
 calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binned')){
   permute<-match.arg(permute)
   gda<-prepareGDA(gg,name)
@@ -228,6 +243,17 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
   return(list(disease_separation=DAB,gene_disease_separation=oo,disease_localisation=res))
 }
 
+#' Title
+#'
+#' @param gg
+#' @param name
+#' @param diseases
+#' @param Nperm
+#'
+#' @return
+#' @export
+#'
+#' @examples
 runPermDisease<-function(gg,name,diseases=NULL,Nperm=100){
   res<-lapply(1:Nperm,calcDiseasePairs,gg=gg,name=name,diseases=diseases,perm=TRUE)
 }
