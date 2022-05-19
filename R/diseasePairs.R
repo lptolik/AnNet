@@ -135,7 +135,7 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
     remove<-c()
     diseases<-escapeAnnotation(diseases)
     for(d in 1:length(diseases)){
-      if(none(grepl(diseases[d],gda))){
+      if(!any(grepl(diseases[d],gda))){
         remove<-c(remove,d)
       }
     }
