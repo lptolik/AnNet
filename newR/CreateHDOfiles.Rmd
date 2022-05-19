@@ -72,6 +72,11 @@ Now we can annotate graph with new data:
 gg<-annotate_topOnto_ovg(gg,as.data.frame(tD[,1:3]))
 summary(gg)
 ```
+```{r save.annot.graph}
+gg <- calcCentrality(gg)
+saveRDS(gg,'annotated_graph.rds')
+```
+
 
 ```{r check.annotation}
 annDT<-data.frame(ID=V(gg)$name,
