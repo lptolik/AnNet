@@ -1,3 +1,4 @@
+#' @export
 qscore <- function(zz,FDR){
 
   LL <- FDR[FDR[,1] < as.numeric(zz),2]
@@ -5,6 +6,23 @@ qscore <- function(zz,FDR){
   if( length(LL) != 0 ){ return(LL[end(LL)[1]]); }
 
   return(1)
+}
+
+#' Title
+#'
+#' @param GNS
+#' @param N
+#'
+#' @return
+#' @export
+#'
+#' @examples
+permute <- function(GNS, N){
+
+  temp <- sample(GNS,N,replace=F)
+
+  return(temp)
+
 }
 
 ##
@@ -129,6 +147,7 @@ prepareGDA<-function(gg,name){
 calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binned')){
   permute<-match.arg(permute)
   gda<-prepareGDA(gg,name)
+  NN  <- length(which(gda!=""))
   if(is.null(diseases)){
     diseases<-getAnnotationList(gda,sort='freq')
   }else{
@@ -165,7 +184,7 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 
     if(permute=='random'){
       ## permute the N GDA's relative to all gene ids
-      IDS <- permute(GNS, NN) #case
+      IDS <- AnNet::permute( oo[,1], N) #case
     }else if(permute=='binned'){
       IDS <- sample.deg.binned.GDA(map,diseases[d])
     }
