@@ -235,7 +235,15 @@ escapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
     stop("Either already escaped or escape charecter found in annotation\n")
   }
   annList<-strsplit(annVec,col,fixed = TRUE)
-  res<-sapply(annList,function(.x)paste0(esc,.x,esc,collapse = ';'))
+  escFun<-function(.x){
+    if(length(.x)>0){
+      return(paste0(esc,.x,esc,collapse = ';'))
+    }else{
+      return("")
+    }
+  }
+
+  res<-sapply(annList,escFun)
   return(res)
 }
 
