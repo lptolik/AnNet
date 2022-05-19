@@ -61,3 +61,98 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 
 }
 
+#' Get particular annotation from the graph and format it to the suitable
+#' form.
+#'
+#' @param gg
+#' @param name
+#'
+#' @return
+#'
+#' @examples
+prepareGDA<-function(gg,name){
+  gda<-get.vertex.attribute(gg,name)
+  gda<-escapeAnnotation(gda)
+  return(gda)
+}
+
+calcDiseasePairs<-function(gg,name,diseases=NULL,permute=FALSE){
+  gda<-prepareGDA(gg,name)
+  if(is.null(diseases)){
+    diseases<-getAnnotationList(gda,sort='freq')
+  }else{
+    remove<-c()
+    diseases<-escapeAnnotation(diseases)
+    for(d in 1:length(diseases)){
+      if(none(grepl(diseases[d],gda))){
+        remove<-c(remove,d)
+      }
+    }
+    if(length(remove)>0){
+      diseases<-diseases[-remove]
+    }
+  }
+  res           <- matrix(0 ,ncol=4, nrow=length(diseases))
+  colnames(res) <- c("Disease","N","mean_ds","SD_ds")
+  res[,1]       <- diseases
+
+
+  #--- store minimum shorest paths for each gda, and each disease
+  oo <- matrix(".",nrow=NN,ncol=(length(diseases)+2))
+  colnames(oo) <- c("Gene.ID","Gene.Name",diseases)
+  oo[,1]       <- V(gg)$name[gda !=""]
+  oo[,2]       <- V(gg)$GeneName[gda !=""]
+
+  ##--- loop over each disease
+  for( d in 1:length(diseases) ){
+
+    IDS <- V(gg)$name[grepl(diseases[d],gda,fixed=T)]
+    N   <- length(IDS)
+
+    if(permute){
+      ## permute the N GDA's relative to all gene ids
+      IDS <- permute(GNS, NN) #case
+    }
+
+    ## for each gda, find the minimum shortest path to next gda (of the same disease)
+    XX=igraph::shortest.paths(gg,IDS,IDS,weights=NA)
+    diag(XX)       = NA
+    ds             = apply(XX,1,min,na.rm=T)
+    indX           = match(names(ds),oo[,1])
+    oo[indX,(2+d)] = as.vector(ds)
+
+    res[d,2]       = as.character(N)
+    res[d,3]       = as.character(mean(ds))
+    res[d,4]       = as.character(sd(ds))
+
+  }
+
+  DAB <- matrix(".",ncol=length(diseases),nrow=length(diseases))
+  colnames(DAB) <- diseases
+  rownames(DAB) <- diseases
+
+  #--- NOTE ---#
+  # DAB is bound by -dmax <= DAB <= dmax
+  # where dmax denotes the diameter of the network
+  # dmax <- diameter(gg,directed=F)
+  #------------#
+
+  ##--- calculate disease-disease overlap
+  for( i in 1:length(diseases) ){
+    for( j in i:length(diseases) ){
+
+      DAB[i,j] <- 0
+
+      if( i != j ){
+        DAB[i,j] <- diseaseOverlap(gg,gda,rownames(DAB)[i],colnames(DAB)[j],oo)
+      }
+
+    }
+  }
+
+  return(list(disease_separation=DAB,gene_disease_separation=oo,disease_localisation=res))
+}
+
+runPermDisease<-function(gg,name,diseases=NULL,Nperm=100){
+  res<-lapply(1:Nperm,calcDiseasePairs,gg=gg,name=name,diseases=diseases,perm=TRUE)
+}
