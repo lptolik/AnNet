@@ -61,6 +61,56 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 
 }
 
+degree.binned.GDAs <- function(gg,GDA,dtype){
+
+  deg  = degree(gg)
+  bins = table(deg)
+  map  = cbind(names(deg),as.vector(deg))
+  map  = cbind(map,match(map[,2],names(bins)))
+
+  nGDAs=length(dtype)
+
+  for( i in 1:nGDAs){
+    map=cbind(map,ifelse(grepl(dtype[i],GDA),1,0))
+  }
+
+  colnames(map) = c("EntrezID","Degree","Bin",dtype)
+
+  return(map)
+
+}
+
+sample.deg.binned.GDA <- function(org.map,GDA){
+
+  gda.indx = match(GDA,colnames(org.map))
+
+  rnd.gene.set = NULL
+
+  if( length(gda.indx) > 0 ){
+
+    gda.set = as.vector(org.map[org.map[,gda.indx]==1,3])
+    Nset    = length(gda.set)
+
+    rnd.gene.set = rep(NA,Nset)
+    map=org.map
+    for( i in 1:Nset ){
+      seq.map  = seq(1,dim(map)[1],1)
+      rnd.indx = seq.map[!is.na(match(as.numeric(map[,3]),as.numeric(gda.set[i])))]
+      if( length(rnd.indx) > 1 ){
+        rnd.indx = as.numeric(sample(rnd.indx))[1]
+      }
+      if( length(rnd.indx) > 0 ){
+        rnd.gene.set[i] = map[rnd.indx,1]
+        map             = map[-rnd.indx,]
+      }
+    }
+  }
+
+  return(gdas=rnd.gene.set)
+
+}
+
+
 #' Get particular annotation from the graph and format it to the suitable
 #' form.
 #'
@@ -76,7 +126,8 @@ prepareGDA<-function(gg,name){
   return(gda)
 }
 
-calcDiseasePairs<-function(gg,name,diseases=NULL,permute=FALSE){
+calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binned')){
+  permute<-match.arg(permute)
   gda<-prepareGDA(gg,name)
   if(is.null(diseases)){
     diseases<-getAnnotationList(gda,sort='freq')
@@ -91,6 +142,9 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=FALSE){
     if(length(remove)>0){
       diseases<-diseases[-remove]
     }
+  }
+  if(permute=='binned'){
+    map <- degree.binned.GDAs(gg,gda,diseases)
   }
   res           <- matrix(0 ,ncol=4, nrow=length(diseases))
   colnames(res) <- c("Disease","N","mean_ds","SD_ds")
@@ -109,9 +163,11 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=FALSE){
     IDS <- V(gg)$name[grepl(diseases[d],gda,fixed=T)]
     N   <- length(IDS)
 
-    if(permute){
+    if(permute=='random'){
       ## permute the N GDA's relative to all gene ids
       IDS <- permute(GNS, NN) #case
+    }else if(permute=='binned'){
+      IDS <- sample.deg.binned.GDA(map,diseases[d])
     }
 
     ## for each gda, find the minimum shortest path to next gda (of the same disease)
