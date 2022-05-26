@@ -217,7 +217,7 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 
   }
 
-  DAB <- matrix(".",ncol=length(diseases),nrow=length(diseases))
+  DAB <- matrix(NA,ncol=length(diseases),nrow=length(diseases))
   colnames(DAB) <- diseases
   rownames(DAB) <- diseases
 
@@ -255,5 +255,55 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 #'
 #' @examples
 runPermDisease<-function(gg,name,diseases=NULL,Nperm=100){
-  res<-lapply(1:Nperm,calcDiseasePairs,gg=gg,name=name,diseases=diseases,perm=TRUE)
+  resD<-calcDiseasePairs(gg=gg,name=name,diseases=diseases,permute = 'random')
+  ds<-resD$gene_disease_separation
+  loc<-resD$disease_localisation
+  resL<-lapply(1:Nperm,function(.x)calcDiseasePairs(gg=gg,name=name,diseases=diseases,permute='random'))
+  resA<-sapply(resL,function(.x).x$disease_separation,simplify = "array")
+  resM<-apply(resA,c(1,2),mean)
+  resS<-apply(resA,c(1,2),sd)
+  resGDS<-sapply(resL,function(.x)apply(.x$gene_disease_separation[,3:dim(.x$gene_disease_separation)[2]],c(1,2),as.numeric),simplify = "array")
+  m<-apply(resGDS,c(1,2),mean,na.rm =TRUE)
+  RANds<-cbind(as.data.frame(resL[[1]]$gene_disease_separation[,1:2]),as.data.frame(m))
+  ##comment out for moment
+  CN <- colnames(ds)[3:length(ds[1,])]
+
+  ##--- output results file comparing observed disease pairs against randomised distribution.
+disease_location_sig           <- matrix(0 ,ncol=7, nrow=length(CN))
+colnames(disease_location_sig) <- c("HDO.ID","N","mean_ds","SD_ds","Ran_mean_ds","Ran_SD_ds","Utest.pvalue")
+disease_location_sig[,1]       <- CN
+disease_location_sig[,2]<-loc[match(disease_location_sig[,1],loc[,1]),2]
+
+  ## significance of ds for each disease
+  for( i in 1:length(CN) ){
+
+    ## gda matching indices
+    indx <- ds[,(2+i)]!="."
+
+    ## gene ids
+    ids <- ds[indx,1]
+
+    ## observed ds values
+    DS       <- as.numeric(as.vector(ds[indx,(2+i)]))
+    disease_location_sig[i,3] <- as.numeric(mean(DS))
+    disease_location_sig[i,4] <- as.numeric(sd(DS))
+
+    indy <- match(ids,RANds[,1])
+
+    ## random ds values
+    RDS <- as.numeric(as.vector(RANds[indy,(2+i)]))
+    disease_location_sig[i,5] <- as.numeric(mean(RDS,na.rm=TRUE))
+    disease_location_sig[i,6] <- as.numeric(sd(RDS,na.rm=TRUE))
+    disease_location_sig[i,7] <- 1.0
+
+    ## compute wilcox test between observable ds and random ds, and store p.values,
+    ## see (Menche et al., 2015).
+    if( !is.infinite(DS) && !is.nan(DS) && !is.na(DS) &&  !is.infinite(RDS) && !is.nan(RDS) && !is.na(RDS) ){
+      if( length(DS) != 0 && length(RDS) != 0 ){
+        wt       <- wilcox.test(DS,RDS)
+        disease_location_sig[i,7] <- as.numeric(wt$p.value)
+      }
+    }
+  }
+
 }
