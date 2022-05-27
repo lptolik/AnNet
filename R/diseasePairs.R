@@ -186,12 +186,12 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
   }
   res           <- matrix(0 ,ncol=4, nrow=length(diseases))
   colnames(res) <- c("Disease","N","mean_ds","SD_ds")
-  res[,1]       <- diseases
+  res[,1]       <- unescapeAnnotation(diseases)
 
 
   #--- store minimum shorest paths for each gda, and each disease
   oo <- matrix(".",nrow=NN,ncol=(length(diseases)+2))
-  colnames(oo) <- c("Gene.ID","Gene.Name",diseases)
+  colnames(oo) <- c("Gene.ID","Gene.Name",unescapeAnnotation(diseases))
   oo[,1]       <- V(gg)$name[gda !=""]
   oo[,2]       <- V(gg)$GeneName[gda !=""]
 
@@ -222,8 +222,8 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
   }
 
   DAB <- matrix(NA,ncol=length(diseases),nrow=length(diseases))
-  colnames(DAB) <- diseases
-  rownames(DAB) <- diseases
+  colnames(DAB) <- unescapeAnnotation(diseases)
+  rownames(DAB) <- unescapeAnnotation(diseases)
 
   #--- NOTE ---#
   # DAB is bound by -dmax <= DAB <= dmax
