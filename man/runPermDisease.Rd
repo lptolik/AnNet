@@ -4,7 +4,13 @@
 \alias{runPermDisease}
 \title{Title}
 \usage{
-runPermDisease(gg, name, diseases = NULL, Nperm = 100)
+runPermDisease(
+  gg,
+  name,
+  diseases = NULL,
+  Nperm = 100,
+  alpha = c(0.05, 0.01, 0.001)
+)
 }
 \arguments{
 \item{Nperm}{}
