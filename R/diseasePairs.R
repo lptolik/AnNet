@@ -193,8 +193,27 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
       diseases<-diseases[-remove]
     }
   }
-  if(permute=='binned'){
-    map <- degree.binned.GDAs(gg,gda,diseases)
+  if(permute!='none'){
+    rgda <- matrix(NA,nrow=vcount(gg),ncol=(length(diseases)))
+    colnames(rgda) <- c(diseases)
+    if(permute=='binned'){
+      map <- degree.binned.GDAs(gg,gda,diseases)
+    }
+
+    for( d in 1:length(diseases) ){
+
+      IDS <- V(gg)$name[grepl(diseases[d],gda,fixed=T)]
+      N   <- length(IDS)
+
+      if(permute=='random'){
+        ## permute the N GDA's relative to all gene ids
+        IDS <- AnNet::permute( V(gg)$name, N) #case
+      }else if(permute=='binned'){
+        IDS <- sample.deg.binned.GDA(map,diseases[d])
+      }
+      rgda[match(IDS,V(gg)$name),d]<-1
+    }
+    gda<-apply(rgda,1,function(.x)paste(diseases[!is.na(.x)],collapse = COLLAPSE))
   }
   res           <- matrix(0 ,ncol=4, nrow=length(diseases))
   colnames(res) <- c("Disease","N","mean_ds","SD_ds")
@@ -203,7 +222,7 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 
   #--- store minimum shorest paths for each gda, and each disease
   oo <- matrix(".",nrow=length(gda),ncol=(length(diseases)+2))
-  colnames(oo) <- c("Gene.ID","Gene.Name",unescapeAnnotation(diseases))
+  colnames(oo) <- c("Gene.ID","Gene.Name",diseases)
   oo[,1]       <- V(gg)$name#[gda !=""]
   oo[,2]       <- V(gg)$GeneName#[gda !=""]
 
@@ -212,13 +231,6 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 
     IDS <- V(gg)$name[grepl(diseases[d],gda,fixed=T)]
     N   <- length(IDS)
-
-    if(permute=='random'){
-      ## permute the N GDA's relative to all gene ids
-      IDS <- AnNet::permute( oo[,1], N) #case
-    }else if(permute=='binned'){
-      IDS <- sample.deg.binned.GDA(map,diseases[d])
-    }
 
     ## for each gda, find the minimum shortest path to next gda (of the same disease)
     XX=igraph::shortest.paths(gg,IDS,IDS,weights=NA)
@@ -234,8 +246,8 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
   }
 
   DAB <- matrix(NA,ncol=length(diseases),nrow=length(diseases))
-  colnames(DAB) <- unescapeAnnotation(diseases)
-  rownames(DAB) <- unescapeAnnotation(diseases)
+  colnames(DAB) <- diseases
+  rownames(DAB) <- diseases
 
   #--- NOTE ---#
   # DAB is bound by -dmax <= DAB <= dmax
@@ -255,6 +267,9 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 
     }
   }
+  colnames(DAB) <- unescapeAnnotation(diseases)
+  rownames(DAB) <- unescapeAnnotation(diseases)
+  colnames(oo) <- c("Gene.ID","Gene.Name",unescapeAnnotation(diseases))
 
   if(permute=='none'){
     oo<-oo[gda !="",]
@@ -291,10 +306,10 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,alpha=c(0.05,0.01,0.001
   disn <- colnames(ds)[3:length(ds[1,])]
 
   ##--- output results file comparing observed disease pairs against randomised distribution.
-disease_location_sig           <- matrix(0 ,ncol=7, nrow=length(disn))
-colnames(disease_location_sig) <- c("HDO.ID","N","mean_ds","SD_ds","Ran_mean_ds","Ran_SD_ds","Utest.pvalue")
-disease_location_sig[,1]       <- disn
-disease_location_sig[,2]<-loc[match(disease_location_sig[,1],loc[,1]),2]
+  disease_location_sig           <- matrix(0 ,ncol=7, nrow=length(disn))
+  colnames(disease_location_sig) <- c("HDO.ID","N","mean_ds","SD_ds","Ran_mean_ds","Ran_SD_ds","Utest.pvalue")
+  disease_location_sig[,1]       <- disn
+  disease_location_sig[,2]<-loc[match(disease_location_sig[,1],loc[,1]),2]
 
   ## significance of ds for each disease
   for( i in 1:length(disn) ){
@@ -327,105 +342,105 @@ disease_location_sig[,2]<-loc[match(disease_location_sig[,1],loc[,1]),2]
       }
     }
   }
-sAB<-resD$disease_separation
-RAW_sAB<-sapply(resL,function(.x).x$disease_separation,simplify = "array")
-RAN_sAB_mean<-apply(RAW_sAB,c(1,2),mean0)
-RAN_sAB_sd<-apply(RAW_sAB,c(1,2),sd0)
-perms <- dim(RAW_sAB)[3]
-Nn    <- length(disn)
-NELE  <- Nn*(Nn+1)/2
+  sAB<-resD$disease_separation
+  RAW_sAB<-sapply(resL,function(.x).x$disease_separation,simplify = "array")
+  RAN_sAB_mean<-apply(RAW_sAB,c(1,2),mean0)
+  RAN_sAB_sd<-apply(RAW_sAB,c(1,2),sd0)
+  perms <- dim(RAW_sAB)[3]
+  Nn    <- length(disn)
+  NELE  <- Nn*(Nn+1)/2
 
-##---no: of levels for Bonferroni correction
-Nlevels = NELE;
+  ##---no: of levels for Bonferroni correction
+  Nlevels = NELE;
 
-##--- Output file for disease-disease separation/overlap
-#CN <-  c("HDO.ID","Disease.long","Disease","N","HDO.ID","Disease.long","Disease","N","sAB","Separated","Overlap","zScore","pvalue","Separation/Overlap.than.chance","Bonferroni","p.adjusted","q-value")
-CN <-  c("HDO.ID","N","HDO.ID","N","sAB","Separated","Overlap","zScore","pvalue","Separation/Overlap.than.chance","Bonferroni","p.adjusted","q-value")
-zs <- matrix(".", nrow=NELE, ncol=length(CN))
-colnames(zs) <- CN
-tests <- matrix(0, nrow=NELE,ncol=perms)
-for( k in 0:(NELE-1) ){
+  ##--- Output file for disease-disease separation/overlap
+  #CN <-  c("HDO.ID","Disease.long","Disease","N","HDO.ID","Disease.long","Disease","N","sAB","Separated","Overlap","zScore","pvalue","Separation/Overlap.than.chance","Bonferroni","p.adjusted","q-value")
+  CN <-  c("HDO.ID","N","HDO.ID","N","sAB","Separated","Overlap","zScore","pvalue","Separation/Overlap.than.chance","Bonferroni","p.adjusted","q-value")
+  zs <- matrix(".", nrow=NELE, ncol=length(CN))
+  colnames(zs) <- CN
+  tests <- matrix(0, nrow=NELE,ncol=perms)
+  for( k in 0:(NELE-1) ){
 
-  ##--- linear indexing for symmetric matrix
-  i = floor( (2*Nn+1 - sqrt( (2*Nn+1)*(2*Nn+1) - 8*k ))/2 );
-  j = k - Nn*i + i*(i-1)/2;
+    ##--- linear indexing for symmetric matrix
+    i = floor( (2*Nn+1 - sqrt( (2*Nn+1)*(2*Nn+1) - 8*k ))/2 );
+    j = k - Nn*i + i*(i-1)/2;
 
-  i = i + 1;
-  j = j + i;
+    i = i + 1;
+    j = j + i;
 
-  zScore = 0
+    zScore = 0
 
-  if( !is.nan(as.numeric(RAN_sAB_sd[i,j])) ){
+    if( !is.nan(as.numeric(RAN_sAB_sd[i,j])) ){
 
-    ## compute z-score, i.e. separation of mean sAB, against a randomised model (of the mean of sAB),
-    ## see (Menche et al., 2015).
-    if( as.numeric(RAN_sAB_sd[i,j]) != 0){
-      zScore = (as.numeric(as.vector(sAB[i,j])) - as.numeric(as.vector(RAN_sAB_mean[i,j])))/(as.numeric(as.vector(RAN_sAB_sd[i,j])))
+      ## compute z-score, i.e. separation of mean sAB, against a randomised model (of the mean of sAB),
+      ## see (Menche et al., 2015).
+      if( as.numeric(RAN_sAB_sd[i,j]) != 0){
+        zScore = (as.numeric(as.vector(sAB[i,j])) - as.numeric(as.vector(RAN_sAB_mean[i,j])))/(as.numeric(as.vector(RAN_sAB_sd[i,j])))
+      }
+
+      ## compute p.value from the normal distribution
+      ## See also http://www.cyclismo.org/tutorial/R/pValues.html
+      pval <- pnorm(-abs(zScore))
+      pval <- 2 * pval
+
+      zs[(k+1),1] <- disn[i]
+      zs[(k+1),2] <- as.character(loc[which(loc[,1]==disn[i]),2])
+
+      zs[(k+1),3] <- disn[j]
+      zs[(k+1),4] <- as.character(loc[which(loc[,1]==disn[j]),2])
+
+      ## sAB, the disease-disease separation/overlap measure, on the interactome
+      zs[(k+1),5] <- as.character(sAB[i,j])
+
+      ## sAB > 0, implies separation
+      zs[(k+1),6] <- ifelse((as.numeric(zs[(k+1),5]) > 0), "YES", ".")
+
+      ## sAB < 0, implies overlap
+      zs[(k+1),7] <- ifelse((as.numeric(zs[(k+1),5]) < 0), "YES", ".")
+
+      ## save z-score and p.value
+      zs[(k+1),8] <- as.character(zScore)
+      zs[(k+1),9] <- as.character(pval)
+
+      ## z-scores < 0 (>0), implies separation/overlap smaller (larger) than by chance
+      zs[(k+1),10] <- ifelse((as.numeric(zs[(k+1),8]) < 0), "Smaller", "larger")
+
+      ## Bonferroni correction for p.value ('stars' can be found in 'setUp.R')
+      temp <- "."
+      for( x in 1:length(alpha) ){
+        if(as.numeric(zs[(k+1),9]) < as.numeric(alpha[x]/Nlevels)){ temp <- stars[x] }
+      }
+
+      ## save the Bonerroni correction, repersented by stars, here.
+      zs[(k+1),11] <- temp
+      ## default fill of output container
+    } else {
+      zs[(k+1),1] <- disn[i]
+      zs[(k+1),2] <- as.character(loc[which(loc[,1]==disn[i]),2])
+
+      zs[(k+1),3] <- disn[j]
+      zs[(k+1),4] <- as.character(loc[which(loc[,1]==disn[j]),2])
     }
+    # if( zs[(k+1),1] != zs[(k+1),3] ){
+    #
+    #   test <- 0
+    #
+    #   Mn   <- as.numeric(RAN_sAB_mean[i,j])
+    #   Sd   <- as.numeric(RAN_sAB_sd[i,j])
+    #
+    #   RsAB <- as.numeric(RAW_sAB[i,j,])
+    #
+    #   ## store the random z-score
+    #   tests[(k+1),] <- (as.numeric(RsAB - Mn))/Sd
+    #
+    # }
 
-    ## compute p.value from the normal distribution
-    ## See also http://www.cyclismo.org/tutorial/R/pValues.html
-    pval <- pnorm(-abs(zScore))
-    pval <- 2 * pval
-
-    zs[(k+1),1] <- disn[i]
-    zs[(k+1),2] <- as.character(loc[which(loc[,1]==disn[i]),2])
-
-    zs[(k+1),3] <- disn[j]
-    zs[(k+1),4] <- as.character(loc[which(loc[,1]==disn[j]),2])
-
-    ## sAB, the disease-disease separation/overlap measure, on the interactome
-    zs[(k+1),5] <- as.character(sAB[i,j])
-
-    ## sAB > 0, implies separation
-    zs[(k+1),6] <- ifelse((as.numeric(zs[(k+1),5]) > 0), "YES", ".")
-
-    ## sAB < 0, implies overlap
-    zs[(k+1),7] <- ifelse((as.numeric(zs[(k+1),5]) < 0), "YES", ".")
-
-    ## save z-score and p.value
-    zs[(k+1),8] <- as.character(zScore)
-    zs[(k+1),9] <- as.character(pval)
-
-    ## z-scores < 0 (>0), implies separation/overlap smaller (larger) than by chance
-    zs[(k+1),10] <- ifelse((as.numeric(zs[(k+1),8]) < 0), "Smaller", "larger")
-
-    ## Bonferroni correction for p.value ('stars' can be found in 'setUp.R')
-    temp <- "."
-    for( x in 1:length(alpha) ){
-      if(as.numeric(zs[(k+1),9]) < as.numeric(alpha[x]/Nlevels)){ temp <- stars[x] }
-    }
-
-    ## save the Bonerroni correction, repersented by stars, here.
-    zs[(k+1),11] <- temp
-    ## default fill of output container
-  } else {
-    zs[(k+1),1] <- disn[i]
-    zs[(k+1),2] <- as.character(loc[which(loc[,1]==disn[i]),2])
-
-    zs[(k+1),3] <- disn[j]
-    zs[(k+1),4] <- as.character(loc[which(loc[,1]==disn[j]),2])
   }
-  # if( zs[(k+1),1] != zs[(k+1),3] ){
-  #
-  #   test <- 0
-  #
-  #   Mn   <- as.numeric(RAN_sAB_mean[i,j])
-  #   Sd   <- as.numeric(RAN_sAB_sd[i,j])
-  #
-  #   RsAB <- as.numeric(RAW_sAB[i,j,])
-  #
-  #   ## store the random z-score
-  #   tests[(k+1),] <- (as.numeric(RsAB - Mn))/Sd
-  #
-  # }
+  ## save p.adjusted value in output container
+  zs[,12] <- p.adjust(as.numeric(zs[,9]),method="BY")
 
-}
-## save p.adjusted value in output container
-zs[,12] <- p.adjust(as.numeric(zs[,9]),method="BY")
+  ## if calFDR is FALSE, we'll use WGCNA's qvalue calculation for FDR
+  zs[,13] <- qvalue(as.numeric(zs[,9]))$qvalue
 
-## if calFDR is FALSE, we'll use WGCNA's qvalue calculation for FDR
-zs[,13] <- qvalue(as.numeric(zs[,9]))$qvalue
-
-return(list(Disease_overlap_sig=zs,Disease_location_sig=disease_location_sig))
+  return(list(Disease_overlap_sig=zs,Disease_location_sig=disease_location_sig))
 }
