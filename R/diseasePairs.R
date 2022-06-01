@@ -28,6 +28,18 @@ permute <- function(GNS, N){
 
 stars    <- c("*","**","***")
 
+#' Auxiliary function to replase NAs with zeros.
+#'
+#' @param x
+#'
+#' @return
+#' @export
+#'
+#' @examples
+zeroNA<-function(x){
+  x[is.na(x)]<-0
+  return(x)
+}
 
 ##
 # Calculate each diease-pair overlap/seperation on a selected
