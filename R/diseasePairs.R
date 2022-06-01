@@ -107,7 +107,7 @@ degree.binned.GDAs <- function(gg,GDA,dtype){
   nGDAs=length(dtype)
 
   for( i in 1:nGDAs){
-    map=cbind(map,ifelse(grepl(dtype[i],GDA),1,0))
+    map=cbind(map,ifelse(grepl(dtype[i],GDA,fixed=TRUE),1,0))
   }
 
   colnames(map) = c("EntrezID","Degree","Bin",dtype)
