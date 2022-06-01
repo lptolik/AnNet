@@ -274,12 +274,18 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 #'
 #' @examples
 runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,alpha=c(0.05,0.01,0.001)){
+  mean0<-function(x){
+    return(mean(zeroNA(x)))
+  }
+  sd0<-function(x){
+    return(sd(zeroNA(x)))
+  }
   resD<-calcDiseasePairs(gg=gg,name=name,diseases=diseases,permute = 'none')
   ds<-resD$gene_disease_separation
   loc<-resD$disease_localisation
   resL<-lapply(1:Nperm,function(.x)calcDiseasePairs(gg=gg,name=name,diseases=diseases,permute='random'))
   resGDS<-sapply(resL,function(.x)apply(.x$gene_disease_separation[,3:dim(.x$gene_disease_separation)[2]],c(1,2),as.numeric),simplify = "array")
-  m<-apply(resGDS,c(1,2),mean,na.rm =TRUE)
+  m<-apply(resGDS,c(1,2),mean0)
   RANds<-cbind(as.data.frame(resL[[1]]$gene_disease_separation[,1:2]),as.data.frame(m))
   ##comment out for moment
   disn <- colnames(ds)[3:length(ds[1,])]
@@ -308,8 +314,8 @@ disease_location_sig[,2]<-loc[match(disease_location_sig[,1],loc[,1]),2]
 
     ## random ds values
     RDS <- as.numeric(as.vector(RANds[indy,(2+i)]))
-    disease_location_sig[i,5] <- as.numeric(mean(RDS,na.rm=TRUE))
-    disease_location_sig[i,6] <- as.numeric(sd(RDS,na.rm=TRUE))
+    disease_location_sig[i,5] <- as.numeric(mean0(RDS))
+    disease_location_sig[i,6] <- as.numeric(sd0(RDS))
     disease_location_sig[i,7] <- 1.0
 
     ## compute wilcox test between observable ds and random ds, and store p.values,
@@ -323,8 +329,8 @@ disease_location_sig[,2]<-loc[match(disease_location_sig[,1],loc[,1]),2]
   }
 sAB<-resD$disease_separation
 RAW_sAB<-sapply(resL,function(.x).x$disease_separation,simplify = "array")
-RAN_sAB_mean<-apply(RAW_sAB,c(1,2),mean)
-RAN_sAB_sd<-apply(RAW_sAB,c(1,2),sd)
+RAN_sAB_mean<-apply(RAW_sAB,c(1,2),mean0)
+RAN_sAB_sd<-apply(RAW_sAB,c(1,2),sd0)
 perms <- dim(RAW_sAB)[3]
 Nn    <- length(disn)
 NELE  <- Nn*(Nn+1)/2
