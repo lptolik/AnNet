@@ -259,7 +259,7 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 #'
 #' @examples
 runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,alpha=c(0.05,0.01,0.001)){
-  resD<-calcDiseasePairs(gg=gg,name=name,diseases=diseases,permute = 'random')
+  resD<-calcDiseasePairs(gg=gg,name=name,diseases=diseases,permute = 'none')
   ds<-resD$gene_disease_separation
   loc<-resD$disease_localisation
   resL<-lapply(1:Nperm,function(.x)calcDiseasePairs(gg=gg,name=name,diseases=diseases,permute='random'))
