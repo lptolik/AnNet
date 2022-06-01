@@ -202,10 +202,10 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 
 
   #--- store minimum shorest paths for each gda, and each disease
-  oo <- matrix(".",nrow=NN,ncol=(length(diseases)+2))
+  oo <- matrix(".",nrow=length(gda),ncol=(length(diseases)+2))
   colnames(oo) <- c("Gene.ID","Gene.Name",unescapeAnnotation(diseases))
-  oo[,1]       <- V(gg)$name[gda !=""]
-  oo[,2]       <- V(gg)$GeneName[gda !=""]
+  oo[,1]       <- V(gg)$name#[gda !=""]
+  oo[,2]       <- V(gg)$GeneName#[gda !=""]
 
   ##--- loop over each disease
   for( d in 1:length(diseases) ){
@@ -256,6 +256,9 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
     }
   }
 
+  if(permute=='none'){
+    oo<-oo[gda !="",]
+  }
   return(list(disease_separation=DAB,gene_disease_separation=oo,disease_localisation=res))
 }
 
