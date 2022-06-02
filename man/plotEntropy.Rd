@@ -9,9 +9,6 @@ plotEntropy(SRprime, subTIT = "Entropy", SRo = NULL, maxSr = NULL)
 \arguments{
 \item{maxSr}{}
 }
-\value{
-
-}
 \description{
 Plot entropy values
 }

@@ -9,9 +9,6 @@ getGraphCentralityECDF(m)
 \arguments{
 \item{m}{}
 }
-\value{
-
-}
 \description{
 Convert centrality matrix into
 }

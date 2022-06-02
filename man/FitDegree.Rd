@@ -20,9 +20,6 @@ FitDegree(
 
 \item{threads}{}
 }
-\value{
-
-}
 \description{
 Fit Power Law to degree distribution.
 }

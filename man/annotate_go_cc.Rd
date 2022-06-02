@@ -9,9 +9,6 @@ annotate_go_cc(gg, annoF)
 \arguments{
 \item{annoF}{}
 }
-\value{
-
-}
 \description{
 Title
 }

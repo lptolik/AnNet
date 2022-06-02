@@ -14,9 +14,6 @@ getRandomGraphCentrality(gg, type = c("gnp", "pa", "cgnp", "rw"), ...)
 \item rw -- new random graph from a given graph by rewiring 25\% of edges preserving the degree distribution
 }}
 }
-\value{
-
-}
 \description{
 Title
 }

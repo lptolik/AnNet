@@ -7,7 +7,7 @@ args          <- commandArgs(TRUE);
 PERMS_PER_JOB <- as.numeric(args[2]) #no: of iterations per job
 
 
-##---Subdirectories, of a study, were consensus files are stored 
+##---Subdirectories, of a study, were consensus files are stored
 subDIR    <- vector(length=4)
 subDIR[1] <- "PPI_Presynaptic"
 #subDIR[2] <- "PPI_PSP"
@@ -46,19 +46,19 @@ for( d in 1:length(dtype) ){
      }
 }
 if( length(remove) > 0 ){
-   disn  <- disn [-remove]	
+   disn  <- disn [-remove]
    dtype <- dtype[-remove]
-}    
-##--- 
+}
+##---
 
 
 ##--- loop through result files ---##
 ##    I only use the file "sAB_random_separation.csv"
 ##    for further analysis
 files    <- vector(length=4)
-files[1] <- "gene_disease_separation.csv"  
+files[1] <- "gene_disease_separation.csv"
 files[2] <- "mean_disease_separation.csv"
-files[3] <- "sd_disease_separation.csv" 
+files[3] <- "sd_disease_separation.csv"
 files[4] <- "sAB_random_separation.csv"
 
 
@@ -77,18 +77,18 @@ tot[,1]       <- V(gg)$name
 tot[,2]       <- V(gg)$GeneName
 
 for( s in 1:nstudies ){
-  
+
   st1 = sprintf("%s/%s",subdirs[s],files[1]);
-  
+
   if( file.exists(st1) && file.info(st1)$size!=0 ){
 
      NJOBS=NJOBS+1
 
      tb = read.table(st1,header=T,sep="\t");
-     
+
      for( d in 1:length(dtype) ){
      	  tot[,(2+d)] <- as.numeric(tot[,(2+d)]) + as.numeric(tb[,(2+d)])
-     }    
+     }
 
   }
 }
@@ -173,22 +173,26 @@ SDnorm=0
 
 ## load and merge the disease pair results files
 for( s in 1:nstudies ){
-  
+
+  # files[1] <- "gene_disease_separation.csv"
+  # files[2] <- "mean_disease_separation.csv"
+  # files[3] <- "sd_disease_separation.csv"
+  # files[4] <- "sAB_random_separation.csv"
   st1 = sprintf("../%s/%s/%s",DIR[2],subdirs[s],files[2]);
   st2 = sprintf("../%s/%s/%s",DIR[2],subdirs[s],files[3]);
   st3 = sprintf("../%s/%s/%s",DIR[2],subdirs[s],files[4]);
-  
-  if( (file.exists(st1) && file.info(st1)$size!=0) && 
-      (file.exists(st2) && file.info(st2)$size!=0) && 
+
+  if( (file.exists(st1) && file.info(st1)$size!=0) &&
+      (file.exists(st2) && file.info(st2)$size!=0) &&
       (file.exists(st3) && file.info(st3)$size!=0) ){
 
      tb1 = read.table(st1,header=T,sep="\t");
      tb2 = read.table(st2,header=T,sep="\t");
-     tb3 = read.table(st3,header=T,sep="\t");	
+     tb3 = read.table(st3,header=T,sep="\t");
 
      ncols <- length(colnames(tb3))-2
 
-     ## raw random sAB vlaues, this is the main output file <--- 
+     ## raw random sAB vlaues, this is the main output file <---
      for( i in 1:ncols ){
         k=k+1
         RAWsAB[,k] <- as.numeric(tb3[,(2+i)])
@@ -200,17 +204,17 @@ for( s in 1:nstudies ){
      ## raw sd
      RAWsd[,(2+s)] <- as.numeric(tb2[,3])
 
-     ## pooled mean     
+     ## pooled mean
      DABm[,3] <- as.numeric(DABm[,3]) + (PERMS_PER_JOB) * as.numeric(as.vector(tb1[,3]))
 
      Mnorm = Mnorm + PERMS_PER_JOB
 
-     ## pooled sd     
+     ## pooled sd
      DABsd[,3] <- as.numeric(DABsd[,3]) + (PERMS_PER_JOB -1)*as.numeric(tb2[,3])
 
      SDnorm = SDnorm + (PERMS_PER_JOB -1)
 
-     }    
+     }
 
   }
 

@@ -16,9 +16,6 @@ calcCentralityExternalDistances(m, l, keepOrder = FALSE, dist = "euclidean")
 
 \item{dist}{methods available from dist function}
 }
-\value{
-
-}
 \description{
 Function calculates matrix of distances between elements of list and
 the reference matrix

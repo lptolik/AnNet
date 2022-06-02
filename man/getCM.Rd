@@ -15,9 +15,6 @@ getCM(m, nm, keepOrder)
 
 \item{keepOrder}{if FALSE valuess will be sorted}
 }
-\value{
-
-}
 \description{
 Extracts particular measure from matrix and convert for distance calculation
 by calcCentralityInternalDistances and calcCentralityExternalDistances

@@ -13,9 +13,6 @@ getRobustness(gg, alg, conmat)
 
 \item{conmat}{consensus matrix}
 }
-\value{
-
-}
 \description{
 Calculate cluster robustness from consensus matrix
 }

@@ -9,9 +9,6 @@ findLCC(GG)
 \arguments{
 \item{GG}{}
 }
-\value{
-
-}
 \description{
 Title
 }

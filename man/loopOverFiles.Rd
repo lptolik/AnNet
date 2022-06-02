@@ -17,9 +17,6 @@ loopOverFiles(GG, FILES, NAME, IDS, addIDS)
 
 \item{addIDS}{if TRUE NAME_ID property will be added}
 }
-\value{
-
-}
 \description{
 Annotate graph from list of files
 }

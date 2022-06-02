@@ -9,9 +9,6 @@ filterPMIDs(TERMS = NULL)
 \arguments{
 \item{TERMS}{}
 }
-\value{
-
-}
 \description{
 Title
 }

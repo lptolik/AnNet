@@ -2,7 +2,7 @@
 % Please edit documentation in R/runCentrality.R
 \name{applpMatrixToGraph}
 \alias{applpMatrixToGraph}
-\title{Add annotation to the vertex}
+\title{Add annotation to the vertex in the case of unique annotation per node.}
 \usage{
 applpMatrixToGraph(gg, m)
 }
@@ -16,5 +16,5 @@ matrix should contains column "ID" to map value to the vertex.}
 modified igraph object
 }
 \description{
-Add annotation to the vertex
+Add annotation to the vertex in the case of unique annotation per node.
 }

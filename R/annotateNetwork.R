@@ -24,11 +24,8 @@ removeVertexTerm <- function(GG,NAME){
 
 }
 
-COLLAPSE <- vector(length=2)
-COLLAPSE[1] <- ";"
-COLLAPSE[2] <- "&"
-c=1
-
+COLLAPSE <- ";"
+ESC      <- "|"
 
 #' Annotate graph from list of files
 #'
@@ -75,24 +72,24 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS){
         if( length(ind1) != 0 ){
 
           if( length(ind1) == 1 ){ Str1 <- as.character(annoF[ind1[1],2]) }
-          else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE[c]) }
+          else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE) }
 
           if( length(ind1) == 1 ){ Str2 <- as.character(annoF[ind1[1],1]) }
-          else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE[c]) }
+          else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE) }
 
-          if( grepl(COLLAPSE[c], Str1) ){
-            Str1 <- strsplit(Str1,COLLAPSE[c])[[1]]
+          if( grepl(COLLAPSE, Str1) ){
+            Str1 <- strsplit(Str1,COLLAPSE)[[1]]
             Str1 <- unique(Str1)
             if( length(Str1) > 1 ){
-              Str1 <- paste(as.character(Str1),collapse=COLLAPSE[c])
+              Str1 <- paste(as.character(Str1),collapse=COLLAPSE)
             }
           }
 
-          if( grepl(COLLAPSE[c], Str2) ){
-            Str2 <- strsplit(Str2,COLLAPSE[c])[[1]]
+          if( grepl(COLLAPSE, Str2) ){
+            Str2 <- strsplit(Str2,COLLAPSE)[[1]]
             Str2 <- unique(Str2)
             if( length(Str2) > 1 ){
-              Str2 <- paste(as.character(Str2),collapse=COLLAPSE[c])
+              Str2 <- paste(as.character(Str2),collapse=COLLAPSE)
             }
           }
 
@@ -144,6 +141,7 @@ annotateGeneNames<-function(gg){
   return(gg)
 }
 
+#' @export
 getDType<-function(){
   #---HDO Disease short names
   dtype  <- vector(length=12);
@@ -186,6 +184,107 @@ getDiseases<-function(){
   disn[11] <- "DOID:9255"
   disn[12] <- "DOID:2377"
   return(disn)
+}
+
+#' Generic annotation function. It takes name of the attribute, and two column
+#' data.frame with vertex ID in the first column and annotation in the second.
+#' As a first step all attributes with provided names will be removed.
+#'
+#' @param gg graph to annotate
+#' @param name name of the attribute
+#' @param values annotation data.frame
+#'
+#' @return
+#' @export
+#'
+#' @examples
+annotate_vertex<-function(gg,name,values){
+  ggm <- removeVertexTerm(gg,name)
+  ids = V(ggm)$name
+  vids<-as.character(values[,1])
+  idx<-match(vids,ids)
+  nidx<-which(!is.na(idx))
+  vids<-vids[nidx]
+  val<-as.character(values[nidx,2])
+  uids<-unique(vids)
+  gidx<-match(uids,ids)
+  annL<-sapply(uids,
+               function(.x) paste(unique(val[vids==.x]),collapse = ';'))
+  ggm<-set.vertex.attribute(graph=ggm,
+                            name=name,
+                            index = gidx,
+                            value = annL)
+  return(ggm)
+}
+
+#' Escapes elements of list in annotation, so they'll be searchable by grep.
+#' In the case when annotation has not carefully planned, some annotations
+#' could be substring of other, for example search fo DOID:14 could return
+#' DOID:143, DOID:1433, and DOID:14330. To avoid this all names should be
+#' enclosed in escape characters, which unlikely to find within annotation
+#' itself.
+#'
+#' @param annVec vector of annotation strings
+#' @param col list separator character
+#' @param esc escape character
+#'
+#' @return
+#' @export
+#'
+#' @examples
+escapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
+  if(any(grepl(esc,annVec,fixed = TRUE))){
+    stop("Either already escaped or escape charecter found in annotation\n")
+  }
+  annList<-strsplit(annVec,col,fixed = TRUE)
+  escFun<-function(.x){
+    if(length(.x)>0){
+      return(paste0(esc,.x,esc,collapse = ';'))
+    }else{
+      return("")
+    }
+  }
+
+  res<-sapply(annList,escFun)
+  return(res)
+}
+
+#' Perform opposite to escapeAnnotation operations: remove all escape
+#' characters from annotation strings
+#'
+#' @param annVec vector of annotation strings
+#' @param col list separator character
+#' @param esc escape character
+#'
+#' @return
+#' @export
+#'
+#' @examples
+unescapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
+  res<-gsub(esc,'',annVec,fixed = TRUE)
+  return(res)
+}
+
+#' Extract unique values from annotations.
+#' It is not uncommon that some nodes are annotated with list of terms and some
+#' terms annotates multiple nodes. This function creates vector of unique terms
+#' that were used in annotation.
+#'
+#' @param annVec vector of annotation strings
+#' @param col list separator character
+#' @param sort how to sort the result list
+#'
+#' @return
+#' @export
+#' @examples
+getAnnotationList<-function(annVec,col=COLLAPSE,sort=c('none','string','frequency')){
+  sort <- match.arg(sort)
+  res=switch (sort,
+    none = unique(unlist(strsplit(annVec,';'))),
+    string = sort(unique(unlist(strsplit(annVec,';')))),
+    frequency = names(sort(table(unlist(strsplit(annVec,';'))),decreasing = TRUE))
+  )
+  return(res)
 }
 #Add topOnto_ovg
 #' Title
@@ -241,18 +340,18 @@ annotate_topOnto_ovg<-function(gg,dis){
 
           if( Str1 == "" ) { Str1 <- as.character(dtype[indx[j]]) }
           else {
-            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),collapse=COLLAPSE[c]) }
+            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),collapse=COLLAPSE) }
 
           if( Str2 == "" ) { Str2 <- as.character(disn[indx[j]]) }
           else {
-            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),collapse=COLLAPSE[c]) }
+            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),collapse=COLLAPSE) }
         }
 
       }
     }
 
-    Str1 = paste(unique(strsplit(Str1,COLLAPSE[c])[[1]]),collapse=COLLAPSE[c])
-    Str2 = paste(unique(strsplit(Str2,COLLAPSE[c])[[1]]),collapse=COLLAPSE[c])
+    Str1 = paste(unique(strsplit(Str1,COLLAPSE)[[1]]),collapse=COLLAPSE)
+    Str2 = paste(unique(strsplit(Str2,COLLAPSE)[[1]]),collapse=COLLAPSE)
 
     V(gg)[i]$TopOnto_OVG = as.character(Str1);
     V(gg)[i]$TopOnto_OVG_HDO_ID = as.character(Str2);
@@ -299,18 +398,18 @@ annotate_topOnto_ov_P140papers<-function(gg,par,dis){
 
           if( Str1 == "" ) { Str1 <- as.character(dtype[indx[j]]) }
           else {
-            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),collapse=COLLAPSE[c]) }
+            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),collapse=COLLAPSE) }
 
           if( Str2 == "" ) { Str2 <- as.character(disn[indx[j]]) }
           else {
-            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),collapse=COLLAPSE[c]) }
+            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),collapse=COLLAPSE) }
         }
 
       }
     }
 
-    Str1 = paste(unique(strsplit(Str1,COLLAPSE[c])[[1]]),collapse=COLLAPSE[c])
-    Str2 = paste(unique(strsplit(Str2,COLLAPSE[c])[[1]]),collapse=COLLAPSE[c])
+    Str1 = paste(unique(strsplit(Str1,COLLAPSE)[[1]]),collapse=COLLAPSE)
+    Str2 = paste(unique(strsplit(Str2,COLLAPSE)[[1]]),collapse=COLLAPSE)
 
     V(gg)[i]$TopOnto_OV_PAPERS= as.character(Str1);
     V(gg)[i]$TopOnto_OV_PAPERS_HDO_ID = as.character(Str2);
@@ -357,7 +456,7 @@ annotate_SCHanno<-function(gg,anno){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str <- as.character(anno[ind1[1],2]) }
-      else { Str <- paste(as.character(anno[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str <- paste(as.character(anno[ind1,2]),collapse=COLLAPSE) }
 
     }
 
@@ -389,7 +488,7 @@ annotate_CHUA<-function(gg,anno){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str <- as.character(anno[ind1[1],2]) }
-      else { Str <- paste(as.character(anno[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str <- paste(as.character(anno[ind1,2]),collapse=COLLAPSE) }
 
     }
 
@@ -435,10 +534,10 @@ annotate_Interpro<-function(gg,annoF,annoD){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str1 <- as.character(annoF[ind1[1],2]) }
-      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE) }
 
       if( length(ind1) == 1 ){ Str2 <- as.character(annoF[ind1[1],1]) }
-      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE[c]) }
+      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE) }
 
     }
 
@@ -454,10 +553,10 @@ annotate_Interpro<-function(gg,annoF,annoD){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str1 <- as.character(annoD[ind1[1],2]) }
-      else { Str1 <- paste(as.character(annoD[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str1 <- paste(as.character(annoD[ind1,2]),collapse=COLLAPSE) }
 
       if( length(ind1) == 1 ){ Str2 <- as.character(annoD[ind1[1],1]) }
-      else { Str2 <- paste(as.character(annoD[ind1,1]),collapse=COLLAPSE[c]) }
+      else { Str2 <- paste(as.character(annoD[ind1,1]),collapse=COLLAPSE) }
 
     }
 
@@ -576,10 +675,10 @@ annotate_go_mf<-function(gg,annoF){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str1 <- as.character(annoF[ind1[1],2]) }
-      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE) }
 
       if( length(ind1) == 1 ){ Str2 <- as.character(annoF[ind1[1],1]) }
-      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE[c]) }
+      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE) }
 
     }
 
@@ -623,10 +722,10 @@ annotate_go_bp<-function(gg,annoF){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str1 <- as.character(annoF[ind1[1],2]) }
-      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE) }
 
       if( length(ind1) == 1 ){ Str2 <- as.character(annoF[ind1[1],1]) }
-      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE[c]) }
+      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE) }
 
     }
 
@@ -670,10 +769,10 @@ annotate_go_cc<-function(gg,annoF){
     if( length(ind1) != 0 ){
 
       if( length(ind1) == 1 ){ Str1 <- as.character(annoF[ind1[1],2]) }
-      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE[c]) }
+      else { Str1 <- paste(as.character(annoF[ind1,2]),collapse=COLLAPSE) }
 
       if( length(ind1) == 1 ){ Str2 <- as.character(annoF[ind1[1],1]) }
-      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE[c]) }
+      else { Str2 <- paste(as.character(annoF[ind1,1]),collapse=COLLAPSE) }
 
     }
 
@@ -696,6 +795,7 @@ annotate_celltypes<-function(gg,files){
   gg <- loopOverFiles(gg, files, fn, ids, FALSE)
   return(gg)
 }
+
 #Add pathways
 annotate_pathways<-function(gg,files){
   ids = V(gg)$name

@@ -238,7 +238,7 @@ getCentralityMatrix<-function(gg){
 
 }
 
-#' Add annotation to the vertex
+#' Add annotation to the vertex in the case of unique annotation per node.
 #'
 #' @param gg igraph object
 #' @param m matrix of values to be applied as vertex attributes.
@@ -341,7 +341,7 @@ getPA<-function(gg,...){
   nv<-vcount(gg)
   pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), Nsim=100, plot=FALSE )
   pwr <- pFit@alpha
-  g<- sample_pa(nv,power=pwr,...)
+  g<- sample_pa(nv,power=pwr,directed = FALSE,...)
   return(g)
 }
 

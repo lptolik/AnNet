@@ -32,9 +32,6 @@ makeConsensusMatrix(
 
 \item{Cnmax}{Cn max for reclustering algorithms}
 }
-\value{
-
-}
 \description{
 Function to build consensus matrix in memory
 }

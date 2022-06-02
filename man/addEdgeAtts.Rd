@@ -9,9 +9,6 @@ addEdgeAtts(GG, gg)
 \arguments{
 \item{gg}{}
 }
-\value{
-
-}
 \description{
 Title
 }

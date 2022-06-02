@@ -11,9 +11,6 @@ removeVertexTerm(GG, NAME)
 
 \item{NAME}{name of the vertex property to remove}
 }
-\value{
-
-}
 \description{
 Remove vertex property.
 }

@@ -9,9 +9,6 @@ buildFromSynaptomeGeneTable(t)
 \arguments{
 \item{t}{}
 }
-\value{
-
-}
 \description{
 Title
 }

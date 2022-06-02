@@ -10,9 +10,6 @@ calcAllClustering(gg)
 \arguments{
 \item{gg}{}
 }
-\value{
-
-}
 \description{
 Calculate memberships for all clustering algorithms and store them on the
 graph vertices.

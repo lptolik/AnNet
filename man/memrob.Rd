@@ -9,9 +9,6 @@ memrob(x, rm = data.frame())
 \arguments{
 \item{rm}{}
 }
-\value{
-
-}
 \description{
 function to get the member robustness from the consensus matrices #BUG fixed 14/03/12 TIS
 }

@@ -21,9 +21,6 @@ sampleGraphClust(gg, mask, alg, type, reclust = FALSE, Cnmin = -1, Cnmax = 10)
 
 \item{Cnmax}{Cn max for reclustering algorithms}
 }
-\value{
-
-}
 \description{
 Perturbe graph and calculate its clustering
 }

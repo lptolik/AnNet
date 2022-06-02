@@ -1,0 +1,100 @@
+---
+title: "BuildNetwork"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BuildNetwork}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, cache=TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup,results='hide', message=FALSE, warning=FALSE}
+library(AnNet)
+library(synaptome.db)
+library(pander)
+library(ggplot2)
+#library(topOnto) 
+library(org.Hs.eg.db)
+```
+# Create ontology annotation for Disease Ontology with TopOnto
+##  Authors: Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong and Oksana Sorokina    
+
+# Build the network
+
+The package allows building the network from the data frame, where the rows correspond to the edges of the graph, or for the list of nodes (genes), for which the information will be retrieved from the SynaptomeDB.
+
+## Build network for the node list extracted from SynaptomeDB
+
+```{r net_from_SynaptomeDB}
+
+cid<-match('Presynaptic',getCompartments()$Name) # Let's get the ID for presynaptic compartment
+cid
+t<-getAllGenes4Compartment(cid) # Now we need to collect all the gene IDs for presinaptic  compartment
+dim(t)
+head(t)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez) # finally, build the graph using respecctive gene EntrezIDs as node IDs
+summary(gg)
+
+```
+# Annotate the nodes with node attributes
+## Gene name
+```{r annotate_net}
+gg<-annotateGeneNames(gg)
+summary(gg)
+head(V(gg))
+head(V(gg)$GeneName)
+```
+
+# Prepare Disease annotations
+
+Extract disease annotations from synaptome.db:
+```{r get.diseases}
+myList <- as.vector(V(gg)$name)
+myList <- unique(myList)
+myList <- na.omit(myList)
+t<-getGeneDiseaseByEntres(myList)
+t<-as.data.frame(t[,c('HDOID','Description','HumanEntrez','HumanName')])
+```
+
+and restrict the list to only subset of diseases:
+```{r subset.diseases}
+tD<-t[t$HDOID%in%getDiseases(),]
+```
+
+Now we can annotate graph with new data:
+```{r annot.graph.hdo}
+gg<-annotate_topOnto_ovg(gg,as.data.frame(tD[,1:3]))
+summary(gg)
+```
+```{r save.annot.graph}
+gg <- calcCentrality(gg)
+saveRDS(gg,'annotated_graph.rds')
+```
+
+
+```{r check.annotation}
+annDT<-data.frame(ID=V(gg)$name,
+                  Name=V(gg)$GeneName,
+                  HDOID=gsub(';','; ',V(gg)$TopOnto_OVG_HDO_ID),
+                  Abb=gsub(';','; ',V(gg)$TopOnto_OVG))
+pander(annDT,split.tables=Inf,justify='llll')
+```
+
+You can see two new vertex attributes: O_MF_ID and GO_MFfor lists of IDs and
+terms respectively. 
+
+For later use annotation data could be saved into the file:
+```{r write.file.hdo}
+write.table(tD[,1:3],
+           "flatfile.HDO.csv",
+            sep="\t",
+            col.names=F,
+            row.names=F,
+            quote=F)
+```

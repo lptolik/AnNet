@@ -9,9 +9,6 @@ buildConsensusMatrix(lcc)
 \arguments{
 \item{lcc}{list of clustering matrices obtained from sampleGraph}
 }
-\value{
-
-}
 \description{
 Build consensus matrix from the list of clusterings
 }

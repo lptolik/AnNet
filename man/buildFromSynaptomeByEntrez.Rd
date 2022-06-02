@@ -6,9 +6,6 @@
 \usage{
 buildFromSynaptomeByEntrez(entrez)
 }
-\value{
-
-}
 \description{
 Title
 }

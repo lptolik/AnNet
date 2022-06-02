@@ -9,9 +9,6 @@ annotate_go_mf(gg, annoF)
 \arguments{
 \item{annoF}{}
 }
-\value{
-
-}
 \description{
 Title
 }

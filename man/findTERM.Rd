@@ -9,9 +9,6 @@ findTERM(eatt, TERMS)
 \arguments{
 \item{TERMS}{}
 }
-\value{
-
-}
 \description{
 Title
 }
