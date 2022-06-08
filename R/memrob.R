@@ -73,7 +73,7 @@ memrob <- function(x,rm=data.frame()){
 #' @examples
 getRobustness<-function(gg,alg,conmat){
 
-  if(!alg%in%igraph::vertex.attr_names(gg)){
+  if(!alg%in%igraph::vertex_attr_names(gg)){
     stop(paste("Membership for the ",alg,
                "algorithm should be stored in the graph.\n",
                "See calcClustering.\n"))
