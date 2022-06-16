@@ -54,8 +54,8 @@ calcClustering<-function(gg,alg){
   m      <- matrix(NA, ncol=2, nrow=length(ids))
   colnames(m)<-c('ID',alg)
   m[,1]<-ids
-    cm<-calcMembership(gg,alg)
-    m[,2]<-as.character(cm$membership)
+  cm<-calcMembership(gg,alg)
+  m[,2]<-as.character(cm$membership)
   ggm<-applpMatrixToGraph(gg,m)
   return(ggm)
 }
@@ -69,11 +69,22 @@ calcClustering<-function(gg,alg){
 #' @export
 #'
 #' @examples
-getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5')){
+getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spec')){
   alg <- match.arg(alg)
   lec<-function(gg){
     lec     <- igraph::leading.eigenvector.community(gg)
     ll      <- igraph::leading.eigenvector.community(gg, start=membership(lec))
+  }
+  specC<-function(gg,CnMIN=5){
+    el = as.data.frame(get.edgelist(gg,names=T))
+    sp<-rSpectral::spectral(DF=el,fixNeig=1,CnMIN=CnMIN)
+    res<-list()
+    res$names <- sp$ID
+    res$algorithm <- "Spectral"
+    res$vcount <- vcount(gg)
+    res$membership <- sp$K
+    class(res) <- "communities"
+    return(res)
   }
   cl<-switch(alg,
              lec=lec(gg),
@@ -83,7 +94,8 @@ getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG
              louvain=igraph::cluster_louvain(gg),
              sgG1=igraph::spinglass.community(gg, spins=as.numeric(500),gamma=1),
              sgG2=igraph::spinglass.community(gg, spins=as.numeric(500),gamma=2),
-             sgG5=igraph::spinglass.community(gg, spins=as.numeric(500),gamma=5)
+             sgG5=igraph::spinglass.community(gg, spins=as.numeric(500),gamma=5),
+             spec=specC(gg)
   )
   return(cl)
 }
