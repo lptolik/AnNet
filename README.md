@@ -12,7 +12,7 @@ You can install the development version of AnNet from [GitHub](https://github.co
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("lptolik/AnNet")
+devtools::install_github("lptolik/AnNet",ref = "develop")
 ```
 
 ## Example
