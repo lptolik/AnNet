@@ -67,81 +67,40 @@ summary(gg1)
 ```
 # Annotate the nodes with node attributes
 ## Gene name
-Adding gene names to nodes.
 ```{r annotate_net}
 
-gg<-annotateGeneNames(gg)
-summary(gg)
-head(V(gg))
-head(V(gg)$GeneName)
+agg<-annotateGeneNames(gg)
+summary(agg)
+head(V(agg))
+head(V(agg)$GeneName)
 ```
 ## Diseases
-<<<<<<< HEAD
 ```{r annotate_topOnto}
 afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "AnNet")
 dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
 ggo <- annotate_topOnto_ovg(agg, dis)
 summary(ggo)
-=======
-Adding diseases associations from HDO database
-```{r annotate_topOnto}
-afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "AnNet")
-dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
-gg <- annotate_topOnto_ovg(gg, dis)
-summary(gg)
->>>>>>> 0b18ba3192ad8588b21b90ac95ad9ac57184dbc1
 
 ```
 ##Shanno
-Adding synaptic function annotated from еру Shanno et al.,paper
 ```{r annotate_Shanno}
 sfile<-system.file("extdata", "SCH_flatfile.csv", package = "AnNet")
-shan   <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
-sgg<-annotate_SCHanno(gg,shan)
+shan    <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+sgg<-annotate_SCHanno(agg,shan)
 summary(sgg)
 ```
-## Presynaptic functiion annotation
-This is manually curated presynaptic genes specific functional annotation based on the paper of Boyken at al., 2019
-
-```
-{r annotate_Chua, eval=FALSE}
-sfile<-system.file("extdata", "PresynAn.csv", package = "AnNet")
-pres <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
-sgg <- annotate_CHUA(gg, pres)
-summary(sgg)
-```
-## GO
-Adding functionality from GO: BP, MF,CC
-```{r annotate_go}
-sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "AnNet")
-goBP <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
-sgg <- annotate_go_bp(gg, goBP)
-summary(sgg)
-
-sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "AnNet")
-goMF <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
-sgg <- annotate_go_mf(gg, goMF)
-summary(sgg)
-
-sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "AnNet")
-goCC <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
-sgg <- annotate_go_cc(gg, goCC)
-summary(sgg)
-
-```
-
 #Esimate node centrality measures
 ## Estimate centrality measures with values added as node attributes. 
 Centrality measures are as following:DEG - degree, BET - betweenness, CC - clustering coefficient, SL - semilocal centrality, mnSP - mean shortest path, PR - page rank, sdSP - standard deviation of the shortest path
 
 ```{r graph_cent}
-gg <- calcCentrality(gg)
-summary(gg)
+cgg <- calcCentrality(sgg)
+summary(cgg)
 ```
 ##Get node centralities as a matrix. 
-In the case you don't want save centrality values on the graph, for example you going to provide different names for the attributes, the same centrality measures as before could be obtained in a matrix form:
+The same centrality measures as before are presented in a matrix form.
 ```{r matrix_cent}
-mc <- getCentralityMatrix(gg)
+mc <- getCentralityMatrix(sgg)
 head(mc)
 ```
 ##Get the centrality measures for random graph - NOT WORKING
@@ -152,17 +111,11 @@ Sometimes one needs to compare the graph properties of the given network with th
 ggrm <- getRandomGraphCentrality(sgg, type = c("cgnp"))
 head(ggrm)
 ```
-<<<<<<< HEAD
-
-## Power low fit
-```{r powerLow,fig.height=9,fig.width=9}
-=======
 ## Power law fit
 To examine the networks for underlying structure (i.e. not random), one can test network's degree distribution for evidence of scale-free structure and compare it against the randomised network model. For this we used the R “PoweRlaw” package (version 0.50.0) (Gillespie, 2015).
 In the example below we found evidence for disassortative mixing (Newman, 2002), i.e. a preference for high-degree genes to attach to low-degree gene(presynaptic: -0.16).
 
 ```{r powerLaw,fig.height=9,fig.width=9}
->>>>>>> 0b18ba3192ad8588b21b90ac95ad9ac57184dbc1
 pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
 ## Get entropy rate
