@@ -22,24 +22,24 @@ library(ggplot2)
 library(ggrepel)
 
 scale <- function(x, VALUE=NULL){
-
-    x = as.numeric(as.vector(x))
-
-    xmin <- min(x,na.rm=T)
-    xmax <- max(x,na.rm=T)
-   
-    if( is.null(VALUE) ){
-
-        x  <- x-xmin
-        x  <- ifelse(!is.na(x), x/(xmax-xmin), NA) 
-
-        return(x)
-    }
-
-    value = as.numeric(as.vector(value)[1])
-    value = value-xmin
-    value = ifelse(!is.na(value), value/(xmax-xmin), NA) 
-    return(value)
+  
+  x = as.numeric(as.vector(x))
+  
+  xmin <- min(x,na.rm=T)
+  xmax <- max(x,na.rm=T)
+  
+  if( is.null(VALUE) ){
+    
+    x  <- x-xmin
+    x  <- ifelse(!is.na(x), x/(xmax-xmin), NA) 
+    
+    return(x)
+  }
+  
+  value = as.numeric(as.vector(value)[1])
+  value = value-xmin
+  value = ifelse(!is.na(value), value/(xmax-xmin), NA) 
+  return(value)
 }
 ```
 # Title   AnNet: library for comprehensive network analysis
