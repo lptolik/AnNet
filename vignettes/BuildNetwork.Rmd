@@ -95,10 +95,9 @@ summary(sgg)
 ## Presynaptic functiion annotation
 This is manually curated presynaptic genes specific functional annotation based on the paper of Boyken at al., 2019
 
-```
-{r annotate_Chua, eval=FALSE}
+```{r annotate_Chua, eval=FALSE}
 sfile<-system.file("extdata", "PresynAn.csv", package = "AnNet")
-pres <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+pres <- read.csv(sfile,skip=1,header=F,strip.white=T,quote="")
 sgg <- annotate_CHUA(gg, pres)
 summary(sgg)
 ```
