@@ -67,43 +67,75 @@ summary(gg1)
 ```
 # Annotate the nodes with node attributes
 ## Gene name
+Adding gene names to nodes.
 ```{r annotate_net}
 
-agg<-annotateGeneNames(gg)
-summary(agg)
-head(V(agg))
-head(V(agg)$GeneName)
+gg<-annotateGeneNames(gg)
+summary(gg)
+head(V(gg))
+head(V(gg)$GeneName)
 ```
 ## Diseases
+Adding diseases associations from HDO database
 ```{r annotate_topOnto}
 afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "AnNet")
 dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
-ggo <- annotate_topOnto_ovg(agg, dis)
-summary(ggo)
+gg <- annotate_topOnto_ovg(gg, dis)
+summary(gg)
 
 ```
 ##Shanno
+Adding synaptic function annotated from еру Shanno et al.,paper
 ```{r annotate_Shanno}
 sfile<-system.file("extdata", "SCH_flatfile.csv", package = "AnNet")
-shan    <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
-sgg<-annotate_SCHanno(agg,shan)
+shan   <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+sgg<-annotate_SCHanno(gg,shan)
 summary(sgg)
 ```
+## Presynaptic functiion annotation
+This is manually curated presynaptic genes specific functional annotation based on the paper of Boyken at al., 2019
+
+```{r annotate_Chua, eval=FALSE}
+sfile<-system.file("extdata", "PresynAn.csv", package = "AnNet")
+pres <- read.csv(sfile,skip=1,header=F,strip.white=T,quote="")
+sgg <- annotate_CHUA(gg, pres)
+summary(sgg)
+```
+## GO
+Adding functionality from GO: BP, MF,CC
+```{r annotate_go}
+sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "AnNet")
+goBP <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+sgg <- annotate_go_bp(gg, goBP)
+summary(sgg)
+
+sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "AnNet")
+goMF <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+sgg <- annotate_go_mf(gg, goMF)
+summary(sgg)
+
+sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "AnNet")
+goCC <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+sgg <- annotate_go_cc(gg, goCC)
+summary(sgg)
+
+```
+
 #Esimate node centrality measures
 ## Estimate centrality measures with values added as node attributes. 
 Centrality measures are as following:DEG - degree, BET - betweenness, CC - clustering coefficient, SL - semilocal centrality, mnSP - mean shortest path, PR - page rank, sdSP - standard deviation of the shortest path
 
 ```{r graph_cent}
-cgg <- calcCentrality(sgg)
-summary(cgg)
+gg <- calcCentrality(gg)
+summary(gg)
 ```
 ##Get node centralities as a matrix. 
-The same centrality measures as before are presented in a matrix form.
+In the case you don't want save centrality values on the graph, for example you going to provide different names for the attributes, the same centrality measures as before could be obtained in a matrix form:
 ```{r matrix_cent}
-mc <- getCentralityMatrix(sgg)
+mc <- getCentralityMatrix(gg)
 head(mc)
 ```
-##Get the centrality measures for random graph - NOT WORKING
+##Get the centrality measures for random graph
 Sometimes one needs to compare the graph properties of the given network with the ones of the randomized graph. Command below provides three ways of randomization, including G(n,p) Erdos-Renyi model , Barabasi-Albert model and new random graph from a given graph by randomly adding/removing edges.
 
 ```
