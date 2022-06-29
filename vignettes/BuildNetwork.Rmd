@@ -131,7 +131,7 @@ gg <- calcCentrality(gg)
 summary(gg)
 ```
 ##Get node centralities as a matrix. 
-The same centrality measures as before are presented in a matrix form.
+In the case you don't want save centrality values on the graph, for example you going to provide different names for the attributes, the same centrality measures as before could be obtained in a matrix form:
 ```{r matrix_cent}
 mc <- getCentralityMatrix(gg)
 head(mc)
@@ -180,22 +180,37 @@ Clustering, or community detection, in networks has been well studied in the fie
 The possible algorithms of choice implemented in the package are: "lec"('Leading-Eigenvector, Newman, 2006), "wt"(Walktrap, Pons & Latapy, 2006), "fc"(Fast-Greedy Community' algorithm, Clauset et al., 2004), "infomap" (InfoMAP, Rosvall et al., 2007; Rosvall et al., 2010), "louvain" (Louvain, Blondel et al., 2008), "sgG1", "sgG2", "sgG5"(SpinGlass, Reichardt & Bornholdt). For each algorithm of interest the membership could be obtained with calcMembership command.
 All algorithm implementations, apart from Spectral were performed using the publicly available R package igraph (Csardi & Nepusz, 2006) (R version 3.4.2, igraph version 1.1.2). Parameters used in the fc, lec, sg, wt and lourvain algorithms were chosen as to maximise the measure Modularity (Newman & Girvan, 2004); infomap seeks the optimal community structure in the data by maximising the objective function called the Minimum Description Length (Rissanen, 1978; Grwald et al., 2005)
 
-calcAllClustering allows to calculate memberships for all clustering algorithms simultaneously (may take time), and store them on the graph vertices.
-In this case, calcMembership command will return the community membership for specific algorithm.
+```{r cluster.mem}
+alg = "louvain"
+mem <- calcMembership(gg, alg)# choose one algorithm from the list
+pander(head(mem))
+```
 
-Alternatively, calcClustering allows to calculate clustering for selected algorithm.
+Due to internal random initialisation consequtive invocation of the same algorithm could produce slightly different community structures:
+```{r cluster.mem2}
+mem2 <- calcMembership(gg, alg)# choose one algorithm from the list
+pander(head(cbind(mem,mem2)))
+```
+
+To avoid inconsistency if downstream analysis we provide two additional functions
+calcClustering and calcAllClustering that use calcMembership to calculate community memberships and store them within the graph vertices attributes named after the algorithm. They also calculate modularity values and store them on graph attributes named after the algorithme. The difference between calcClustering and calcAllClustering is that calcAllClustering allows to calculate memberships for all clustering algorithms simultaneously (may take time), and store them on the graph vertices, while calcClustering  command will work for specific algorithm. 
 
 ```{r cluster}
 #ggc <- calcAllClustering(gg)
 #summary(ggc)
 
-#mem <- calcMembership(ggc, alg = c("lec"))# choose one algorithm from the list
-#head(mem)
 
-alg = "louvain"
 gg <- calcClustering(gg, alg)
 gg
+
 ```
+
+Membership data could be obtained from the graph vertex attribute:
+
+```{r get.attr}
+mem.df<-data.frame(ID=V(gg)$name,louvain=V(gg)$louvain)
+```
+
 ## Consensus matrix
 For assessing the robustness of the clustering randomization study could be performed, which applies the same clustering algorithm to N perturbed networks and returns the consensus matrix where each pair of nodes will be assigned the probability to belong to the same cluster.
 ```{r cons_mat}
