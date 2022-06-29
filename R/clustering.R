@@ -33,6 +33,8 @@ calcAllClustering<-function(gg){
     an<-colnames(m)[ai]
     cm<-calcMembership(gg,an)
     m[,ai]<-as.character(cm$membership)
+    mod<-modularity(gg,cm$membership)
+    ggm<-set.graph.attribute(ggm,an,mod)
   }
   ggm<-applpMatrixToGraph(gg,m)
   return(ggm)
@@ -57,6 +59,8 @@ calcClustering<-function(gg,alg){
     cm<-calcMembership(gg,alg)
     m[,2]<-as.character(cm$membership)
   ggm<-applpMatrixToGraph(gg,m)
+  mod<-modularity(gg,cm$membership)
+  ggm<-set.graph.attribute(ggm,alg,mod)
   return(ggm)
 }
 
