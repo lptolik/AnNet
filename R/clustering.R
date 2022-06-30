@@ -91,3 +91,36 @@ getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG
   )
   return(cl)
 }
+
+#' Matrix of cluster characteristics
+#'
+#' @param gg graph to analyse
+#' @param att vector of attribute names that contains membership data
+#'
+#' @return matrix of clustering characteristics
+#' @export
+#'
+#' @examples
+clusteringSummary<-function(gg,att=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5')){
+  attN<-vertex_attr_names(gg)
+  idx<-match(attN,att)
+  clusterings<-attN[!is.na(idx)]
+  res<-list()
+  for(c in clusterings){
+    cmem<-as.numeric(vertex_attr(gg,c))
+    mod<-modularity(gg,cmem)
+    Cn<-table(cmem)
+    C <- length(Cn)
+    Cn1<-length(which(Cn==1))
+    Cn100<-length(which(Cn>=100))
+    summary(as.vector(Cn))->s
+    names(s)<-paste(names(s),'C')
+    sgraphs<-lapply(names(Cn),getClusterSubgraphByID,gg=gg,mem=mem)
+    ug <- disjoint_union(sgraphs)
+    mu<- 1-ecount(ug)/ecount(gg)
+    r1<-c(mod,C,Cn1,Cn100,mu)
+    names(r1)<-c('mod','C','Cn1','Cn100','mu')
+    res[[c]]<-c(r1,s)
+  }
+  return(do.call(rbind,res))
+}
