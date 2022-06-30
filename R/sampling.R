@@ -71,6 +71,45 @@ intraEdgesM <- function(GG, mem, CC, INTRA=NULL, INTER=NULL){
 
 }
 
+#' Return induced subgraph for cluster.
+#'
+#' Function takes graph \code{gg}, membership data.frame \code{mem} and
+#' ID of the cluster in it, creates induced subgraph and returned it.
+#'
+#' @param clID
+#' @param gg
+#' @param mem
+#'
+#' @return induced subgraph as igraph object
+#' @export
+#'
+#' @examples
+getClusterSubgraphByID<-function(clID,gg,mem){
+  idx<-which(mem$membership==clID)
+  sg<-induced_subgraph(gg,V(gg)[idx],impl = "auto")
+  return(sg)
+}
+
+#' Calculate layout based upon membership
+#'
+#' @param gg
+#' @param mem
+#'
+#' @return
+#' @export
+#'
+#' @examples
+layoutByCluster<-function(gg,mem,layout=layout_with_kk){
+  Cn<-table(mem$membership)
+  sgraphs<-lapply(names(Cn),getClusterSubgraphByID,gg=gg,mem=mem)
+  layouts <- lapply(sgraphs, layout)
+  lay <- merge_coords(sgraphs, layouts)
+  ug <- disjoint_union(sgraphs)
+  idx<-match(V(gg)$name,V(ug)$name)
+  lay<-lay[idx,]
+  return(lay)
+}
+
 #' Recluster graph.
 #'
 #' Function takes graph \code{gg} and its membership matrix \code{mem}
