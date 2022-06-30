@@ -125,8 +125,15 @@ layoutByCluster<-function(gg,mem,layout=layout_with_kk){
 #' @export
 #'
 #' @examples
-calcReclusterMatrix<-function(gg,mem,alg,CnMAX){
+calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
 
+  if(is.matrix(mem)){
+    mem<-as.data.frame(mem)
+  }
+
+  if(!all(c('names','membership')%in%names(mem))){
+    stop("mem suppose to have columns 'names' and 'membership'")
+  }
     #--- algorithm clustering 1
     ALG1 <- mem
 
@@ -146,12 +153,13 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX){
         ggLCC    <- graph_from_data_frame(d=edCC, directed=F)
         res <- getClustering(ggLCC,alg)
         oo       <- data.frame(names=res$names, membership=res$membership)
-        if(dim(oo)[1]< CnC[i]){
+        if(dim(oo)[1]< Cnc[i]){
           cmem<-mem[mem$membership==cc[i]]
           singidx<-which(!cmem$names %in% oo$names)
           singletones <- data.frame(names=cmem$names[singidx],
                                     membership=max(oo$membership)+
                                       1:length(singidx))
+          oo<-rbind(oo,singletones)
         }
 
         RES[[k]]      <- oo
@@ -179,7 +187,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX){
       temp     <- RES[[i]]
       temp$membership <- temp$membership + CCmax
 
-      indx <- match(ALG2$name,temp$name)
+      indx <- match(ALG2$names,temp$names)
 
       ALG2$split <- ifelse(is.na(indx),ALG2$split,temp$membership[indx])
 
@@ -213,6 +221,9 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX){
 
     #---final
     ALG3 <- cbind(ALG2, data.frame(recluster=temp))
+    if(!keepSplit){
+      ALG3<-ALG3[,grep('split',names(remem),invert = TRUE)]
+    }
     return(ALG3)
 
 

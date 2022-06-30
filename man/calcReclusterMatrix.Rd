@@ -4,7 +4,7 @@
 \alias{calcReclusterMatrix}
 \title{Recluster graph}
 \usage{
-calcReclusterMatrix(gg, mem, alg, CnMAX)
+calcReclusterMatrix(gg, mem, alg, CnMAX, keepSplit = FALSE)
 }
 \arguments{
 \item{CnMAX}{}
