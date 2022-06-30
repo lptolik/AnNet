@@ -4,7 +4,7 @@
 \alias{layoutByCluster}
 \title{Calculate layout based upon membership}
 \usage{
-layoutByCluster(gg, mem)
+layoutByCluster(gg, mem, layout = layout_with_kk)
 }
 \arguments{
 \item{mem}{}

@@ -110,7 +110,39 @@ layoutByCluster<-function(gg,mem,layout=layout_with_kk){
   return(lay)
 }
 
-#' Recluster graph.
+#' Calculate two-level layout from recluster matrix
+#'
+#' Takes results of recluster and apply \code{layoutByCluster} to each
+#'
+#' @param gg
+#' @param remem
+#' @param layout
+#'
+#' @return
+#' @export
+#'
+#' @examples
+layoutByRecluster<-function(gg,remem,layout=layout_with_kk){
+  for(i in 1: length(Cn)){
+    sg<-getClusterSubgraphByID(names(Cn)[i],gg,remem)
+    mem1<-remem[remem$membership==names(Cn)[i],c('names','recluster')]
+    names(mem1)<-c('names','membership')
+    if(length(table(mem1$membership))>1){
+      lay<-layoutByCluster(sg,mem1,layout)
+    }else{
+      lay<-layout(sg)
+    }
+    glist[[i]]<-sg
+    laylist[[i]]<-lay
+  }
+  ug <- disjoint_union(glist)
+  lay <- merge_coords(glist, laylist)
+  idx<-match(V(gg)$name,V(ug)$name)
+  layF<-lay[idx,]
+  return(layF)
+}
+
+#' Recluster graph
 #'
 #' Function takes graph \code{gg} and its membership matrix \code{mem}
 #' as returned \code{calcMembership} and apply clustering algorithm \code{alg}
