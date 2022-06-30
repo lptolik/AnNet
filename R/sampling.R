@@ -92,7 +92,8 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX){
     ALG1 <- mem
 
     Cn <- table(mem$membership)
-    cc <- names(Cn)[Cn > CnMAX]
+    Cnc <- Cn[Cn > CnMAX]
+    cc <- names(Cnc)
 
 
     RES <- list()
@@ -105,7 +106,14 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX){
 
         ggLCC    <- graph_from_data_frame(d=edCC, directed=F)
         res <- getClustering(ggLCC,alg)
-        oo       <- data.frame(name=res$names, membership=res$membership)
+        oo       <- data.frame(names=res$names, membership=res$membership)
+        if(dim(oo)[1]< CnC[i]){
+          cmem<-mem[mem$membership==cc[i]]
+          singidx<-which(!cmem$names %in% oo$names)
+          singletones <- data.frame(names=cmem$names[singidx],
+                                    membership=max(oo$membership)+
+                                      1:length(singidx))
+        }
 
         RES[[k]]      <- oo
         names(RES)[k] <- cc[i]
