@@ -218,6 +218,7 @@ plot(gg,vertex.size=3,layout=layout_nicely,
      vertex.label=NA,
      vertex.color=palette[as.numeric(mem.df$membership)],
      edge.color='grey95')
+legend('topright',legend=names(table(mem.df$membership)),col=palette,pch=19,ncol = 2)
 ```
 
 On the plot we can see some distinctive clusters but most nodes are indistinguishable within the central part of the plot. So we could layout graph clusterwise:
@@ -227,6 +228,7 @@ plot(gg,vertex.size=3,layout=lay,
      vertex.label=NA,
      vertex.color=palette[as.numeric(mem.df$membership)],
      edge.color='grey95')
+legend('topright',legend=names(table(mem.df$membership)),col=palette,pch=19,ncol = 2)
 ```
 
 ### Reclustering
@@ -243,7 +245,7 @@ plot(gg,vertex.size=3,layout=lay,
      vertex.label=NA,
      vertex.color=palette[as.numeric(mem.df$membership)],
      edge.color='grey95')
-
+legend('topright',legend=names(table(mem.df$membership)),col=palette,pch=19,ncol = 2)
 ```
 
 ## Consensus matrix
