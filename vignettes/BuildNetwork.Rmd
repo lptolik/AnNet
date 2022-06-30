@@ -99,7 +99,7 @@ This is manually curated presynaptic genes specific functional annotation based 
 ```{r annotate_Chua, eval=FALSE}
 sfile<-system.file("extdata", "PresynAn.csv", package = "AnNet")
 pres <- read.csv(sfile,skip=1,header=F,strip.white=T,quote="")
-sgg <- annotate_CHUA(gg, pres)
+sgg <- AnNet:::annotate_CHUA(gg, pres)
 summary(sgg)
 ```
 ## GO
@@ -234,7 +234,7 @@ legend('topright',legend=names(table(mem.df$membership)),col=palette,pch=19,ncol
 ### Reclustering
 There are still too large cluster left. We can recluster them by applying the same, or different clustering algorithm on the cluster subgraph:
 ```{r recluster}
-remem<-calcReclusterMatrix(gg,mem,alg,10)
+remem<-calcReclusterMatrix(gg,mem.df,alg,10)
 head(remem)
 ```
 
