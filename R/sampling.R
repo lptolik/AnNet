@@ -254,7 +254,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
     #---final
     ALG3 <- cbind(ALG2, data.frame(recluster=temp))
     if(!keepSplit){
-      ALG3<-ALG3[,grep('split',names(remem),invert = TRUE)]
+      ALG3<-ALG3[,grep('split',names(ALG3),invert = TRUE)]
     }
     return(ALG3)
 
