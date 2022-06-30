@@ -123,8 +123,11 @@ layoutByCluster<-function(gg,mem,layout=layout_with_kk){
 #'
 #' @examples
 layoutByRecluster<-function(gg,remem,layout=layout_with_kk){
+  Cn<-table(remem$membership)
+  glist<-list()
+  laylist<-list()
   for(i in 1: length(Cn)){
-    sg<-getClusterSubgraphByID(names(Cn)[i],gg,remem)
+    sg<-getClusterSubgraphByID(names(Cn)[i],gg,remem$membership)
     mem1<-remem[remem$membership==names(Cn)[i],c('names','recluster')]
     names(mem1)<-c('names','membership')
     if(length(table(mem1$membership))>1){
