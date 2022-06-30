@@ -151,16 +151,18 @@ In the example below we found evidence for disassortative mixing (Newman, 2002),
 ```{r powerLaw,fig.height=9,fig.width=9}
 pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
+
 ## Get entropy rate
 Evidence for scale-free structure can also be tested by performing a perturbation analysis on each network (Teschendorff et al, 2014). In this analysis each protein was perturbed through over-expression (red) and under-expression (green), with the global entropy rate (SR) after each proteins pertubation being plotted against the log of the proteins degree, as shown at the plot below. In the example network we observed a bi-modal response, between gene over-expression and degree, and opposing bi-phasic response relative to over/under-expression between global entropy rate and degree. This type of bi-modal, bi-phasic behaviour has been observed only in networks with scale-free or approximate scale-free topology (Teschendorff et al, 2014)[80]. 
 
-```{r ent_rate}
+```{r ent_rate,fig.height=8,fig.width=8}
 ent <- getEntropyRate(gg)
 ent
 SRprime <- getEntropy(gg, maxSr = NULL)
 head(SRprime)
 plotEntropy(SRprime, subTIT = "Entropy", SRo = ent$SRo, maxSr = ent$maxSr)
 ```
+
 ## Get modularity. Normalised modularity.
 Normalised modularity allows comparison the networks with different structure.
 Qm based on the previous studies by Parter et al., 2007, Takemoto, 2012,Takemoto, 2013, Takemoto and Borjigin, 2011, which was defined as:
@@ -196,10 +198,6 @@ To avoid inconsistency if downstream analysis we provide two additional function
 calcClustering and calcAllClustering that use calcMembership to calculate community memberships and store them within the graph vertices attributes named after the algorithm. They also calculate modularity values and store them on graph attributes named after the algorithme. The difference between calcClustering and calcAllClustering is that calcAllClustering allows to calculate memberships for all clustering algorithms simultaneously (may take time), and store them on the graph vertices, while calcClustering  command will work for specific algorithm. 
 
 ```{r cluster}
-#ggc <- calcAllClustering(gg)
-#summary(ggc)
-
-
 gg <- calcClustering(gg, alg)
 gg
 
@@ -211,8 +209,17 @@ Membership data could be obtained from the graph vertex attribute:
 mem.df<-data.frame(names=V(gg)$name,membership=as.numeric(V(gg)$louvain))
 ```
 
+To compare different clustering algorithms summary matrix can be calculated with the maximum Modularity obtained (mod), number of detected communities (C), the number of communities with size (Cn1) equal to 1, the number of communities >= 100 (Cn100), the fraction of edges lying between communities (mu), the size of the smallest community (Min. C), the size of the largest community (Max. C), the average ( Mean C), median (Median C), first quartile (1st Qu. C), and third quartile (3rd Qu. C) of the community size. 
+```{r clusterSummary}
+ggc <- calcAllClustering(gg)
+m<-clusteringSummary(ggc,att=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5'))
+pander(m)
+```
+
+
+
 It is often useful to be able to visualize clusters on the graph. The simples way is to color each cluster in its own color and plot the graph:
-```{r plot.color.graph}
+```{r plot.color.graph,fig.height=8,fig.width=8}
 palette <- distinctColorPalette(max(as.numeric(mem.df$membership)))
 plot(gg,vertex.size=3,layout=layout_nicely,
      vertex.label=NA,
@@ -222,7 +229,7 @@ legend('topright',legend=names(table(mem.df$membership)),col=palette,pch=19,ncol
 ```
 
 On the plot we can see some distinctive clusters but most nodes are indistinguishable within the central part of the plot. So we could layout graph clusterwise:
-```{r plot.clusterwise.graph}
+```{r plot.clusterwise.graph,fig.height=8,fig.width=8}
 lay<-layoutByCluster(gg,mem.df,layout = layout_nicely)
 plot(gg,vertex.size=3,layout=lay,
      vertex.label=NA,
@@ -239,7 +246,7 @@ head(remem)
 ```
 
 And we can apply second order clustering layout:
-```{r plot.recluster.layout}
+```{r plot.recluster.layout,fig.height=8,fig.width=8}
 lay<-AnNet:::layoutByRecluster(gg,remem,layout_nicely)
 plot(gg,vertex.size=3,layout=lay,
      vertex.label=NA,
@@ -247,6 +254,7 @@ plot(gg,vertex.size=3,layout=lay,
      edge.color='grey95')
 legend('topright',legend=names(table(mem.df$membership)),col=palette,pch=19,ncol = 2)
 ```
+
 
 ## Consensus matrix
 For assessing the robustness of the clustering randomization study can be performed, which applies the same clustering algorithm to N perturbed networks and returns the consensus matrix where each pair of nodes will be assigned the frequency to belong to the same cluster. 
@@ -276,6 +284,7 @@ ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
           panel.background = element_rect(fill="white"),
           panel.border = element_rect(linetype="solid",fill=NA))
 ```
+
 ## Cluster robustness
 Cluster robustness assess the robustness of the obtained clusters and could help to evaluate the "goodness" of chosen clustering algorithm.
 ```{r clcons}
@@ -291,6 +300,7 @@ The Bridgeness measure lies between 0, implying a vertex clearly belongs in a si
 br<-getBridgeness(gg,alg = alg,conmat)
 pander(head(br))
 ```
+
 ## Bridgeness plot
 Semi-local centrality measure (Chen et al., 2011) also lies between 0 and 1 indicating whether protein is important globally or locally. By plotting Bridgeness against semi-local centrality we can categorises the influence each protein found in our network has on the overall network structure:
 	Region 1, proteins having a 'global' rather than 'local' influence in the network (also been called bottle-neck bridges, connector or kinless hubs (0<Sl<0.5; 0.5<Br<1). Region 2, proteins having 'global' and 'local' influence (0.5<Sl<1, 0.5<Br<1). Region 3, proteins centred within the community they belong to, but also communicating with a few other specific communities (0<Sl<0.5; 0.1<Br<0.5). Region 4, proteins with 'local' impact , primarily within one or two communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
@@ -373,6 +383,7 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
 
 ```
+
 ##Interactive view of bridgeness plot
 ```{r plotly,fig.height=10,fig.width=10}
 library(plotly)
@@ -398,6 +409,7 @@ p<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
 ggplotly(p)
 ```
+
 # Disease/annotation pairs
 Given that Disease associated genes are connected within the graph, the common question is to check whether the networks for two different diseases are overlapping, which may indicate the common molecular mechanisms. Same is valid for any pair of annotations, e.g. one would ask if two different biological functions are related.
 To address the question, we have utilised the algorithm from Menche et al, which estimates the minimal shortest paths between two distinct annotations and compare it to the randomly annotated graph.

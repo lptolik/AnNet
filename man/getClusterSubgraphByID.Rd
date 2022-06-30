@@ -7,7 +7,7 @@
 getClusterSubgraphByID(clID, gg, mem)
 }
 \arguments{
-\item{mem}{}
+\item{mem}{membership vector}
 }
 \value{
 induced subgraph as igraph object
