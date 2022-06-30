@@ -37,8 +37,141 @@ intraEdges <- function(GG, ALG, CC, INTRA=NULL, INTER=NULL){
 
 }
 
+intraEdgesM <- function(GG, mem, CC, INTRA=NULL, INTER=NULL){
 
-recluster <- function( GG, ALGN, CnMAX, CnMIN=1 ){
+  intra = NULL #edges in the community CC
+  inter = NULL #edges going out from community CC
+
+  idx<- (mem$membership == CC)
+    if( length(which(idx)) != 0 ){
+
+      ed_cc = E(GG)[inc(idx)]
+
+      all_edges_m <- get.edges(GG, ed_cc) #matrix representation
+
+      inter = (ed_cc[!(all_edges_m[, 1] %in% V(GG)[idx] & all_edges_m[, 2] %in% V(GG)[idx])])
+
+      intra = (ed_cc[(all_edges_m[, 1] %in% V(GG)[idx] & all_edges_m[, 2] %in% V(GG)[idx])])
+
+    }
+
+  if( INTRA==TRUE && !is.null(intra) && length(intra)>0 ){
+    intra_m = get.edges(GG,intra)
+    intra   = cbind(V(GG)$name[intra_m[,1]],V(GG)$name[intra_m[,2]])
+    return(intra)
+  }
+
+  if( INTER==TRUE && !is.null(inter) && length(inter)>0 ){
+    inter_m = get.edges(GG,inter)
+    inter   = cbind(V(GG)$name[inter_m[,1]],V(GG)$name[inter_m[,2]])
+    return(inter)
+  }
+
+  return(NULL)
+
+}
+
+#' Recluster graph.
+#'
+#' Function takes graph \code{gg} and its membership matrix \code{mem}
+#' as returned \code{calcMembership} and apply clustering algorithm \code{alg}
+#' to all clusters larger than \code{CnMAX}
+#'
+#' @param gg
+#' @param mem
+#' @param alg
+#' @param CnMAX
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcReclusterMatrix<-function(gg,mem,alg,CnMAX){
+
+    #--- algorithm clustering 1
+    ALG1 <- mem
+
+    Cn <- table(mem$membership)
+    cc <- names(Cn)[Cn > CnMAX]
+
+
+    RES <- list()
+    k=1
+    for( i in 1:length(cc) ){
+
+      edCC = intraEdgesM(gg, mem, cc[i], INTRA=TRUE)
+
+      if( !is.null(edCC) ){
+
+        ggLCC    <- graph_from_data_frame(d=edCC, directed=F)
+        res <- getClustering(ggLCC,alg)
+        oo       <- data.frame(name=res$names, membership=res$membership)
+
+        RES[[k]]      <- oo
+        names(RES)[k] <- cc[i]
+        k=k+1
+      }
+
+    }#for
+
+
+    if( length(RES) == 0 ){ return(NULL) }
+
+
+    #--- algorithm clustering 2
+    ALG2     <- mem
+    ALG2$split <- rep(-1, dim(ALG1)[1])
+    indx     <- match(ALG2$membership,cc)
+    indx     <- ifelse(is.na(indx),TRUE, FALSE)
+    ALG2$split <- ifelse(indx, ALG2$membership, ALG2$split)
+
+    CCmax = max(as.numeric(ALG2$split))
+
+    for( i in 1:length(cc) ){
+
+      temp     <- RES[[i]]
+      temp$membership <- temp$membership + CCmax
+
+      indx <- match(ALG2$name,temp$name)
+
+      ALG2$split <- ifelse(is.na(indx),ALG2$split,temp$membership[indx])
+
+      CCmax = max(as.numeric(ALG2$split))
+
+    }
+
+    #---reorder ALG2$split
+    N = length(V(gg));
+
+    temp    <- rep(-1, N)
+    counter <- min(as.numeric(ALG2$split))
+    Knew    <- 1;
+    Kmax    <- max(as.numeric(ALG2$split))
+
+    while( counter <= Kmax ){
+
+      found=FALSE;
+
+      for(v in 1:N ){
+        if( as.numeric(ALG2$split[v]) == counter ){
+          temp[v] = Knew;
+          found=TRUE;
+        }
+      }
+
+      if(found) Knew=Knew+1;
+
+      counter=counter+1;
+    }
+
+    #---final
+    ALG3 <- cbind(ALG2, data.frame(recluster=temp))
+    return(ALG3)
+
+
+}
+
+recluster <- function( GG, ALGN, CnMAX ){
 
   if( !is.null(igraph::get.vertex.attribute(GG,ALGN)) ){
 
@@ -55,13 +188,13 @@ recluster <- function( GG, ALGN, CnMAX, CnMIN=1 ){
     k=1
     for( i in 1:length(cc) ){
 
-      edCC = intraEdges(GG, ALGN, cc[i], INTRA=TRUE)
-      oo       <- cbind(res$names, res$membership)
+      edCC = intraEdges(GG, ALG, cc[i], INTRA=TRUE)
 
       if( !is.null(edCC) ){
 
         ggLCC    <- graph_from_data_frame(d=edCC, directed=F)
         res <- getClustering(ggLCC,alg)
+        oo       <- cbind(res$names, res$membership)
 
         RES[[k]]      <- oo
         names(RES)[k] <- cc[i]
@@ -193,7 +326,7 @@ sampleGraphClust<-function(gg,mask,alg,type,reclust=FALSE,Cnmin=-1,Cnmax=10){
   }
   cl<-getClustering(ggLCC,alg)
   if(reclust){
-    ggLCC = igraph::set.vertex.attribute(ggLCC,alg,V(ggLCC),louvain$membership)
+    ggLCC = igraph::set.vertex.attribute(ggLCC,alg,V(ggLCC),cl$membership)
 
     oo = recluster( ggLCC, alg, Cnmax )
 
