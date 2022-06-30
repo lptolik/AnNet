@@ -34,7 +34,7 @@ calcAllClustering<-function(gg){
     cm<-calcMembership(gg,an)
     m[,ai]<-as.character(cm$membership)
     mod<-modularity(gg,cm$membership)
-    ggm<-set.graph.attribute(ggm,an,mod)
+    gg<-set.graph.attribute(gg,an,mod)
   }
   ggm<-applpMatrixToGraph(gg,m)
   return(ggm)
@@ -59,7 +59,7 @@ calcClustering<-function(gg,alg){
     cm<-calcMembership(gg,alg)
     m[,2]<-as.character(cm$membership)
   ggm<-applpMatrixToGraph(gg,m)
-  mod<-modularity(gg,cm$membership)
+  mod<-modularity(ggm,cm$membership)
   ggm<-set.graph.attribute(ggm,alg,mod)
   return(ggm)
 }
@@ -115,7 +115,7 @@ clusteringSummary<-function(gg,att=c('lec','wt','fc','infomap','louvain','sgG1',
     Cn100<-length(which(Cn>=100))
     summary(as.vector(Cn))->s
     names(s)<-paste(names(s),'C')
-    sgraphs<-lapply(names(Cn),getClusterSubgraphByID,gg=gg,mem=mem)
+    sgraphs<-lapply(names(Cn),getClusterSubgraphByID,gg=gg,mem=cmem)
     ug <- disjoint_union(sgraphs)
     mu<- 1-ecount(ug)/ecount(gg)
     r1<-c(mod,C,Cn1,Cn100,mu)
