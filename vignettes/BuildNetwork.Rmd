@@ -23,6 +23,7 @@ library(ggplot2)
 library(synaptome.db)
 library(pander)
 library(ggrepel)
+library(randomcoloR)
 ```
 # Title   AnNet: library for comprehensive network analysis
 ##  Authors: Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong and Oksana Sorokina    
@@ -207,7 +208,42 @@ gg
 Membership data could be obtained from the graph vertex attribute:
 
 ```{r get.attr}
-mem.df<-data.frame(ID=V(gg)$name,louvain=V(gg)$louvain)
+mem.df<-data.frame(names=V(gg)$name,membership=as.numeric(V(gg)$louvain))
+```
+
+It is often useful to be able to visualize clusters on the graph. The simples way is to color each cluster in its own color and plot the graph:
+```{r plot.color.graph}
+palette <- distinctColorPalette(max(as.numeric(mem.df$membership)))
+plot(gg,vertex.size=3,layout=layout_nicely,
+     vertex.label=NA,
+     vertex.color=palette[as.numeric(mem.df$membership)],
+     edge.color='grey95')
+```
+
+On the plot we can see some distinctive clusters but most nodes are indistinguishable within the central part of the plot. So we could layout graph clusterwise:
+```{r plot.clusterwise.graph}
+lay<-layoutByCluster(gg,mem.df,layout = layout_nicely)
+plot(gg,vertex.size=3,layout=lay,
+     vertex.label=NA,
+     vertex.color=palette[as.numeric(mem.df$membership)],
+     edge.color='grey95')
+```
+
+### Reclustering
+There are still too large cluster left. We can recluster them by applying the same, or different clustering algorithm on the cluster subgraph:
+```{r recluster}
+remem<-calcReclusterMatrix(gg,mem,alg,10)
+head(remem)
+```
+
+And we can apply second order clustering layout:
+```{r plot.recluster.layout}
+lay<-AnNet:::layoutByRecluster(gg,remem,layout_nicely)
+plot(gg,vertex.size=3,layout=lay,
+     vertex.label=NA,
+     vertex.color=palette[as.numeric(mem.df$membership)],
+     edge.color='grey95')
+
 ```
 
 ## Consensus matrix
