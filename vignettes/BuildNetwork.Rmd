@@ -211,7 +211,8 @@ mem.df<-data.frame(ID=V(gg)$name,louvain=V(gg)$louvain)
 ```
 
 ## Consensus matrix
-For assessing the robustness of the clustering randomization study could be performed, which applies the same clustering algorithm to N perturbed networks and returns the consensus matrix where each pair of nodes will be assigned the probability to belong to the same cluster.
+For assessing the robustness of the clustering randomization study can be performed, which applies the same clustering algorithm to N perturbed networks and returns the consensus matrix where each pair of nodes will be assigned the frequency to belong to the same cluster. 
+Where 'alg' gives the name of the clustering algorithm and 'type' the sampling scheme (1 sample edges, and 2 sample nodes) to use, 'mask' the percentage of edges or nodes to be mask, 'reclust' whether reclustering should be performed on the community set found, 'Cnmin' minimum cluster size and 'Cnmax' the maximum cluster size above which reclustering will be preformed (if reClust=TRUE).
 ```{r cons_mat}
 conmat <- makeConsensusMatrix(gg, N=100,alg = alg, type = 2, mask = 10,reclust = FALSE, Cnmin = -1, Cnmax = 10)#Build consensus matrix for louvain clustering
 
