@@ -78,14 +78,14 @@ intraEdgesM <- function(GG, mem, CC, INTRA=NULL, INTER=NULL){
 #'
 #' @param clID
 #' @param gg
-#' @param mem
+#' @param mem membership vector
 #'
 #' @return induced subgraph as igraph object
 #' @export
 #'
 #' @examples
 getClusterSubgraphByID<-function(clID,gg,mem){
-  idx<-which(mem$membership==clID)
+  idx<-which(mem==clID)
   sg<-induced_subgraph(gg,V(gg)[idx],impl = "auto")
   return(sg)
 }
@@ -101,7 +101,7 @@ getClusterSubgraphByID<-function(clID,gg,mem){
 #' @examples
 layoutByCluster<-function(gg,mem,layout=layout_with_kk){
   Cn<-table(mem$membership)
-  sgraphs<-lapply(names(Cn),getClusterSubgraphByID,gg=gg,mem=mem)
+  sgraphs<-lapply(names(Cn),getClusterSubgraphByID,gg=gg,mem=mem$membership)
   layouts <- lapply(sgraphs, layout)
   lay <- merge_coords(sgraphs, layouts)
   ug <- disjoint_union(sgraphs)
