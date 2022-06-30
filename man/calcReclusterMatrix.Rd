@@ -2,7 +2,7 @@
 % Please edit documentation in R/sampling.R
 \name{calcReclusterMatrix}
 \alias{calcReclusterMatrix}
-\title{Recluster graph.}
+\title{Recluster graph}
 \usage{
 calcReclusterMatrix(gg, mem, alg, CnMAX)
 }

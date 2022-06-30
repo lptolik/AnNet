@@ -71,7 +71,7 @@ intraEdgesM <- function(GG, mem, CC, INTRA=NULL, INTER=NULL){
 
 }
 
-#' Return induced subgraph for cluster.
+#' Return induced subgraph for cluster
 #'
 #' Function takes graph \code{gg}, membership data.frame \code{mem} and
 #' ID of the cluster in it, creates induced subgraph and returned it.

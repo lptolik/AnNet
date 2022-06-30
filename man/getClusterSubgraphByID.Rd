@@ -2,7 +2,7 @@
 % Please edit documentation in R/sampling.R
 \name{getClusterSubgraphByID}
 \alias{getClusterSubgraphByID}
-\title{Return induced subgraph for cluster.}
+\title{Return induced subgraph for cluster}
 \usage{
 getClusterSubgraphByID(clID, gg, mem)
 }
