@@ -242,7 +242,7 @@ legend('topright',legend=names(table(mem.df$membership)),
 It is also possible to visualize the interaction between communities:
 ```{r ploc.cluster.communities,fig.height=8,fig.width=8}
 idx<-match(V(gg)$name,mem.df$names)
-cgg<-getCommunityGraph(gg,mem.df$membership(idx))
+cgg<-getCommunityGraph(gg,mem.df$membership[idx])
 D0 = unname(degree(cgg))
 plot(cgg, vertex.size=sqrt(V(cgg)$size), vertex.cex = 0.8,
 vertex.color=round(log(D0))+1,layout=layout_with_kk)
