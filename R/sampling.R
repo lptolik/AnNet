@@ -145,6 +145,27 @@ layoutByRecluster<-function(gg,remem,layout=layout_with_kk){
   return(layF)
 }
 
+#' Create new graph with communities as a nodes.
+#'
+#' The idea based upon
+#' \href{https://stackoverflow.com/questions/62553280/visualizing-the-result-of-dividing-the-network-into-communities}{this StackOverflow answer}
+#'
+#' @param gg graph to convert
+#' @param membership participation list for new graph
+#'
+#' @return community graph
+#' @importFrom igraph simplify contract
+#' @export
+#'
+#' @examples
+getCommunityGraph<-function(gg,membership){
+  g<-gg
+  V(g)$composition<-V(gg)$name
+  cgg<-simplify(contract(g, membership,vertex.attr.comb =list(composition='concat', 'ignore')))
+  V(cgg)$name<-as.character(V(cgg))
+  V(cgg)$size<-sapply(V(cgg)$composition,length)
+  return(cgg)
+}
 #' Recluster graph
 #'
 #' Function takes graph \code{gg} and its membership matrix \code{mem}
