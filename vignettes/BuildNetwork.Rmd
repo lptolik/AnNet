@@ -302,6 +302,7 @@ clrob<-getRobustness(gg, alg = alg, conmat)
 pander(clrob)
 ```
 
+
 # Bridgeness 
 Bridging proteins are known to interact with many neighbours simultaneously, organise function inside communities they belong to, but also affect/influence other communities in the network (Nepusz et al., 2008).Bridgeness is estimated from the consensus clustering estimated above and vertex degree to calculate the vertex’s community membership, i.e. the probability of the specific node to belong to every communities obtained by given clustering algorithm.
 The Bridgeness measure lies between 0, implying a vertex clearly belongs in a single community, and 1, implying a vertex forms a 'global bridge' across every community with the same strength. 

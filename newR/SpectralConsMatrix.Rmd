@@ -102,7 +102,7 @@ gg <- calcCentrality(gg)
 ```
 
 # Consensus matrix for vertices
-Build consensus matrix for louvain clustering by perturbing nodes
+Build consensus matrix for spectral clustering by perturbing nodes
 ```{r build.conmat.v}
 conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
 ```
@@ -170,72 +170,4 @@ ggplot(dt,aes(x=X,y=Y))+geom_point()+
 
 ```
 
-# Consensus matrix for vertices
-Build consensus matrix for louvain clustering by perturbing edges
-```{r build.conmat.e}
-conmat<-makeConsensusMatrix(gg,N=10000,mask = 10,alg = alg,type = 1)
-```
-
-## ECDF plot
-```{r plot.conmat.ecdf.e,fig.height=8,fig.width=8}
-steps <- 100
-Fn  <- ecdf(conmat[lower.tri(conmat)])
-X<-seq(0,1,length.out=steps+1)
-cdf<-Fn(X)
-dt<-data.frame(cons=X,cdf=cdf)
-ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
-      theme(            
-        axis.title.x=element_text(face="bold",size=rel(2.5)),
-        axis.title.y=element_text(face="bold",size=rel(2.5)),
-        legend.title=element_text(face="bold",size=rel(1.5)),
-        legend.text=element_text(face="bold",size=rel(1.5)),
-        legend.key=element_blank())+
-    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
-          panel.grid.minor = element_line(colour="grey40",size=0.1),
-          panel.background = element_rect(fill="white"),
-          panel.border = element_rect(linetype="solid",fill=NA))
-```
-
-## Cluster robustness
-```{r clcons.e}
-clrob<-getRobustness(gg,alg,conmat)
-pander(clrob)
-```
-
-## Bridgeness 
-```{r calc.bridge.e}
-bm<-getBridgeness(gg,alg,conmat)
-pander(head(bm))
-```
-
-```{r plot.bridgeness.e,fig.height=8,fig.width=8}
-MainDivSize <- 0.8
-xmin        <- 0
-xmax        <- 1
-ymin        <- 0
-ymax        <- 1
-Xlab <- "Semilocal Centrality (SL)" 
-Ylab <- "Bridgeness (B)"
-X    <- as.numeric(igraph::get.vertex.attribute(gg,"SL",V(gg)))
-X    <- scale(X)
-Y       <- as.numeric(as.vector(bm[,dim(bm)[2]]))    
-dt<-data.frame(X=X,Y=Y)
-ggplot(dt,aes(x=X,y=Y))+geom_point()+
-      labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
-    scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
-    scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
-    theme(            
-        axis.title.x=element_text(face="bold",size=rel(2.5)),
-        axis.title.y=element_text(face="bold",size=rel(2.5)),
-        legend.title=element_text(face="bold",size=rel(1.5)),
-        legend.text=element_text(face="bold",size=rel(1.5)),
-        legend.key=element_blank())+
-    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
-          panel.grid.minor = element_line(colour="grey40",size=0.1),
-          panel.background = element_rect(fill="white"),
-          panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)+
-    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
-
-```
 
