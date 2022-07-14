@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-calcMembership<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5')){
+calcMembership<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')){
   ids <- V(gg)$name
   cl<-getClustering(gg,alg)
   cc       <- data.frame(names=cl$names,membership=cl$membership)
@@ -26,10 +26,11 @@ calcMembership<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sg
 #' @examples
 calcAllClustering<-function(gg){
   ids <- V(gg)$name
-  m      <- matrix(NA, ncol=9, nrow=length(ids))
-  colnames(m)<-c('ID','lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5')
+  cnames<-c('ID','lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')
+  m      <- matrix(NA, ncol=length(cnames), nrow=length(ids))
+  colnames(m)<-cnames
   m[,1]<-ids
-  for(ai in 2:9){
+  for(ai in 2:length(cnames)){
     an<-colnames(m)[ai]
     cm<-calcMembership(gg,an)
     m[,ai]<-as.character(cm$membership)
@@ -56,10 +57,10 @@ calcClustering<-function(gg,alg){
   m      <- matrix(NA, ncol=2, nrow=length(ids))
   colnames(m)<-c('ID',alg)
   m[,1]<-ids
-    cm<-calcMembership(gg,alg)
-    m[,2]<-as.character(cm$membership)
+  cl<-getClustering(gg,alg)
+  m[,2]<-as.character(cl$membership)
   ggm<-applpMatrixToGraph(gg,m)
-  mod<-modularity(ggm,cm$membership)
+  mod<-modularity(ggm,cl$membership)
   ggm<-set.graph.attribute(ggm,alg,mod)
   return(ggm)
 }
@@ -73,7 +74,7 @@ calcClustering<-function(gg,alg){
 #' @export
 #'
 #' @examples
-getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5')){
+getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')){
   alg <- match.arg(alg)
   lec<-function(gg){
     lec     <- igraph::leading.eigenvector.community(gg)
@@ -85,9 +86,14 @@ getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG
              fc=igraph::fastgreedy.community(gg),
              infomap=igraph::cluster_infomap(gg),
              louvain=igraph::cluster_louvain(gg),
-             sgG1=igraph::spinglass.community(gg, spins=as.numeric(500),gamma=1),
-             sgG2=igraph::spinglass.community(gg, spins=as.numeric(500),gamma=2),
-             sgG5=igraph::spinglass.community(gg, spins=as.numeric(500),gamma=5)
+             sgG1=igraph::spinglass.community(gg,
+                                              spins=as.numeric(500),gamma=1),
+             sgG2=igraph::spinglass.community(gg,
+                                              spins=as.numeric(500),gamma=2),
+             sgG5=igraph::spinglass.community(gg,
+                                              spins=as.numeric(500),gamma=5),
+             spectral=rSpectral::spectral_igraph_communities(gg,
+                                                          Cn_min=5,fix_neig = 1)
   )
   return(cl)
 }

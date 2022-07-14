@@ -6,7 +6,7 @@
 \usage{
 calcMembership(
   gg,
-  alg = c("lec", "wt", "fc", "infomap", "louvain", "sgG1", "sgG2", "sgG5")
+  alg = c("lec", "wt", "fc", "infomap", "louvain", "sgG1", "sgG2", "sgG5", "spectral")
 )
 }
 \arguments{
