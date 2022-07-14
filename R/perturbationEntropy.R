@@ -58,9 +58,42 @@ getEntropyRate<-function(gg){
   return(list(maxSr=maxSr,SRo=SRo))
 }
 
+#' Calculates perturbation entropy and save it as attribute on the graph.
+#'
+#'
+#'
+#' @param gg igraph object
+#' @param maxSr maxSr value, if NULL \code{getEntropyRate} will be called.
+#' @param exVal expression values boundaries.
+#' Two columns are expected: \code{xx} and \code{lambda}. If NULL default values
+#' \code{c(2,14)} and \code{c(-14,14)} will be used for \code{xx}
+#' and \code{lambda} respectively.
+#'
+#' @return graph with SR_UP and SR_DOWN attributes storing entropy values for
+#' over- and underexpression respectively
+#' @export
+#'
+#' @examples
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-annotateGeneNames(gg)
+#' gg<- calcEntropy(gg)
+calcEntropy<-function(gg,maxSr=NULL,exVal=NULL){
+  SRprime <- getEntropy(gg, maxSr = maxSr, exVal = exVal)
+  SRprime <- SRprime[,-c(2,3)]
+  names(SRprime) <- c('ID','SR_UP','SR_DOWN')
+  gg<-applpMatrixToGraph(gg,SRprime)
+  return(gg)
+}
 #' Calculates perturbation entropy
 #'
 #' @param gg igraph object
+#' @param maxSr maxSr value, if NULL \code{getEntropyRate} will be called.
+#' @param exVal expression values boundaries.
+#' Two columns are expected: \code{xx} and \code{lambda}. If NULL default values
+#' \code{c(2,14)} and \code{c(-14,14)} will be used for \code{xx}
+#' and \code{lambda} respectively.
 #'
 #' @return
 #' @export
@@ -71,7 +104,7 @@ getEntropyRate<-function(gg){
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' gg<-annotateGeneNames(gg)
 #' e<- getEntropy(gg)
-getEntropy<-function(gg,maxSr=NULL){
+getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
   if(!"GeneName"%in%vertex_attr_names(gg)){
     V(gg)$GeneName<-V(gg)$name
   }
@@ -90,7 +123,7 @@ getEntropy<-function(gg,maxSr=NULL){
   }
 
   #--- perturbated each PPI node/gene
-
+  if(is.null(exVal)){
   #--- expression values
   xx    <- vector(length=2)
   xx[1] <- 2  #active
@@ -100,11 +133,18 @@ getEntropy<-function(gg,maxSr=NULL){
   lambda    <- vector(length=2)
   lambda[1] <- 14   #active
   lambda[2] <- -14  #inactive
-
   #--- Norm for PI'
   NORM      <- vector(length=2)
   NORM[1]   <- 0
   NORM[2]   <- 0
+  }else{
+    if(!('xx' %in% names(exVal) && 'lambda' %in% names(exVal))){
+      stop('exVal should contain two columns: xx and lambda')
+    }
+    xx<-exVal$xx
+    lambda<-exVal$lambda
+    NORM <- rep.int(0,length(xx))
+}
 
   SRprime <- cbind(V(gg)$name, V(gg)$GeneName, ki, rep("",V), rep("",V))
 
@@ -121,7 +161,8 @@ getEntropy<-function(gg,maxSr=NULL){
     LSprime <- cbind( rep("",V), rep("",V) )
 
     #--- reset NORM
-    NORM[1] = 0; NORM[2] = 0;
+    #NORM[1] = 0; NORM[2] = 0;
+    NORM <- rep.int(0,length(xx))
 
     #--- calculate norm for PI'
     for( s in 1:length(lambda) ){

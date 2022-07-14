@@ -186,7 +186,9 @@ getDiseases<-function(){
   return(disn)
 }
 
-#' Generic annotation function. It takes name of the attribute, and two column
+#' Generic annotation function
+#'
+#' It takes name of the attribute, and two column
 #' data.frame with vertex ID in the first column and annotation in the second.
 #' As a first step all attributes with provided names will be removed.
 #'

@@ -2,9 +2,7 @@
 % Please edit documentation in R/annotateNetwork.R
 \name{annotate_vertex}
 \alias{annotate_vertex}
-\title{Generic annotation function. It takes name of the attribute, and two column
-data.frame with vertex ID in the first column and annotation in the second.
-As a first step all attributes with provided names will be removed.}
+\title{Generic annotation function}
 \usage{
 annotate_vertex(gg, name, values)
 }
@@ -16,7 +14,7 @@ annotate_vertex(gg, name, values)
 \item{values}{annotation data.frame}
 }
 \description{
-Generic annotation function. It takes name of the attribute, and two column
+It takes name of the attribute, and two column
 data.frame with vertex ID in the first column and annotation in the second.
 As a first step all attributes with provided names will be removed.
 }

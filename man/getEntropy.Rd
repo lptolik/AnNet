@@ -4,10 +4,17 @@
 \alias{getEntropy}
 \title{Calculates perturbation entropy}
 \usage{
-getEntropy(gg, maxSr = NULL)
+getEntropy(gg, maxSr = NULL, exVal = NULL)
 }
 \arguments{
 \item{gg}{igraph object}
+
+\item{maxSr}{maxSr value, if NULL \code{getEntropyRate} will be called.}
+
+\item{exVal}{expression values boundaries.
+Two columns are expected: \code{xx} and \code{lambda}. If NULL default values
+\code{c(2,14)} and \code{c(-14,14)} will be used for \code{xx}
+and \code{lambda} respectively.}
 }
 \description{
 Calculates perturbation entropy

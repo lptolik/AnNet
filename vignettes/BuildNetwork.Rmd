@@ -23,6 +23,7 @@ library(ggplot2)
 library(synaptome.db)
 library(pander)
 library(ggrepel)
+library(randomcoloR)
 ```
 # Title   AnNet: library for comprehensive network analysis
 ##  Authors: Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong and Oksana Sorokina    
@@ -95,11 +96,10 @@ summary(sgg)
 ## Presynaptic functiion annotation
 This is manually curated presynaptic genes specific functional annotation based on the paper of Boyken at al., 2019
 
-```
-{r annotate_Chua, eval=FALSE}
+```{r annotate_Chua, eval=FALSE}
 sfile<-system.file("extdata", "PresynAn.csv", package = "AnNet")
-pres <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
-sgg <- annotate_CHUA(gg, pres)
+pres <- read.csv(sfile,skip=1,header=F,strip.white=T,quote="")
+sgg <- AnNet:::annotate_CHUA(gg, pres)
 summary(sgg)
 ```
 ## GO
@@ -131,7 +131,7 @@ gg <- calcCentrality(gg)
 summary(gg)
 ```
 ##Get node centralities as a matrix. 
-The same centrality measures as before are presented in a matrix form.
+In the case you don't want save centrality values on the graph, for example you going to provide different names for the attributes, the same centrality measures as before could be obtained in a matrix form:
 ```{r matrix_cent}
 mc <- getCentralityMatrix(gg)
 head(mc)
@@ -151,16 +151,18 @@ In the example below we found evidence for disassortative mixing (Newman, 2002),
 ```{r powerLaw,fig.height=9,fig.width=9}
 pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
+
 ## Get entropy rate
 Evidence for scale-free structure can also be tested by performing a perturbation analysis on each network (Teschendorff et al, 2014). In this analysis each protein was perturbed through over-expression (red) and under-expression (green), with the global entropy rate (SR) after each proteins pertubation being plotted against the log of the proteins degree, as shown at the plot below. In the example network we observed a bi-modal response, between gene over-expression and degree, and opposing bi-phasic response relative to over/under-expression between global entropy rate and degree. This type of bi-modal, bi-phasic behaviour has been observed only in networks with scale-free or approximate scale-free topology (Teschendorff et al, 2014)[80]. 
 
-```{r ent_rate}
+```{r ent_rate,fig.height=8,fig.width=8}
 ent <- getEntropyRate(gg)
 ent
 SRprime <- getEntropy(gg, maxSr = NULL)
 head(SRprime)
 plotEntropy(SRprime, subTIT = "Entropy", SRo = ent$SRo, maxSr = ent$maxSr)
 ```
+
 ## Get modularity. Normalised modularity.
 Normalised modularity allows comparison the networks with different structure.
 Qm based on the previous studies by Parter et al., 2007, Takemoto, 2012,Takemoto, 2013, Takemoto and Borjigin, 2011, which was defined as:
@@ -180,24 +182,93 @@ Clustering, or community detection, in networks has been well studied in the fie
 The possible algorithms of choice implemented in the package are: "lec"('Leading-Eigenvector, Newman, 2006), "wt"(Walktrap, Pons & Latapy, 2006), "fc"(Fast-Greedy Community' algorithm, Clauset et al., 2004), "infomap" (InfoMAP, Rosvall et al., 2007; Rosvall et al., 2010), "louvain" (Louvain, Blondel et al., 2008), "sgG1", "sgG2", "sgG5"(SpinGlass, Reichardt & Bornholdt). For each algorithm of interest the membership could be obtained with calcMembership command.
 All algorithm implementations, apart from Spectral were performed using the publicly available R package igraph (Csardi & Nepusz, 2006) (R version 3.4.2, igraph version 1.1.2). Parameters used in the fc, lec, sg, wt and lourvain algorithms were chosen as to maximise the measure Modularity (Newman & Girvan, 2004); infomap seeks the optimal community structure in the data by maximising the objective function called the Minimum Description Length (Rissanen, 1978; Grwald et al., 2005)
 
-calcAllClustering allows to calculate memberships for all clustering algorithms simultaneously (may take time), and store them on the graph vertices.
-In this case, calcMembership command will return the community membership for specific algorithm.
+```{r cluster.mem}
+alg = "louvain"
+mem <- calcMembership(gg, alg)# choose one algorithm from the list
+pander(head(mem))
+```
 
-Alternatively, calcClustering allows to calculate clustering for selected algorithm.
+Due to internal random initialisation consequtive invocation of the same algorithm could produce slightly different community structures:
+```{r cluster.mem2}
+mem2 <- calcMembership(gg, alg)# choose one algorithm from the list
+pander(head(cbind(mem,mem2)))
+```
+
+To avoid inconsistency if downstream analysis we provide two additional functions
+calcClustering and calcAllClustering that use calcMembership to calculate community memberships and store them within the graph vertices attributes named after the algorithm. They also calculate modularity values and store them on graph attributes named after the algorithme. The difference between calcClustering and calcAllClustering is that calcAllClustering allows to calculate memberships for all clustering algorithms simultaneously (may take time), and store them on the graph vertices, while calcClustering  command will work for specific algorithm. 
 
 ```{r cluster}
-#ggc <- calcAllClustering(gg)
-#summary(ggc)
-
-#mem <- calcMembership(ggc, alg = c("lec"))# choose one algorithm from the list
-#head(mem)
-
-alg = "louvain"
 gg <- calcClustering(gg, alg)
 gg
+
 ```
+
+Membership data could be obtained from the graph vertex attribute:
+
+```{r get.attr}
+mem.df<-data.frame(names=V(gg)$name,membership=as.numeric(V(gg)$louvain))
+```
+
+To compare different clustering algorithms summary matrix can be calculated with the maximum Modularity obtained (mod), number of detected communities (C), the number of communities with size (Cn1) equal to 1, the number of communities >= 100 (Cn100), the fraction of edges lying between communities (mu), the size of the smallest community (Min. C), the size of the largest community (Max. C), the average ( Mean C), median (Median C), first quartile (1st Qu. C), and third quartile (3rd Qu. C) of the community size. 
+```{r clusterSummary}
+ggc <- calcAllClustering(gg)
+m<-clusteringSummary(ggc,att=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5'))
+pander(m)
+```
+
+
+
+It is often useful to be able to visualize clusters on the graph. The simples way is to color each cluster in its own color and plot the graph:
+```{r plot.color.graph,fig.height=8,fig.width=8}
+palette <- distinctColorPalette(max(as.numeric(mem.df$membership)))
+plot(gg,vertex.size=3,layout=layout_nicely,
+     vertex.label=NA,
+     vertex.color=palette[as.numeric(mem.df$membership)],
+     edge.color='grey95')
+legend('topright',legend=names(table(mem.df$membership)),col=palette,pch=19,ncol = 2)
+```
+
+On the plot we can see some distinctive clusters but most nodes are indistinguishable within the central part of the plot. So we could layout graph clusterwise:
+```{r plot.clusterwise.graph,fig.height=8,fig.width=8}
+lay<-layoutByCluster(gg,mem.df,layout = layout_nicely)
+plot(gg,vertex.size=3,layout=lay,
+     vertex.label=NA,
+     vertex.color=palette[as.numeric(mem.df$membership)],
+     edge.color='grey95')
+legend('topright',legend=names(table(mem.df$membership)),
+       col=palette,pch=19,ncol = 2)
+```
+
+It is also possible to visualize the interaction between communities:
+```{r ploc.cluster.communities,fig.height=8,fig.width=8}
+idx<-match(V(gg)$name,mem.df$names)
+cgg<-getCommunityGraph(gg,mem.df$membership[idx])
+D0 = unname(degree(cgg))
+plot(cgg, vertex.size=sqrt(V(cgg)$size), vertex.cex = 0.8,
+vertex.color=round(log(D0))+1,layout=layout_with_kk)
+```
+
+### Reclustering
+There are still too large cluster left. We can recluster them by applying the same, or different clustering algorithm on the cluster subgraph:
+```{r recluster}
+remem<-calcReclusterMatrix(gg,mem.df,alg,10)
+head(remem)
+```
+
+And we can apply second order clustering layout:
+```{r plot.recluster.layout,fig.height=8,fig.width=8}
+lay<-AnNet:::layoutByRecluster(gg,remem,layout_nicely)
+plot(gg,vertex.size=3,layout=lay,
+     vertex.label=NA,
+     vertex.color=palette[as.numeric(mem.df$membership)],
+     edge.color='grey95')
+legend('topright',legend=names(table(mem.df$membership)),col=palette,pch=19,ncol = 2)
+```
+
+
 ## Consensus matrix
-For assessing the robustness of the clustering randomization study could be performed, which applies the same clustering algorithm to N perturbed networks and returns the consensus matrix where each pair of nodes will be assigned the probability to belong to the same cluster.
+For assessing the robustness of the clustering randomization study can be performed, which applies the same clustering algorithm to N perturbed networks and returns the consensus matrix where each pair of nodes will be assigned the frequency to belong to the same cluster. 
+Where 'alg' gives the name of the clustering algorithm and 'type' the sampling scheme (1 sample edges, and 2 sample nodes) to use, 'mask' the percentage of edges or nodes to be mask, 'reclust' whether reclustering should be performed on the community set found, 'Cnmin' minimum cluster size and 'Cnmax' the maximum cluster size above which reclustering will be preformed (if reClust=TRUE).
 ```{r cons_mat}
 conmat <- makeConsensusMatrix(gg, N=100,alg = alg, type = 2, mask = 10,reclust = FALSE, Cnmin = -1, Cnmax = 10)#Build consensus matrix for louvain clustering
 
@@ -223,6 +294,7 @@ ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
           panel.background = element_rect(fill="white"),
           panel.border = element_rect(linetype="solid",fill=NA))
 ```
+
 ## Cluster robustness
 Cluster robustness assess the robustness of the obtained clusters and could help to evaluate the "goodness" of chosen clustering algorithm.
 ```{r clcons}
@@ -238,6 +310,7 @@ The Bridgeness measure lies between 0, implying a vertex clearly belongs in a si
 br<-getBridgeness(gg,alg = alg,conmat)
 pander(head(br))
 ```
+
 ## Bridgeness plot
 Semi-local centrality measure (Chen et al., 2011) also lies between 0 and 1 indicating whether protein is important globally or locally. By plotting Bridgeness against semi-local centrality we can categorises the influence each protein found in our network has on the overall network structure:
 	Region 1, proteins having a 'global' rather than 'local' influence in the network (also been called bottle-neck bridges, connector or kinless hubs (0<Sl<0.5; 0.5<Br<1). Region 2, proteins having 'global' and 'local' influence (0.5<Sl<1, 0.5<Br<1). Region 3, proteins centred within the community they belong to, but also communicating with a few other specific communities (0<Sl<0.5; 0.1<Br<0.5). Region 4, proteins with 'local' impact , primarily within one or two communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
@@ -320,6 +393,7 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
 
 ```
+
 ##Interactive view of bridgeness plot
 ```{r plotly,fig.height=10,fig.width=10}
 library(plotly)
@@ -345,6 +419,7 @@ p<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
 ggplotly(p)
 ```
+
 # Disease/annotation pairs
 Given that Disease associated genes are connected within the graph, the common question is to check whether the networks for two different diseases are overlapping, which may indicate the common molecular mechanisms. Same is valid for any pair of annotations, e.g. one would ask if two different biological functions are related.
 To address the question, we have utilised the algorithm from Menche et al, which estimates the minimal shortest paths between two distinct annotations and compare it to the randomly annotated graph.

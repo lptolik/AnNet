@@ -37,8 +37,255 @@ intraEdges <- function(GG, ALG, CC, INTRA=NULL, INTER=NULL){
 
 }
 
+intraEdgesM <- function(GG, mem, CC, INTRA=NULL, INTER=NULL){
 
-recluster <- function( GG, ALGN, CnMAX, CnMIN=1 ){
+  intra = NULL #edges in the community CC
+  inter = NULL #edges going out from community CC
+
+  idx<- (mem$membership == CC)
+    if( length(which(idx)) != 0 ){
+
+      ed_cc = E(GG)[inc(idx)]
+
+      all_edges_m <- get.edges(GG, ed_cc) #matrix representation
+
+      inter = (ed_cc[!(all_edges_m[, 1] %in% V(GG)[idx] & all_edges_m[, 2] %in% V(GG)[idx])])
+
+      intra = (ed_cc[(all_edges_m[, 1] %in% V(GG)[idx] & all_edges_m[, 2] %in% V(GG)[idx])])
+
+    }
+
+  if( INTRA==TRUE && !is.null(intra) && length(intra)>0 ){
+    intra_m = get.edges(GG,intra)
+    intra   = cbind(V(GG)$name[intra_m[,1]],V(GG)$name[intra_m[,2]])
+    return(intra)
+  }
+
+  if( INTER==TRUE && !is.null(inter) && length(inter)>0 ){
+    inter_m = get.edges(GG,inter)
+    inter   = cbind(V(GG)$name[inter_m[,1]],V(GG)$name[inter_m[,2]])
+    return(inter)
+  }
+
+  return(NULL)
+
+}
+
+#' Return induced subgraph for cluster
+#'
+#' Function takes graph \code{gg}, membership data.frame \code{mem} and
+#' ID of the cluster in it, creates induced subgraph and returned it.
+#'
+#' @param clID
+#' @param gg
+#' @param mem membership vector
+#'
+#' @return induced subgraph as igraph object
+#' @export
+#'
+#' @examples
+getClusterSubgraphByID<-function(clID,gg,mem){
+  idx<-which(mem==clID)
+  sg<-induced_subgraph(gg,V(gg)[idx],impl = "auto")
+  return(sg)
+}
+
+#' Calculate layout based upon membership
+#'
+#' @param gg
+#' @param mem
+#'
+#' @return
+#' @export
+#'
+#' @examples
+layoutByCluster<-function(gg,mem,layout=layout_with_kk){
+  Cn<-table(mem$membership)
+  sgraphs<-lapply(names(Cn),getClusterSubgraphByID,gg=gg,mem=mem$membership)
+  layouts <- lapply(sgraphs, layout)
+  lay <- merge_coords(sgraphs, layouts)
+  ug <- disjoint_union(sgraphs)
+  idx<-match(V(gg)$name,V(ug)$name)
+  lay<-lay[idx,]
+  return(lay)
+}
+
+#' Calculate two-level layout from recluster matrix
+#'
+#' Takes results of recluster and apply \code{layoutByCluster} to each
+#'
+#' @param gg
+#' @param remem
+#' @param layout
+#'
+#' @return
+#' @export
+#'
+#' @examples
+layoutByRecluster<-function(gg,remem,layout=layout_with_kk){
+  Cn<-table(remem$membership)
+  glist<-list()
+  laylist<-list()
+  for(i in 1: length(Cn)){
+    sg<-getClusterSubgraphByID(names(Cn)[i],gg,remem$membership)
+    mem1<-remem[remem$membership==names(Cn)[i],c('names','recluster')]
+    names(mem1)<-c('names','membership')
+    if(length(table(mem1$membership))>1){
+      lay<-layoutByCluster(sg,mem1,layout)
+    }else{
+      lay<-layout(sg)
+    }
+    glist[[i]]<-sg
+    laylist[[i]]<-lay
+  }
+  ug <- disjoint_union(glist)
+  lay <- merge_coords(glist, laylist)
+  idx<-match(V(gg)$name,V(ug)$name)
+  layF<-lay[idx,]
+  return(layF)
+}
+
+#' Create new graph with communities as a nodes.
+#'
+#' The idea based upon
+#' \href{https://stackoverflow.com/questions/62553280/visualizing-the-result-of-dividing-the-network-into-communities}{this StackOverflow answer}
+#'
+#' @param gg graph to convert
+#' @param membership participation list for new graph
+#'
+#' @return community graph
+#' @importFrom igraph simplify contract
+#' @export
+#'
+#' @examples
+getCommunityGraph<-function(gg,membership){
+  g<-gg
+  V(g)$composition<-V(gg)$name
+  cgg<-simplify(contract(g, membership,vertex.attr.comb =list(composition='concat', 'ignore')))
+  V(cgg)$name<-as.character(V(cgg))
+  V(cgg)$size<-sapply(V(cgg)$composition,length)
+  return(cgg)
+}
+#' Recluster graph
+#'
+#' Function takes graph \code{gg} and its membership matrix \code{mem}
+#' as returned \code{calcMembership} and apply clustering algorithm \code{alg}
+#' to all clusters larger than \code{CnMAX}
+#'
+#' @param gg
+#' @param mem
+#' @param alg
+#' @param CnMAX
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
+
+  if(is.matrix(mem)){
+    mem<-as.data.frame(mem)
+  }
+
+  if(!all(c('names','membership')%in%names(mem))){
+    stop("mem suppose to have columns 'names' and 'membership'")
+  }
+    #--- algorithm clustering 1
+    ALG1 <- mem
+
+    Cn <- table(mem$membership)
+    Cnc <- Cn[Cn > CnMAX]
+    cc <- names(Cnc)
+
+
+    RES <- list()
+    k=1
+    for( i in 1:length(cc) ){
+
+      edCC = intraEdgesM(gg, mem, cc[i], INTRA=TRUE)
+
+      if( !is.null(edCC) ){
+
+        ggLCC    <- graph_from_data_frame(d=edCC, directed=F)
+        res <- getClustering(ggLCC,alg)
+        oo       <- data.frame(names=res$names, membership=res$membership)
+        if(dim(oo)[1]< Cnc[i]){
+          cmem<-mem[mem$membership==cc[i]]
+          singidx<-which(!cmem$names %in% oo$names)
+          singletones <- data.frame(names=cmem$names[singidx],
+                                    membership=max(oo$membership)+
+                                      1:length(singidx))
+          oo<-rbind(oo,singletones)
+        }
+
+        RES[[k]]      <- oo
+        names(RES)[k] <- cc[i]
+        k=k+1
+      }
+
+    }#for
+
+
+    if( length(RES) == 0 ){ return(NULL) }
+
+
+    #--- algorithm clustering 2
+    ALG2     <- mem
+    ALG2$split <- rep(-1, dim(ALG1)[1])
+    indx     <- match(ALG2$membership,cc)
+    indx     <- ifelse(is.na(indx),TRUE, FALSE)
+    ALG2$split <- ifelse(indx, ALG2$membership, ALG2$split)
+
+    CCmax = max(as.numeric(ALG2$split))
+
+    for( i in 1:length(cc) ){
+
+      temp     <- RES[[i]]
+      temp$membership <- temp$membership + CCmax
+
+      indx <- match(ALG2$names,temp$names)
+
+      ALG2$split <- ifelse(is.na(indx),ALG2$split,temp$membership[indx])
+
+      CCmax = max(as.numeric(ALG2$split))
+
+    }
+
+    #---reorder ALG2$split
+    N = length(V(gg));
+
+    temp    <- rep(-1, N)
+    counter <- min(as.numeric(ALG2$split))
+    Knew    <- 1;
+    Kmax    <- max(as.numeric(ALG2$split))
+
+    while( counter <= Kmax ){
+
+      found=FALSE;
+
+      for(v in 1:N ){
+        if( as.numeric(ALG2$split[v]) == counter ){
+          temp[v] = Knew;
+          found=TRUE;
+        }
+      }
+
+      if(found) Knew=Knew+1;
+
+      counter=counter+1;
+    }
+
+    #---final
+    ALG3 <- cbind(ALG2, data.frame(recluster=temp))
+    if(!keepSplit){
+      ALG3<-ALG3[,grep('split',names(ALG3),invert = TRUE)]
+    }
+    return(ALG3)
+
+
+}
+
+recluster <- function( GG, ALGN, CnMAX ){
 
   if( !is.null(igraph::get.vertex.attribute(GG,ALGN)) ){
 
@@ -55,13 +302,13 @@ recluster <- function( GG, ALGN, CnMAX, CnMIN=1 ){
     k=1
     for( i in 1:length(cc) ){
 
-      edCC = intraEdges(GG, ALGN, cc[i], INTRA=TRUE)
-      oo       <- cbind(res$names, res$membership)
+      edCC = intraEdges(GG, ALG, cc[i], INTRA=TRUE)
 
       if( !is.null(edCC) ){
 
         ggLCC    <- graph_from_data_frame(d=edCC, directed=F)
         res <- getClustering(ggLCC,alg)
+        oo       <- cbind(res$names, res$membership)
 
         RES[[k]]      <- oo
         names(RES)[k] <- cc[i]
@@ -193,7 +440,7 @@ sampleGraphClust<-function(gg,mask,alg,type,reclust=FALSE,Cnmin=-1,Cnmax=10){
   }
   cl<-getClustering(ggLCC,alg)
   if(reclust){
-    ggLCC = igraph::set.vertex.attribute(ggLCC,alg,V(ggLCC),louvain$membership)
+    ggLCC = igraph::set.vertex.attribute(ggLCC,alg,V(ggLCC),cl$membership)
 
     oo = recluster( ggLCC, alg, Cnmax )
 
