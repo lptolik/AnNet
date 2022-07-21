@@ -77,7 +77,7 @@ head(V(gg))
 head(V(gg)$GeneName)
 ```
 ## Diseases
-Adding diseases associations from HDO database
+Adding diseases associations to genes linked to Human Disease Ontology (HDO) terms
 ```{r annotate_topOnto}
 afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "AnNet")
 dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
@@ -86,7 +86,7 @@ summary(gg)
 
 ```
 ##Shanno
-Adding synaptic function annotated from еру Shanno et al.,paper
+Adding Schizopherina related synaptic gene functional annotation from (Lips et al., 2012).
 ```{r annotate_Shanno}
 sfile<-system.file("extdata", "SCH_flatfile.csv", package = "AnNet")
 shan   <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
@@ -94,7 +94,7 @@ sgg<-annotate_SCHanno(gg,shan)
 summary(sgg)
 ```
 ## Presynaptic functiion annotation
-This is manually curated presynaptic genes specific functional annotation based on the paper of Boyken at al., 2019
+Manually curated presynaptic genes functional annotation derived from (Boyken at al., 2019).
 
 ```{r annotate_Chua, eval=FALSE}
 sfile<-system.file("extdata", "PresynAn.csv", package = "AnNet")
