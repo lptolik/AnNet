@@ -93,7 +93,7 @@ getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG
              sgG5=igraph::spinglass.community(gg,
                                               spins=as.numeric(500),gamma=5),
              spectral=rSpectral::spectral_igraph_communities(gg,
-                                                          Cn_min=5,fix_neig = 1)
+                                                          Cn_min=1,fix_neig = 1)
   )
   return(cl)
 }
