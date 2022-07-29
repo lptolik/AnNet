@@ -92,8 +92,7 @@ getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG
                                               spins=as.numeric(500),gamma=2),
              sgG5=igraph::spinglass.community(gg,
                                               spins=as.numeric(500),gamma=5),
-             spectral=rSpectral::spectral_igraph_communities(gg,
-                                                          Cn_min=1,fix_neig = 1)
+             spectral=rSpectral::spectral_igraph_communities(gg)
   )
   return(cl)
 }
@@ -107,7 +106,7 @@ getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG
 #' @export
 #'
 #' @examples
-clusteringSummary<-function(gg,att=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5')){
+clusteringSummary<-function(gg,att=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')){
   attN<-vertex_attr_names(gg)
   idx<-match(attN,att)
   clusterings<-attN[!is.na(idx)]
