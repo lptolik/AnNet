@@ -6,7 +6,7 @@
 \usage{
 clusteringSummary(
   gg,
-  att = c("lec", "wt", "fc", "infomap", "louvain", "sgG1", "sgG2", "sgG5")
+  att = c("lec", "wt", "fc", "infomap", "louvain", "sgG1", "sgG2", "sgG5", "spectral")
 )
 }
 \arguments{

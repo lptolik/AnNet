@@ -282,9 +282,9 @@ unescapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
 getAnnotationList<-function(annVec,col=COLLAPSE,sort=c('none','string','frequency')){
   sort <- match.arg(sort)
   res=switch (sort,
-    none = unique(unlist(strsplit(annVec,';'))),
-    string = sort(unique(unlist(strsplit(annVec,';')))),
-    frequency = names(sort(table(unlist(strsplit(annVec,';'))),decreasing = TRUE))
+    none = unique(unlist(strsplit(annVec,col))),
+    string = sort(unique(unlist(strsplit(annVec,col)))),
+    frequency = names(sort(table(unlist(strsplit(annVec,col))),decreasing = TRUE))
   )
   return(res)
 }
