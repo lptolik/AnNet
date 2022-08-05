@@ -20,6 +20,7 @@ library(synaptome.db)
 library(pander)
 library(ggplot2)
 library(rSpectral)
+library(data.table)
 scale <- function(x, VALUE=NULL){
 
     x = as.numeric(as.vector(x))
@@ -50,8 +51,10 @@ scale <- function(x, VALUE=NULL){
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 gg <- igraph::read.graph(file,format="gml")
 summary(gg)
+g<-gg
 ```
-```{r clean.algs}
+```
+{r clean.algs}
 alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')
 g<-gg
 for(a in alg){
@@ -64,7 +67,8 @@ summary(g)
 
 
 # Clustering
-```{r cluster.graph, cache=TRUE}
+```
+{r cluster.graph, cache=TRUE}
 g<-calcAllClustering(g)
 ```
 
@@ -79,12 +83,21 @@ genes<-as.character(V(g))
 anNames<-getAnnotationList(gda)
 anL<-lapply(anNames, function(.a){genes[grepl(.a,gda,fixed = TRUE)]})
 names(anL)<-unescapeAnnotation(anNames)
-
+pander(sapply(anL,length))
 ```
 
 ```{r fora}
-cl<-make_clusters(g,as.numeric(V(g)$Spectral))
+cl<-make_clusters(g,as.numeric(V(g)$louvain))
 resL<-lapply(1:length(cl),function(.i){res<-fora(anL,as.character(V(g)[which(membership(cl)==.i)]),universe = as.character(V(g)));return(res[,cl:=.i])})
+res<-do.call(rbind,resL)
+res<-res[padj<0.1,]
+res[,overlapGenes:=sapply(overlapGenes,paste,collapse = ', ')]
+pander(res)
+```
 
+```{r short.fora}
+anL<-getAnnotationVertexList(g,'GOCCID')
+res<-clusterORA(g,alg='louvain',name='GOCCID',vid='name')
+pander(res)
 ```
 
