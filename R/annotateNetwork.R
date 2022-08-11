@@ -291,7 +291,8 @@ unescapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
 #' @return named list with annotation in Annotation Vertices form
 #' @export
 getAnnotationVertexList<-function(g,name,vid='name',col=COLLAPSE){
-  gda<-prepareGDA(g,'TopOntoOVGHDOID')
+
+  gda<-prepareGDA(g,name)
   vertices<-get.vertex.attribute(g,vid)
   anNames<-getAnnotationList(gda)
   anL<-lapply(anNames, function(.a){vertices[grepl(.a,gda,fixed = TRUE)]})
