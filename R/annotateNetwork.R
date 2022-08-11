@@ -267,6 +267,38 @@ unescapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
   return(res)
 }
 
+#' Return vertex list for each term in annotation attribute
+#'
+#' For different purposes annotation of graph vertices could be
+#' represented in three forms:
+#' \describe{
+#'   \item{Pairs}{dataframe with vertex ID and annotation terms}
+#'   \item{Vertex Annotation}{list named with vertex ID and
+#'   containing terms annotating each vertex}
+#'   \item{Annotation Vertices}{list named with term and
+#'   containing vertex IDs}
+#' }
+#'
+#' This function takes Vertex Annotation from vertex attribute
+#' and convert it to Annotation Vertices form.
+#'
+#' @param g graph to get annotation from
+#' @param name annotation attribute name
+#' @param col list separation character in attribute, by
+#' default is \code{;}
+#' @param vid attribute to be used as a vertex ID
+#'
+#' @return named list with annotation in Annotation Vertices form
+#' @export
+getAnnotationVertexList<-function(g,name,vid='name',col=COLLAPSE){
+  gda<-prepareGDA(g,'TopOntoOVGHDOID')
+  vertices<-get.vertex.attribute(g,vid)
+  anNames<-getAnnotationList(gda)
+  anL<-lapply(anNames, function(.a){vertices[grepl(.a,gda,fixed = TRUE)]})
+  names(anL)<-unescapeAnnotation(anNames)
+  return(anL)
+}
+
 #' Extract unique values from annotations.
 #' It is not uncommon that some nodes are annotated with list of terms and some
 #' terms annotates multiple nodes. This function creates vector of unique terms
@@ -282,9 +314,9 @@ unescapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
 getAnnotationList<-function(annVec,col=COLLAPSE,sort=c('none','string','frequency')){
   sort <- match.arg(sort)
   res=switch (sort,
-    none = unique(unlist(strsplit(annVec,';'))),
-    string = sort(unique(unlist(strsplit(annVec,';')))),
-    frequency = names(sort(table(unlist(strsplit(annVec,';'))),decreasing = TRUE))
+    none = unique(unlist(strsplit(annVec,col))),
+    string = sort(unique(unlist(strsplit(annVec,col)))),
+    frequency = names(sort(table(unlist(strsplit(annVec,col))),decreasing = TRUE))
   )
   return(res)
 }

@@ -1,0 +1,103 @@
+---
+title: "ORA of clustering results"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BuildNetwork}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, cache=TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(AnNet)
+library(synaptome.db)
+library(pander)
+library(ggplot2)
+library(rSpectral)
+library(data.table)
+scale <- function(x, VALUE=NULL){
+
+    x = as.numeric(as.vector(x))
+
+    xmin <- min(x,na.rm=T)
+    xmax <- max(x,na.rm=T)
+   
+    if( is.null(VALUE) ){
+
+        x  <- x-xmin
+        x  <- ifelse(!is.na(x), x/(xmax-xmin), NA) 
+
+        return(x)
+    }
+
+    value = as.numeric(as.vector(value)[1])
+    value = value-xmin
+    value = ifelse(!is.na(value), value/(xmax-xmin), NA) 
+    return(value)
+}
+```
+# Title   AnNet: library for comprehensive network analysis
+##  Authors: Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong and Oksana Sorokina    
+
+#Introduction
+
+```{r read.net}
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+gg <- igraph::read.graph(file,format="gml")
+summary(gg)
+g<-gg
+```
+```
+{r clean.algs}
+alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')
+g<-gg
+for(a in alg){
+  if(a %in% vertex_attr_names(g)){
+    g<-delete_vertex_attr(g,a)
+  }
+}
+summary(g)
+```
+
+
+# Clustering
+```
+{r cluster.graph, cache=TRUE}
+g<-calcAllClustering(g)
+```
+
+# Centrality
+```{r calc.centr}
+g <- calcCentrality(g)
+```
+
+```{r make.annotations}
+gda<-prepareGDA(g,'TopOntoOVGHDOID')
+genes<-as.character(V(g))
+anNames<-getAnnotationList(gda)
+anL<-lapply(anNames, function(.a){genes[grepl(.a,gda,fixed = TRUE)]})
+names(anL)<-unescapeAnnotation(anNames)
+pander(sapply(anL,length))
+```
+
+```{r fora}
+cl<-make_clusters(g,as.numeric(V(g)$louvain))
+resL<-lapply(1:length(cl),function(.i){res<-fora(anL,as.character(V(g)[which(membership(cl)==.i)]),universe = as.character(V(g)));return(res[,cl:=.i])})
+res<-do.call(rbind,resL)
+res<-res[padj<0.1,]
+res[,overlapGenes:=sapply(overlapGenes,paste,collapse = ', ')]
+pander(res)
+```
+
+```{r short.fora}
+anL<-getAnnotationVertexList(g,'GOCCID')
+res<-clusterORA(g,alg='louvain',name='GOCCID',vid='name')
+pander(res)
+```
+
