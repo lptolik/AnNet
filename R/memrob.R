@@ -9,7 +9,7 @@
 #'
 #' @examples
 memrob <- function(x,rm=data.frame()){
-  if(class(x) == 'consmatrix'){
+  if(is(x,'consmatrix')){
 		cmref <- x@rm
 	}
 	else{
