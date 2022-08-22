@@ -197,15 +197,15 @@ calculateConsensusMat <- function( data=NULL ){
 
     for( i in 1:N ){
       comi = as.numeric(data[i,3])
-      keyi = as.numeric(data[i,2])
+      keyi = data[i,2]
       jj   = seq(i,N,1)
-      if( keyi != -1 ){
+      if( keyi != '-1' ){
 
         comj = as.numeric(data[jj,3])
-        keyj = as.numeric(data[jj,2])
+        keyj = data[jj,2]
 
         ## I
-        indxJ = jj[keyj!=-1]
+        indxJ = jj[keyj!='-1']
         Nindx = length(indxJ)
 
         tempI[i,indxJ] = as.numeric(rep(1,Nindx))
