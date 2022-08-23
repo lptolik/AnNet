@@ -1,11 +1,11 @@
-library(igraph);
-library(lattice);
-library(methods);
-library(poweRlaw);
-library(scales);
-library(grid);
-library(latex2exp);
-library(stringr);
+#library(igraph);
+#library(lattice);
+#library(methods);
+#library(poweRlaw);
+#library(scales);
+#library(grid);
+#library(latex2exp);
+#library(stringr);
 
 ##---WIDTH and HEIGHT for plots
 WIDTH=480
@@ -67,7 +67,7 @@ changeSciNot <- function(n) {
 #'
 #' @return
 #' @export
-#' @import poweRlaw latex2exp
+#' @import poweRlaw latex2exp methods grid scales
 #' @importFrom stringr str_sub
 #'
 #' @examples
@@ -81,43 +81,26 @@ changeSciNot <- function(n) {
 #'
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 #' gg <- igraph::read.graph(file,format="gml")
-#' pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1)#, Nsim=bootStrap,dir=dir, DATAleg= Legend,plot=TRUE )
-FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.', DATAleg='Fit power-law', threads=4, WIDTH=480, HEIGHT=480 ){
-
-  #WIDTH=480
-  #HEIGHT=480
-
-  #tmp = max(DEG)
-  #Max = 4*tmp
-
+#' pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1)
+FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.',
+                      DATAleg='Fit power-law', threads=4,
+                      WIDTH=480, HEIGHT=480 ){
   DEG <- DEG[DEG > 0]
-
   data <- DEG
-
   m_pl = displ$new(data)
-
   est = estimate_xmin(m_pl)
-
   m_pl$setXmin(est)
-
   suppressMessages(
-    gof <- bootstrap_p(m_pl, no_of_sims = Nsim, threads=threads)
+    gof <- poweRlaw::bootstrap_p(m_pl, no_of_sims = Nsim, threads=threads)
   )
-
   if(plot){
     op<-options(warn= -1)
     x_lab="k"    ##degree
     y_lab="P(k)" ## the CDFs P(k) for the PPI network data
     leg_x = max(data)
     leg_y = 1
-
-#    png(filename=sprintf("%s/degree_cdf.png",dir), width=WIDTH, height=HEIGHT, units="px")
-
     d = plot(m_pl,draw=F)
-
     Xmax <- max(d$x) - max(d$x)*0.5
-
-    ##build y-axis labels
     yTICKS  = round(lseqBy(min(d$y),1,0.5),4)
     yLABELS = changeSciNot(yTICKS)
 
@@ -125,36 +108,25 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.', DATAleg='Fit power-law
          panel.first=grid(col="grey60"),
          pch=22, bg='black', axes = F, cex.lab = 1.5, yaxt='n' )
     box(col='black')
-
-      axis(1, cex.axis = 1.5, font = 1.5, family = 'arial')
-      axis(2, cex.axis = 1.5, font = 1.5, family = 'arial', at=yTICKS, labels=yLABELS)
-
+    axis(1, cex.axis = 1.5, font = 1.5, family = 'arial')
+    axis(2, cex.axis = 1.5, font = 1.5, family = 'arial', at=yTICKS,
+         labels=yLABELS)
     lines(m_pl, col=2, lwd=3)
-
     S1 = round(m_pl$xmin,2)
     S2 = round(m_pl$pars,2)
     S3 = round(gof$p,2)
-
     sdS1 = round(sd(gof$bootstraps$xmin),0)
     sdS2 = round(sd(gof$bootstraps$pars),2)
-
     errS1 = str_sub(as.character(sdS1),-1,-1)
     errS2 = str_sub(as.character(sdS2),-1,-1)
-
-
     suppressMessages(
-      fitl <- TeX(sprintf("Power-law $\\alpha = %.2f(%s), $k_{min} = %.0f(%s)",S2,errS2,S1,errS1))
+      fitl <- TeX(sprintf("Power-law $\\alpha = %.2f(%s), $k_{min} = %.0f(%s)",
+                          S2,errS2,S1,errS1))
     )
-
-    legend("bottomleft",c(DATAleg,fitl),lty=c(1,1),lwd=c(4,4),col=c('black',2),merge=TRUE, cex = 1.5)
-
-    #legend("topright",c(DATAleg,expression(paste(P(k), " = ",frac(k^alpha,sigma1(alpha,k[min]))))),lty=c(1,1),lwd=c(4,4),col=c('black',2),merge=TRUE, cex = 1.5)
-    #text(x=Xmax,y=0.2,substitute(paste(k[min], " = ", s1, ", ", alpha, " = ", s2), list(s1=S1,s2=S2)),cex=0.9)
+    legend("bottomleft",c(DATAleg,fitl),lty=c(1,1),lwd=c(4,4),
+           col=c('black',2),merge=TRUE, cex = 1.5)
     options(op)
- #   dev.off()
   }
-
-
   return(new("law",
              fit=m_pl,
              p=as.numeric(gof$p),
@@ -162,6 +134,4 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.', DATAleg='Fit power-law
              SDxmin=as.numeric(sd(gof$bootstraps$xmin)),
              SDalpha=as.numeric(sd(gof$bootstraps$pars)))
   )
-
-
 }
