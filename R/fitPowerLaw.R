@@ -1,11 +1,11 @@
-library(igraph);
-library(lattice);
-library(methods);
-library(poweRlaw);
-library(scales);
-library(grid);
-library(latex2exp);
-library(stringr);
+#library(igraph);
+#library(lattice);
+#library(methods);
+#library(poweRlaw);
+#library(scales);
+#library(grid);
+#library(latex2exp);
+#library(stringr);
 
 ##---WIDTH and HEIGHT for plots
 WIDTH=480
@@ -67,7 +67,7 @@ changeSciNot <- function(n) {
 #'
 #' @return
 #' @export
-#' @import poweRlaw latex2exp
+#' @import poweRlaw latex2exp methods grid scales
 #' @importFrom stringr str_sub
 #'
 #' @examples
@@ -91,7 +91,7 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.',
   est = estimate_xmin(m_pl)
   m_pl$setXmin(est)
   suppressMessages(
-    gof <- bootstrap_p(m_pl, no_of_sims = Nsim, threads=threads)
+    gof <- poweRlaw::bootstrap_p(m_pl, no_of_sims = Nsim, threads=threads)
   )
   if(plot){
     op<-options(warn= -1)
