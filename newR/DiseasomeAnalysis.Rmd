@@ -130,7 +130,7 @@ is_bipartite(diseasome)
 
 # Project to HDN and DGN
 ```{r project.bipartite.graph}
-projList<-bipartite.projection(g)
+projList<-bipartite.projection(diseasome)
 hdn<-projList[[1]]
 dgn<-projList[[2]]
 
