@@ -1,0 +1,64 @@
+---
+title: "Case 2. Andrew's network"
+author: "Oksana Sorokina"
+date: '2022-07-27'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r network}
+library(AnNet)
+library(synaptome.db)
+library(pander)
+library(ggplot2)
+library(ggrepel)
+
+
+gg <- igraph::read.graph("~/Downloads/NRCMASC.gml",format="gml")
+summary(gg)
+g <- gg
+g <- delete_vertex_attr(g, "SpecMod")
+g <- delete_vertex_attr(g, "lec")
+g <- delete_vertex_attr(g, "wt")
+g <- delete_vertex_attr(g, "fc")
+g <- delete_vertex_attr(g, "sgG1")
+g <- delete_vertex_attr(g, "sgG2")
+g <- delete_vertex_attr(g, "sgG5")
+summary(g)
+ggc <- calcAllClustering(g)
+```
+
+## Estimate clustering similiarity by RMI (Newman’s Reduced Mutual Information)
+```{r rmi}
+
+library(clustAnalytics)
+alg<-c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')
+
+res <- matrix(0, nrow = length(alg), ncol = length(alg))
+for (i in 1:length(alg)){
+for (j in 1:length(alg)){
+mi<-as.numeric(vertex_attr(ggc,alg[i]))
+mj<-as.numeric(vertex_attr(ggc,alg[j]))
+res[i,j] <- reduced_mutual_information(mi, mj, normalized = T)
+}}
+pander(res)
+colnames(res) <- alg
+row.names(res) <- alg
+library(corrplot)
+corrplot(res, method = "square", order = 'hclust')
+library(gplots)
+heatmap.2(
+res, distfun = dist,
+hclustfun = hclust,
+col="heat.colors")
+```
+

@@ -21,6 +21,7 @@ library(pander)
 library(ggplot2)
 library(rSpectral)
 library(data.table)
+library(fgsea)
 scale <- function(x, VALUE=NULL){
 
     x = as.numeric(as.vector(x))
@@ -92,12 +93,34 @@ resL<-lapply(1:length(cl),function(.i){res<-fora(anL,as.character(V(g)[which(mem
 res<-do.call(rbind,resL)
 res<-res[padj<0.1,]
 res[,overlapGenes:=sapply(overlapGenes,paste,collapse = ', ')]
+res<-res[,c("cl","pathway", "pval", "padj", "overlap", "size", "overlapGenes")]
 pander(res)
 ```
 
+```{r annotate.go}
+sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "AnNet")
+goBP <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+g <- annotate_go_bp(g, goBP)
+summary(g)
+
+sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "AnNet")
+goMF <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+g <- annotate_go_mf(g, goMF)
+summary(g)
+
+sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "AnNet")
+goCC <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+g <- annotate_go_cc(g, goCC)
+summary(g)
+
+```
+
 ```{r short.fora}
-anL<-getAnnotationVertexList(g,'GOCCID')
-res<-clusterORA(g,alg='louvain',name='GOCCID',vid='name')
-pander(res)
+anL<-getAnnotationVertexList(g,'GO_CC_ID')
+res<-clusterORA(g,alg='louvain',name='GO_CC_ID',vid='name')
+goCCdf<-unique(goCC[,1:2])
+names(goCCdf)<-c('ID','Term')
+rr<-merge(goCCdf,res,by.y='pathway',by.x='ID')
+pander(rr[order(rr$cl),])
 ```
 

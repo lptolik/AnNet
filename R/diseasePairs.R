@@ -159,6 +159,9 @@ sample.deg.binned.GDA <- function(org.map,GDA){
 #'
 #' @examples
 prepareGDA<-function(gg,name){
+  if(!name%in%vertex_attr_names(gg)){
+    stop("There is no attribute '",name,"' in the graph.\n")
+  }
   gda<-get.vertex.attribute(gg,name)
   gda<-escapeAnnotation(gda)
   return(gda)

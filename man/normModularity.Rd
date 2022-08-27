@@ -7,7 +7,6 @@
 normModularity(
   gg,
   alg = c("lec", "wt", "fc", "infomap", "louvain", "sgG1", "sgG2", "sgG5"),
-  seed = NULL,
   Nint = 1000
 )
 }
@@ -21,5 +20,6 @@ Calculates the normalized network modularity value.
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+  set.seed(100)
 nm<-normModularity(gg,alg='louvain')
 }

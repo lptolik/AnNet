@@ -23,13 +23,15 @@
 #' @export
 #' @importFrom fgsea fora
 clusterORA<-function(g,alg,name,vid='name',alpha=0.1,col=COLLAPSE){
-  anL<-getAnnotationVertexList(g,'GOCCID')
+  anL<-getAnnotationVertexList(g,name)
   cl<-make_clusters(g,as.numeric(get.vertex.attribute(g,alg)))
   forafun<-function(.i){
     res<-as.data.frame(fora(anL,
               get.vertex.attribute(g,vid)[which(membership(cl)==.i)],
               universe = as.character(get.vertex.attribute(g,vid))));
     res$cl<-.i
+    l<-dim(res)[2]
+    res<-res[,c(l,1:(l-1))]
     return(res)
   }
   resL<-lapply(1:length(cl),forafun)

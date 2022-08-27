@@ -1,6 +1,6 @@
 Package: AnNet
 Title: Analysis of Networks
-Version: 0.0.0.9002
+Version: 0.99.002
 Authors@R: c(
     person("Colin", "Mclean", 
         email="Colin.D.Mclean@ed.ac.uk", role=c("aut", "cre")), 
@@ -9,18 +9,23 @@ Authors@R: c(
     person("Oksana", "Sorokina", 
         email="oksana.sorokina@ed.ac.uk", role="aut"),
     person("J. Douglas", "Armstrong", role = "aut") )
-Description: What the package does (one paragraph).
-License: GPL (>= 3)
+Description: the R package AnNet, developed to step by step analysis of PP 
+            network with aim to quantify and rank each protein’s simultaneous 
+            impact into multiple complexes based on network topology and 
+            clustering. Package also enables estimating of co-occurrence of 
+            diseases across the network and specific clusters pointing towards 
+            shared/common mechanisms. 
+License: Artistic-2.0
 Encoding: UTF-8
-LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
-Depends: igraph, poweRlaw, org.Hs.eg.db, latex2exp, RSpectra, rSpectral
-Imports: stringr, synaptome.db, Rdpack, clusterCons, fgsea
+Depends: igraph, poweRlaw, org.Hs.eg.db, latex2exp, RSpectra, rSpectral, WGCNA, ggplot2, Rdpack
+Imports: stringr, synaptome.db, clusterCons, fgsea
 RdMacros: Rdpack
 Suggests: 
     knitr, 
     rmarkdown,
+    igraphdata,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr

@@ -34,5 +34,5 @@ dir<-'.'
 
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 gg <- igraph::read.graph(file,format="gml")
-pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1)#, Nsim=bootStrap,dir=dir, DATAleg= Legend,plot=TRUE )
+pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1)
 }

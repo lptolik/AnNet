@@ -9,7 +9,7 @@
 #'
 #' @examples
 memrob <- function(x,rm=data.frame()){
-  if(class(x) == 'consmatrix'){
+  if(is(x,'consmatrix')){
 		cmref <- x@rm
 	}
 	else{
@@ -22,28 +22,28 @@ memrob <- function(x,rm=data.frame()){
 	consensus <- x@cm
 
   #BUG - fixed to ensure deals with >100 clusters
-	mem_rob = matrix(0,dim(consensus)[1],length(levels(as.factor(cmref$cm))),dimnames = list(row.names(consensus),1:length(levels(as.factor(cmref$cm)))))
+	mem_rob <- matrix(0,dim(consensus)[1],length(levels(as.factor(cmref$cm))),dimnames = list(row.names(consensus),1:length(levels(as.factor(cmref$cm)))))
 
 	for(k in 1:length(levels(as.factor(cmref$cm)))){ #BUG - fixed to ensure deals with >100 clusters
 		for(i in 1:dim(consensus)[1]){
-			Ik = row.names(cmref)[cmref$cm==k] #where k is the cluster number
+			Ik <- row.names(cmref)[cmref$cm==k] #where k is the cluster number
 
-			ind = Ik[Ik != row.names(consensus)[i]] # exclude the index for i = j if it is there
+			ind <- Ik[Ik != row.names(consensus)[i]] # exclude the index for i = j if it is there
 
-			sigma = apply(as.matrix(consensus[ind,i]),2,sum) #perform the sigma sum on index
+			sigma <- apply(as.matrix(consensus[ind,i]),2,sum) #perform the sigma sum on index
 
-			ei = row.names(consensus)[i] # get the current member we are checking
+			ei <- row.names(consensus)[i] # get the current member we are checking
 
-			Nk = summary(as.factor(cmref$cm),maxsum=10000)[k] # get the current cluster size note this is limited to a max of 10000 custers
+			Nk <- summary(as.factor(cmref$cm),maxsum=10000)[k] # get the current cluster size note this is limited to a max of 10000 custers
 
 
 			if(sum(ei == Ik) ==1){		#if ei is a member of Ik
-				mik = (1/(Nk-1))*sigma
+				mik <- (1/(Nk-1))*sigma
 			}
 			else{				#if ei is not a member of Ik
-				mik = (1/Nk)*sigma
+				mik <- (1/Nk)*sigma
 			}
-			mem_rob[i,k] = mik
+			mem_rob[i,k] <- mik
 		}
 	}
 	#what you might want to do here is have the full object in a slot and output the mem_rob for the ref clustering (which is what you actually want)
@@ -74,16 +74,16 @@ memrob <- function(x,rm=data.frame()){
 getRobustness<-function(gg,alg,conmat){
 
   if(!alg%in%igraph::vertex_attr_names(gg)){
-    stop(paste("Membership for the ",alg,
+    stop("Membership for the ",alg,
                "algorithm should be stored in the graph.\n",
-               "See calcClustering.\n"))
+               "See calcClustering.\n")
   }
   rm<-data.frame(cm=as.numeric(igraph::get.vertex.attribute(gg,alg,V(gg))))
   cm           <- data.frame(conmat);
   names(cm)    <- rownames(rm);
   rownames(cm) <- rownames(rm);
   cm           <- as.matrix(cm);
-  kk     = max(as.numeric(as.vector(rm$cm)));
+  kk     <- max(as.numeric(as.vector(rm$cm)));
   ##--- make the consensus matrix object for clusterCons so you can use its functions
   out <- new('consmatrix', cm=cm, rm=rm, k=kk, a=alg);
 
