@@ -3,10 +3,10 @@ title: "Barabasi's Diseasome analysis"
 author: "Anatoly Sorokin, Colin McLean, Oksana Sorokina"
 date: '`r format(Sys.time(), "%d.%m.%Y")`'
 output:
-  html_document: default
   pdf_document:
     keep_tex: yes
     number_sections: yes
+  html_document: default
   always_allow_html: true
 params:
   format: !r if(opts_knit$get("rmarkdown.pandoc.to") == 'html') c('screen', 'print')
@@ -29,6 +29,7 @@ library(igraph)
 library(ggplot2)
 library(xtable)
 library(AnNet)
+library(BiRewire)
 ```
 
 ```{r setup, include=FALSE, cache=FALSE}
@@ -41,7 +42,7 @@ opts_knit$set(stop_on_error = 2L)
 
 
 ## Cache options
-opts_chunk$set(cache=FALSE)
+opts_chunk$set(cache=TRUE)
 
 
 ## Set 'hide.fig.code' to FALSE to include code chunks that
@@ -115,6 +116,11 @@ printTable <-
     }
     
   }
+getCSizes<-function(g,src='diseasome'){
+  c<-components(g)
+  csz.df<-data.frame(i=1:c$no,csize=c$csize,src=src)
+  return(csz.df)
+}
 ```
 
 # Read data
@@ -125,16 +131,114 @@ vdf$label<-vdf$Name
 vdf$shape<-ifelse(vdf$Type=='Disease','circle','square')
 vdf$type<-vdf$Type=='Gene'
 diseasome<-igraph::graph_from_data_frame(edf,directed = FALSE,vertices = vdf)
+saveRDS(diseasome,file = 'diseasome.rds')
 is_bipartite(diseasome)
 ```
 
+# Make random graph rewiring
+Igraph has functions `rewire` and `keeping_degseq` to generate random graphs by swaping
+ends between stochastically picked edges. However, application of such algorithm
+to bipartite graph, like our diseasome, would create edges between nodes of the
+same type and break definition of bipartite graph. To avoid this we will use 
+`BiRewire` package for generation of the set of random graphs:
+```{r rewire.bipartite.graph}
+lr.diseasome<-lapply(1:10000,birewire.rewire.bipartite,
+                     incidence=diseasome,verbose=FALSE,exact=TRUE)
+saveRDS(lr.diseasome,file = 'lr.diseasome.rds')
+```
+
+```{r diseasome.components}
+csz.df<-getCSizes(diseasome)
+mcsz<-max(csz.df$csize)
+lcsz<-lapply(lr.diseasome,getCSizes,src='rewiring')
+csz.df<-rbind(csz.df,do.call(rbind,lcsz))
+mcomp<-csz.df[(csz.df$csize>100)&(csz.df$src=='rewiring'),]
+avgMaxSize<-mean(mcomp$csize)
+sdMaxSize<-sd(mcomp$csize)
+pVal<-length(which(mcomp$csize<=mcsz))/(dim(mcomp)[1])
+```
+
+```{r plot.diseasome.components.distr,fig.width=12,fig.height=12,warning=FALSE}
+qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
+  geom_vline(xintercept = mcsz)+ 
+  labs(x = "Component size",
+       title='Diseasome component size distribution',
+       fill = 'Type')
+```
+
+Vertical line on the graph corresponds to the size of the giant component of the
+original diseasome. Like in the original Barabasi paper its size (`r mcsz`) is 
+significantly lower (pval=`r pVal`) than the average size of the giant component (`r avgMaxSize` `r sdMaxSize`) in the set of rewired networks.
+
 # Project to HDN and DGN
+We can create Human Disease Network (HDN) and Disease Gene Network (DGN) by creation
+ofthe two natural projections of the bipartite Diseasome graph: 
 ```{r project.bipartite.graph}
 projList<-bipartite.projection(diseasome)
 hdn<-projList[[1]]
 dgn<-projList[[2]]
-
 ```
+
+And similarily we can create list of random HDN and DGN graphs from the list of 
+rewired diseasome graphs:
+```{r project.rewired.bipartite.graphs}
+lr.proj<-lapply(lr.diseasome,bipartite.projection)
+saveRDS(lr.proj,file = 'lr.proj.rds')
+lr.hdn<-lapply(lr.proj, function(.x).x[[1]])
+lr.dgn<-lapply(lr.proj, function(.x).x[[2]])
+rm(lr.proj)
+```
+
+
+# Analyse HDN
+```{r prepare.hdn.component.plot}
+csz.df<-getCSizes(hdn)
+mcsz<-max(csz.df$csize)
+lcsz<-lapply(lr.hdn,getCSizes,src='rewiring')
+csz.df<-rbind(csz.df,do.call(rbind,lcsz))
+mcomp<-csz.df[(csz.df$csize>100)&(csz.df$src=='rewiring'),]
+avgMaxSize<-mean(mcomp$csize)
+sdMaxSize<-sd(mcomp$csize)
+pVal<-length(which(mcomp$csize<=mcsz))/(dim(mcomp)[1])
+```
+
+```{r plot.hdn.components.distr,fig.width=12,fig.height=12,warning=FALSE}
+qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
+  geom_vline(xintercept = mcsz)+ 
+  labs(x = "Component size",
+       title='HDN component size distribution',
+       fill = 'Type')
+```
+
+Vertical line on the graph corresponds to the size of the giant component of the
+original HDN. Like in the original Barabasi paper its size (`r mcsz`) is 
+significantly lower (pval=`r pVal`) than the average size of the giant component (`r avgMaxSize` `r sdMaxSize`) in the set of rewired networks.
+
+# Analyse DGN
+```{r prepare.dgn.component.plot}
+csz.df<-getCSizes(dgn)
+mcsz<-max(csz.df$csize)
+lcsz<-lapply(lr.dgn,getCSizes,src='rewiring')
+csz.df<-rbind(csz.df,do.call(rbind,lcsz))
+mcomp<-csz.df[(csz.df$csize>100)&(csz.df$src=='rewiring'),]
+avgMaxSize<-mean(mcomp$csize)
+sdMaxSize<-sd(mcomp$csize)
+pVal<-length(which(mcomp$csize<=mcsz))/(dim(mcomp)[1])
+```
+
+```{r plot.dgn.components.distr,fig.width=12,fig.height=12,warning=FALSE}
+qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
+  geom_vline(xintercept = mcsz)+ 
+  labs(x = "Component size",
+       title='DGN component size distribution',
+       fill = 'Type')
+```
+
+Vertical line on the graph corresponds to the size of the giant component of the
+original DGN. Like in the original Barabasi paper its size (`r mcsz`) is 
+significantly lower (pval=`r pVal`) than the average size of the giant component (`r avgMaxSize` `r sdMaxSize`) in the set of rewired networks.
+
+
 
 \pagebreak
 # Appendix {.tabset}
