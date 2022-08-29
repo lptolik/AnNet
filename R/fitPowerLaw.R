@@ -64,6 +64,7 @@ changeSciNot <- function(n) {
 #' @param plot
 #' @param dir
 #' @param threads
+#' @param legpos position of the legend @seealso{legend}
 #'
 #' @return
 #' @export
@@ -84,7 +85,7 @@ changeSciNot <- function(n) {
 #' pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1)
 FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.',
                       DATAleg='Fit power-law', threads=4,
-                      WIDTH=480, HEIGHT=480 ){
+                      WIDTH=480, HEIGHT=480 ,legpos="bottomleft"){
   DEG <- DEG[DEG > 0]
   data <- DEG
   m_pl = displ$new(data)
@@ -123,7 +124,7 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.',
       fitl <- TeX(sprintf("Power-law $\\alpha = %.2f(%s), $k_{min} = %.0f(%s)",
                           S2,errS2,S1,errS1))
     )
-    legend("bottomleft",c(DATAleg,fitl),lty=c(1,1),lwd=c(4,4),
+    legend(legpos,c(DATAleg,fitl),lty=c(1,1),lwd=c(4,4),
            col=c('black',2),merge=TRUE, cex = 1.5)
     options(op)
   }
