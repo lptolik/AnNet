@@ -396,7 +396,7 @@ recluster <- function( GG, ALGN, CnMAX ){
 #' @export
 #'
 #' @examples
-sampleGraphClust<-function(gg,mask,alg,type,reclust=FALSE,Cnmin=-1,Cnmax=10){
+sampleGraphClust<-function(gg,mask=20,alg,type,reclust=FALSE,Cnmin=-1,Cnmax=10){
   IDS <- V(gg)$name;
   ids <- V(gg)$name;
 

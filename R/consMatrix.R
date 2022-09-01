@@ -9,9 +9,6 @@
 #' @param sep
 #'
 #' @return
-#' @export
-#'
-#' @examples
 buildConsensusMatFromFiles <- function(Dir,file.name,skip=1,sep="\t"){
 
   subdirs  = list.files(path=Dir,pattern=file.name);
@@ -139,7 +136,7 @@ matrixDiv <- function(x,y){
 #' gg<-calcClustering(karate,alg = alg)
 #' conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
 #' dim(conmat)
-makeConsensusMatrix<-function(gg,N,mask,alg,type,
+makeConsensusMatrix<-function(gg,N=500,mask=20,alg,type,
                               reclust=FALSE,Cnmin=-1,Cnmax=10){
   lcc<-lapply(1:N, function(.x)sampleGraphClust(gg=gg,
                                             mask=mask,
