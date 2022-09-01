@@ -212,10 +212,36 @@ projList<-bipartite.projection(diseasome)
 
 ```{r get.hdn,error=TRUE}
 hdn<-projList[[1]]
+ddf<-vdf[vdf$Type!='Gene',]
+hdn <- calcCentrality(hdn)
+idx<-match(ddf$ID,V(hdn)$name)
+ddf$degree<-as.numeric(V(hdn)$DEG[idx])
+ddf$page.rank<-as.numeric(V(hdn)$PR[idx])
+ddf$betweenness<-as.numeric(V(hdn)$BET[idx])
+```
+
+```{r plot.hdn.disorder.class.boxplot,fig.width=12,fig.height=12}
+ggplot(ddf,aes(Disorder.class,degree))+geom_boxplot()+ coord_flip()
+ggplot(ddf,aes(Disorder.class,page.rank))+geom_boxplot()+ coord_flip()
+ggplot(ddf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()
+ggplot(ddf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()+scale_y_log10()
 ```
 
 ```{r get.dgn,error=TRUE}
 dgn<-projList[[2]]
+gdf<-vdf[vdf$Type=='Gene',]
+dgn <- calcCentrality(dgn)
+idx<-match(gdf$ID,V(dgn)$name)
+gdf$degree<-as.numeric(V(dgn)$DEG[idx])
+gdf$page.rank<-as.numeric(V(dgn)$PR[idx])
+gdf$betweenness<-as.numeric(V(dgn)$BET[idx])
+```
+
+```{r plot.dgn.disorder.class.boxplot,fig.width=12,fig.height=12}
+ggplot(gdf,aes(Disorder.class,degree))+geom_boxplot()+ coord_flip()
+ggplot(gdf,aes(Disorder.class,page.rank))+geom_boxplot()+ coord_flip()
+ggplot(gdf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()
+ggplot(gdf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()+scale_y_log10()
 ```
 
 And similarily we can create list of random HDN and DGN graphs from the list of 
