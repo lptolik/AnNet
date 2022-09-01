@@ -32,6 +32,7 @@ library(AnNet)
 library(BiRewire)
 library(ggrepel)
 library(randomcoloR)
+library(synaptome.db)
 ```
 
 ```{r setup, include=FALSE, cache=FALSE}
@@ -458,6 +459,37 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
         geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)+
     geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
 ```
+
+
+# Map DGN on PPI
+Synaptome.DB allows to create two kind of PPI networks from the list of Entrez IDs:
+induced, which contains all found genes and all their neighbours, and limited
+which contains only interactions between listed genes:
+```{r make.ppi.networks}
+indPPI<-synaptome.db::getPPIbyEntrez(V(dgn)$name,type = 'induced')
+indPPIg<-synaptome.db::getIGraphFromPPI(indPPI)
+indPPIg<-igraph::simplify(indPPIg)
+limPPI<-synaptome.db::getPPIbyEntrez(V(dgn)$name,type = 'limited')
+limPPIg<-synaptome.db::getIGraphFromPPI(limPPI)
+limPPIg<-igraph::simplify(limPPIg)
+```
+
+```{r plot.induced.network}
+clrs<-rep('blue',vcount(indPPIg))
+clrs[V(indPPIg)$HumanEntrez%in%V(dgn)$name]<-'red'
+plot(indPPIg,vertex.size=3,layout=layout_with_kk,vertex.label=NA,vertex.color=clrs,margin=0,main='PPI network induced by DGN nodes')
+legend('topleft',legend=c('DGN vertices','Neighbours'),col=c('red','blue'),pch=19,ncol = 1,bty="n")
+```
+
+
+```{r plot.lim.network}
+clrs<-rep('blue',vcount(limPPIg))
+clrs[V(limPPIg)$HumanEntrez%in%V(dgn)$name]<-'red'
+plot(limPPIg,vertex.size=3,layout=layout_with_kk,vertex.label=NA,vertex.color=clrs,margin=0,main='PPI network limited to DGN nodes')
+legend('topleft',legend=c('DGN vertices','Neighbours'),col=c('red','blue'),pch=19,ncol = 1,bty="n")
+```
+
+## Induced network analysis
 
 
 \pagebreak
