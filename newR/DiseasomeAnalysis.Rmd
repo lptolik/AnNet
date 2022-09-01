@@ -432,7 +432,7 @@ dgnLCC <- calcCentrality(dgnLCC)
 br<-getBridgeness(dgnLCC,alg = alg,conmat)
 ```
 
-```{r plot.hdn.bridgenes,fig.width=12,fig.height=12}
+```{r plot.dgn.pr.bridgenes,fig.width=12,fig.height=12}
 VIPs=V(dgnLCC)$name[as.numeric(V(dgnLCC)$DEG)>40]
 dgnLCC <- calcCentrality(dgnLCC)
 indx   <- match(V(dgnLCC)$name,VIPs)
@@ -486,6 +486,59 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
 ```
 
+```{r plot.dgn.sl.bridgenes,fig.width=12,fig.height=12}
+VIPs=V(dgnLCC)$name[as.numeric(V(dgnLCC)$DEG)>40]
+dgnLCC <- calcCentrality(dgnLCC)
+indx   <- match(V(dgnLCC)$name,VIPs)
+group <- ifelse( is.na(indx), 0,1)
+MainDivSize <- 0.8
+xmin        <- 0
+xmax        <- 1
+ymin        <- 0
+ymax        <- 1
+Xlab <- "Semilocal Centrality (SL)" 
+Ylab <- "Bridgeness (B)"
+X    <- as.numeric(igraph::get.vertex.attribute(dgnLCC,"SL",V(dgnLCC)))
+X    <- scale(X)
+Y       <- as.numeric(as.vector(br[,dim(br)[2]])) 
+lbls <- ifelse(!is.na(indx),V(dgnLCC)$Name,"")
+dt<-data.frame(X=X,Y=Y,vips=group,entres=V(dgnLCC)$name,name=V(dgnLCC)$Name)
+dt_vips<-dt[dt$vips==1,]
+dt_res<-dt[dt$vips==0,]
+##--- baseColor of genes
+baseColor="royalblue2"
+
+##--- SPcolor, colour highlighting any 'specical' genes
+SPColor="royalblue2"
+
+##--- PSDColor, colour of core PSD95 interactor genes
+PSDColor="magenta"
+
+ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
+    geom_point(data=dt_vips,
+               aes(x=X,y=Y),colour=baseColor,size = 7,shape=15,show.legend=F)+
+    geom_point(data=dt_res,
+               aes(x=X,y=Y, alpha=(X*Y)), size = 3,shape=16,show.legend=F)+
+    geom_label_repel(aes(label=as.vector(lbls)),
+                     fontface='bold',color='black',fill='white',box.padding=0.1,
+                     point.padding=NA,label.padding=0.15,segment.color='black',
+                     force=1,size=rel(3.8),show.legend=F,max.overlaps=200)+
+      labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
+    scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
+    scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
+    theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+          panel.grid.minor = element_line(colour="grey40",size=0.1),
+          panel.background = element_rect(fill="white"),
+          panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)+
+    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
+```
 
 # Map DGN on PPI
 Synaptome.DB allows to create two kind of PPI networks from the list of Entrez IDs:
