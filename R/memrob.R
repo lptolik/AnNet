@@ -49,7 +49,7 @@ memrob <- function(x,rm=data.frame()){
 	#what you might want to do here is have the full object in a slot and output the mem_rob for the ref clustering (which is what you actually want)
 	mem_rob_list <- list();
 	for(i in 1:dim(mem_rob)[2]){
-		cl_mem_rob <- (mem_rob[(cmref==i),i])
+		cl_mem_rob <- (mem_rob[(cmref$cm==i),i])
 		current_list <- data.frame(sort(cl_mem_rob,dec=TRUE))
 		names(current_list) <- 'mem_rob'
 		current_mem_rob_list <- new('memroblist',mrl=current_list);

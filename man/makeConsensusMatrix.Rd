@@ -32,6 +32,16 @@ makeConsensusMatrix(
 
 \item{Cnmax}{Cn max for reclustering algorithms}
 }
+\value{
+consensus matrix of Nvert X Nvert
+}
 \description{
 Function to build consensus matrix in memory
+}
+\examples{
+data(karate,package='igraphdata')
+alg<-'louvain'
+gg<-calcClustering(karate,alg = alg)
+conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
+dim(conmat)
 }

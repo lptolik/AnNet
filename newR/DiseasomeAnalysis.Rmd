@@ -1,0 +1,651 @@
+---
+title: "Barabasi's Diseasome analysis"
+author: "Anatoly Sorokin, Colin McLean, Oksana Sorokina"
+date: '`r format(Sys.time(), "%d.%m.%Y")`'
+output:
+  pdf_document:
+    keep_tex: yes
+    number_sections: yes
+  html_document: default
+  always_allow_html: true
+params:
+  format: !r if(opts_knit$get("rmarkdown.pandoc.to") == 'html') c('screen', 'print')
+    else 'print'
+  version: !r if(nchar(Sys.which("git"))) system("git describe --long --dirty --abbrev=10  --tags  --always",
+    intern=TRUE) else date()
+header-includes:
+- \usepackage[utf8]{inputenc}
+- \usepackage{grffile}
+- \usepackage{rotating}
+- \usepackage{caption}
+- \usepackage{longtable}
+- \usepackage{lscape}
+---
+```{r loadPackages, include=FALSE, cache=FALSE}
+## load additional packages in this chunk
+library(pander)
+library(knitr)
+library(igraph)
+library(ggplot2)
+library(xtable)
+library(AnNet)
+library(BiRewire)
+library(ggrepel)
+library(randomcoloR)
+library(synaptome.db)
+```
+
+```{r setup, include=FALSE, cache=FALSE}
+## This chunk should contain global configuration commands.
+## Use this to set knitr options and related things. Everything
+## in this chunk will be included in an appendix to document the
+## configuration used.
+#output <- opts_knit$get("rmarkdown.pandoc.to")
+opts_knit$set(stop_on_error = 2L)
+
+
+## Cache options
+opts_chunk$set(cache=TRUE,cache.lazy = FALSE)
+
+
+## Set 'hide.fig.code' to FALSE to include code chunks that
+## produce Figures in the output. Note that this affects all chunks
+## that provide a figure caption.
+opts_chunk$set(hold=TRUE, hide.fig.code=FALSE)
+
+## Pander options
+panderOptions("digits", 3)
+panderOptions("table.split.table", 160)
+
+```
+
+```{r functions, include=FALSE,cache=FALSE}
+## Custom functions used in the analysis should go into this chunk.
+## They will be listed in their own section of the appendix.
+
+###### XTable print function for multipage tables in both landscape and portrate
+# orientations.
+printTable <-
+  function(mat,main,landscape = FALSE,digits = 3,sig = 0.01,align= aligShapley) {
+    addtorow          <- list()
+    addtorow$pos      <- list()
+    addtorow$pos[[1]] <- c(0)
+    addtorow$command  <- c(
+      paste(
+        "\\hline \n",
+        "\\endhead \n",
+        "\\hline \n",
+        "\\multicolumn{3}{l}{\\footnotesize Continued on next page} \n",
+        "\\endfoot \n",
+        "\\endlastfoot \n",sep = ""
+      )
+    )
+    if (landscape) {
+      cat(
+        sprintf(
+          "\\newpage\n  \\begin{landscape} \n\\begin{center}\n\\captionof{table}{%s (%d)}\n\\scriptsize",
+          main,dim(mat)[1]
+        )
+      )
+    }else{
+      cat(
+        sprintf(
+          "\\begin{center}\n\\captionof{table}{%s (%d)}\n\\scriptsize",
+          main,dim(mat)[1]
+        )
+      )
+    }
+    #alig <- c('p{0.15\\linewidth}','|p{0.15\\linewidth}|','p{0.60\\linewidth}|','p{0.15\\linewidth}|')
+    alig <- align
+    cat(dim(mat),names(mat),'\n')
+    matU<-mat
+    # matU$name<-sanitizestr(mat$name)
+    # matU$description<-sanitizestr(mat$description)
+    # cat(dim(matU),names(matU),'\n')
+    print(
+      xtable(
+        matU,
+        align = alig,#paste(align,collapse = ''),
+        digits = digits)
+      ,size = "small",include.colnames = TRUE,
+      tabular.environment = "longtable", #sanitize.text.function=function(.x)sanitizestr(stri_escape_unicode(.x)),
+      floating = FALSE,include.rownames = TRUE,add.to.row = addtorow,hline.after =
+        c(-1)
+    )
+    if (landscape) {
+      cat("\\end{center}\n \\end{landscape}")
+    }else{
+      cat("\\end{center}\n ")
+    }
+    
+  }
+getCSizes<-function(g,src='diseasome'){
+  c<-components(g)
+  csz.df<-data.frame(i=1:c$no,csize=c$csize,src=src)
+  return(csz.df)
+}
+scale <- function(x, VALUE=NULL){
+  
+  x = as.numeric(as.vector(x))
+  
+  xmin <- min(x,na.rm=T)
+  xmax <- max(x,na.rm=T)
+  
+  if( is.null(VALUE) ){
+    
+    x  <- x-xmin
+    x  <- ifelse(!is.na(x), x/(xmax-xmin), NA) 
+    
+    return(x)
+  }
+  
+  value = as.numeric(as.vector(value)[1])
+  value = value-xmin
+  value = ifelse(!is.na(value), value/(xmax-xmin), NA) 
+  return(value)
+}
+ppiCount<-function(.dgn){
+  .limPPI<-synaptome.db::getPPIbyEntrez(V(.dgn)$name,type = 'limited')
+.limPPIg<-synaptome.db::getIGraphFromPPI(.limPPI)
+.limPPIg<-igraph::simplify(.limPPIg)
+el<-as_edgelist(.dgn)
+found<-sapply(1:dim(el)[1],function(.i)are_adjacent(.limPPIg,which(V(.limPPIg)$HumanEntrez==el[.i,1]),which(V(.limPPIg)$HumanEntrez==el[.i,2])))
+return(length(which(found)))
+}
+```
+
+# Read data
+```{r create.bipartite.graph}
+vdf<-read.csv('pnas.0701361104/node_list.csv')
+edf<-read.csv('pnas.0701361104/edge_list.csv')
+vdf$label<-vdf$Name
+vdf$shape<-ifelse(vdf$Type=='Disease','circle','square')
+vdf$type<-vdf$Type=='Gene'
+diseasome<-igraph::graph_from_data_frame(edf,directed = FALSE,vertices = vdf)
+saveRDS(diseasome,file = 'diseasome.rds')
+is_bipartite(diseasome)
+```
+
+# Make random graph rewiring
+Igraph has functions `rewire` and `keeping_degseq` to generate random graphs by swaping
+ends between stochastically picked edges. However, application of such algorithm
+to bipartite graph, like our diseasome, would create edges between nodes of the
+same type and break definition of bipartite graph. To avoid this we will use 
+`BiRewire` package for generation of the set of random graphs:
+```{r rewire.bipartite.graph}
+#Nperm<-100*ecount(diseasome)
+#lr.diseasome<-lapply(1:10000,birewire.rewire.bipartite,max.iter=Nperm,
+#                     incidence=diseasome,verbose=FALSE,exact=TRUE)
+#saveRDS(lr.diseasome,file = 'lr.diseasome.rds')
+lr.diseasome<-readRDS('lr.diseasome.rds')
+```
+
+```{r diseasome.components}
+csz.df<-getCSizes(diseasome)
+mcsz<-max(csz.df$csize)
+lcsz<-lapply(lr.diseasome,getCSizes,src='rewiring')
+csz.df<-rbind(csz.df,do.call(rbind,lcsz))
+mcomp<-csz.df[(csz.df$csize>100)&(csz.df$src=='rewiring'),]
+avgMaxSize<-mean(mcomp$csize)
+sdMaxSize<-sd(mcomp$csize)
+pVal<-length(which(mcomp$csize<=mcsz))/(dim(mcomp)[1])
+```
+
+```{r plot.diseasome.components.distr,fig.height=6,fig.width=6,warning=FALSE}
+qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
+  geom_vline(xintercept = mcsz)+ 
+  labs(x = "Component size",
+       title='Diseasome component size distribution',
+       fill = 'Type')
+```
+
+Vertical line on the graph corresponds to the size of the giant component of the
+original diseasome it accumulates `r 100*mcsz/vcount(diseasome)`% of nodes. Like in the original Barabasi paper its size (`r mcsz`) is 
+significantly lower (pval=`r pVal`) than the average size of the giant component (`r avgMaxSize`±`r sdMaxSize`) in the set of rewired networks.
+
+## Component size fit to power law
+```
+{r  copm.diseasome.powerlaw,fig.height=6,fig.width=6,error=TRUE}
+options("show.error.messages"=TRUE)
+pFit <- FitDegree( as.vector(csz.df$csize[csz.df$src!='rewiring']),
+                   plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
+
+
+# Project to HDN and DGN
+We can create Human Disease Network (HDN) and Disease Gene Network (DGN) by creation
+of the two natural projections of the bipartite Diseasome graph: 
+```{r project.bipartite.graph,error=TRUE}
+projList<-bipartite.projection(diseasome)
+```
+
+```{r get.hdn,error=TRUE}
+hdn<-projList[[1]]
+ddf<-vdf[vdf$Type!='Gene',]
+hdn <- calcCentrality(hdn)
+idx<-match(ddf$ID,V(hdn)$name)
+ddf$degree<-as.numeric(V(hdn)$DEG[idx])
+ddf$page.rank<-as.numeric(V(hdn)$PR[idx])
+ddf$betweenness<-as.numeric(V(hdn)$BET[idx])
+```
+
+```{r plot.hdn.disorder.class.boxplot,fig.height=6,fig.width=6}
+ggplot(ddf,aes(Disorder.class,degree))+geom_boxplot()+ coord_flip()
+ggplot(ddf,aes(Disorder.class,page.rank))+geom_boxplot()+ coord_flip()
+ggplot(ddf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()
+ggplot(ddf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()+scale_y_log10()
+```
+
+```{r get.dgn,error=TRUE}
+dgn<-projList[[2]]
+gdf<-vdf[vdf$Type=='Gene',]
+dgn <- calcCentrality(dgn)
+idx<-match(gdf$ID,V(dgn)$name)
+gdf$degree<-as.numeric(V(dgn)$DEG[idx])
+gdf$page.rank<-as.numeric(V(dgn)$PR[idx])
+gdf$betweenness<-as.numeric(V(dgn)$BET[idx])
+```
+
+```{r plot.dgn.disorder.class.boxplot,fig.width=6,fig.height=6}
+ggplot(gdf,aes(Disorder.class,degree))+geom_boxplot()+ coord_flip()
+ggplot(gdf,aes(Disorder.class,page.rank))+geom_boxplot()+ coord_flip()
+ggplot(gdf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()
+ggplot(gdf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()+scale_y_log10()
+```
+
+And similarily we can create list of random HDN and DGN graphs from the list of 
+rewired diseasome graphs:
+```{r project.rewired.bipartite.graphs,error=TRUE,cache.lazy =FALSE}
+options("show.error.messages"=TRUE)
+lr.proj<-lapply(lr.diseasome,bipartite.projection)
+```
+
+```{r get.hdn.rewired,error=TRUE}
+lr.hdn<-lapply(lr.proj, function(.x).x[[1]])
+```
+
+```{r get.dgn.rewired,error=TRUE}
+lr.dgn<-lapply(lr.proj, function(.x).x[[2]])
+```
+
+
+# Analyse HDN
+```{r prepare.hdn.component.plot}
+csz.df<-getCSizes(hdn)
+mcsz<-max(csz.df$csize)
+lcsz<-lapply(lr.hdn,getCSizes,src='rewiring')
+csz.df<-rbind(csz.df,do.call(rbind,lcsz))
+mcomp<-csz.df[(csz.df$csize>100)&(csz.df$src=='rewiring'),]
+avgMaxSize<-mean(mcomp$csize)
+sdMaxSize<-sd(mcomp$csize)
+pVal<-length(which(mcomp$csize<=mcsz))/(dim(mcomp)[1])
+```
+
+```{r plot.hdn.components.distr,fig.width=6,fig.height=6,warning=FALSE}
+qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
+  geom_vline(xintercept = mcsz)+ 
+  labs(x = "Component size",
+       title='HDN component size distribution',
+       fill = 'Type')
+```
+
+Vertical line on the graph corresponds to the size of the giant component of the
+original HDN  it accumulates `r 100*mcsz/vcount(hdn)`% of nodes. Like in the original Barabasi paper its size (`r mcsz`) is 
+significantly lower (pval=`r pVal`) than the average size of the giant component (`r avgMaxSize`±`r sdMaxSize`) in the set of rewired networks.
+
+## Component size and degree fit to power law
+```
+{r degree.hdn.powerlaw, fig.height=6,fig.width=6,error=TRUE}
+options("show.error.messages"=TRUE)
+pFit <- FitDegree( as.vector(igraph::degree(graph=hdn)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
+
+```
+{r copm.hdn.powerlaw, fig.height=6,fig.width=6,error=TRUE}
+options("show.error.messages"=TRUE)
+pFit <- FitDegree( as.vector(csz.df$csize[csz.df$src!='rewiring']),
+                   plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
+
+## Clustering of the HDN
+```{r clusterSummary.hdn}
+hdnLCC <- calcAllClustering(findLCC(hdn))
+```
+
+```{r plot.hdn.lcc,fig.width=15,fig.height=12}
+palette <- distinctColorPalette(length(unique(V(hdnLCC)$Disorder.class)))
+cls<-factor(V(hdnLCC)$Disorder.class)
+plot(hdnLCC,vertex.size=3,layout=layout_with_kk,vertex.label=NA,vertex.color=palette[cls],margin=0)
+legend('topleft',legend=levels(cls),col=palette,pch=19,ncol = 1,bty="n")
+```
+
+```{r table.hdn.cluster.summary,results='asis'}
+m<-clusteringSummary(hdnLCC,att=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral'))
+printTable(m,"HDN clustering summary",landscape = FALSE,align= c('l',rep('r',dim(m)[2])))
+```
+
+## Consensus matrix
+```{r consensus.matrix.hdn}
+alg = "louvain"
+conmat <- makeConsensusMatrix(hdnLCC, N=100,alg = alg, type = 2, mask = 10,reclust = FALSE, Cnmin = -1, Cnmax = 10)
+```
+
+```{r plot.hdn.conmat.ecdf,fig.height=6,fig.width=6}
+steps <- 100
+Fn  <- ecdf(conmat[lower.tri(conmat)])
+X<-seq(0,1,length.out=steps+1)
+cdf<-Fn(X)
+dt<-data.frame(cons=X,cdf=cdf)
+ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
+      theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+          panel.grid.minor = element_line(colour="grey40",size=0.1),
+          panel.background = element_rect(fill="white"),
+          panel.border = element_rect(linetype="solid",fill=NA))
+```
+
+```{r clcons.hdn}
+options("show.error.messages"=TRUE)
+clrob<-getRobustness(hdnLCC, alg = alg, conmat)
+```
+
+```{r table.hdn.clrob,results='asis'}
+options("show.error.messages"=TRUE)
+printTable(clrob,"HDN Louvain clustering robustness",landscape = FALSE,align= c('l','l',rep('r',(dim(clrob)[2]-1))))
+```
+
+
+# Analyse DGN
+```{r prepare.dgn.component.plot}
+csz.df<-getCSizes(dgn)
+mcsz<-max(csz.df$csize)
+lcsz<-lapply(lr.dgn,getCSizes,src='rewiring')
+csz.df<-rbind(csz.df,do.call(rbind,lcsz))
+mcomp<-csz.df[(csz.df$csize>100)&(csz.df$src=='rewiring'),]
+avgMaxSize<-mean(mcomp$csize)
+sdMaxSize<-sd(mcomp$csize)
+pVal<-length(which(mcomp$csize<=mcsz))/(dim(mcomp)[1])
+```
+
+```{r plot.dgn.components.distr,fig.width=6,fig.height=6,warning=FALSE}
+qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
+  geom_vline(xintercept = mcsz)+ 
+  labs(x = "Component size",
+       title='DGN component size distribution',
+       fill = 'Type')
+```
+
+Vertical line on the graph corresponds to the size of the giant component of the
+original DGN it accumulates `r 100*mcsz/vcount(dgn)`% of nodes. Like in the original Barabasi paper its size (`r mcsz`) is 
+significantly lower (pval=`r pVal`) than the average size of the giant component (`r avgMaxSize`±`r sdMaxSize`) in the set of rewired networks.
+
+## Component size fit to power law
+```
+{r degree.dgn.powerlaw, fig.height=6,fig.width=6,error=TRUE}
+pFit <- FitDegree( as.vector(igraph::degree(graph=dgn)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
+```
+{r copm.dgn.powerlaw, fig.height=6,fig.width=6,error=TRUE}
+options("show.error.messages"=TRUE)
+pFit <- FitDegree( as.vector(csz.df$csize[csz.df$src!='rewiring']),
+                   plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
+
+## Clustering of the DGN
+```{r clusterSummary.dgn,fig.height=6,fig.width=6}
+dgnLCC <- calcAllClustering(findLCC(dgn))
+```
+```{r plot.dgn.lcc,fig.width=15,fig.height=12}
+palette <- distinctColorPalette(length(unique(V(dgnLCC)$Disorder.class)))
+cls<-factor(V(dgnLCC)$Disorder.class)
+plot(dgnLCC,vertex.size=3,layout=layout_with_kk,vertex.label=NA,vertex.color=palette[cls],margin=0)
+legend('topleft',legend=levels(cls),col=palette,pch=19,ncol = 1,bty="n")
+```
+
+```{r table.dgn.cluster.summary,results='asis'}
+m<-clusteringSummary(dgnLCC,att=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral'))
+printTable(m,"DGN clustering summary",landscape = FALSE,align= c('l',rep('r',dim(m)[2])))
+```
+
+## Consensus matrix
+```{r consensus.matrix.dgn}
+alg = "louvain"
+conmat <- makeConsensusMatrix(dgnLCC, N=10000,alg = alg, type = 2, mask = 10,reclust = FALSE, Cnmin = -1, Cnmax = 10)
+```
+
+```{r plot.dgn.conmat.ecdf,fig.height=6,fig.width=6}
+steps <- 100
+Fn  <- ecdf(conmat[lower.tri(conmat)])
+X<-seq(0,1,length.out=steps+1)
+cdf<-Fn(X)
+dt<-data.frame(cons=X,cdf=cdf)
+ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
+      theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+          panel.grid.minor = element_line(colour="grey40",size=0.1),
+          panel.background = element_rect(fill="white"),
+          panel.border = element_rect(linetype="solid",fill=NA))
+```
+
+```{r clcons.dgn}
+clrob<-getRobustness(dgnLCC, alg = alg, conmat)
+```
+
+```{r table.dgn.clrob,results='asis'}
+printTable(clrob,"DGN Louvain clustering robustness",landscape = FALSE,align= c('l','l',rep('r',(dim(clrob)[2]-1))))
+```
+
+## Bridgeness
+```{r calc.dgn.bridgenes}
+dgnLCC <- calcCentrality(dgnLCC)
+br<-getBridgeness(dgnLCC,alg = alg,conmat)
+```
+
+```{r plot.dgn.pr.bridgenes,fig.height=6,fig.width=6}
+VIPs=V(dgnLCC)$name[as.numeric(V(dgnLCC)$DEG)>40]
+dgnLCC <- calcCentrality(dgnLCC)
+indx   <- match(V(dgnLCC)$name,VIPs)
+group <- ifelse( is.na(indx), 0,1)
+MainDivSize <- 0.8
+xmin        <- 0
+xmax        <- 1
+ymin        <- 0
+ymax        <- 1
+Xlab <- "Page Rank (PR)" 
+Ylab <- "Bridgeness (B)"
+X    <- as.numeric(igraph::get.vertex.attribute(dgnLCC,"PR",V(dgnLCC)))
+X    <- scale(X)
+Y       <- as.numeric(as.vector(br[,dim(br)[2]])) 
+lbls <- ifelse(!is.na(indx),V(dgnLCC)$Name,"")
+dt<-data.frame(X=X,Y=Y,vips=group,entres=V(dgnLCC)$name,name=V(dgnLCC)$Name)
+dt_vips<-dt[dt$vips==1,]
+dt_res<-dt[dt$vips==0,]
+##--- baseColor of genes
+baseColor="royalblue2"
+
+##--- SPcolor, colour highlighting any 'specical' genes
+SPColor="royalblue2"
+
+##--- PSDColor, colour of core PSD95 interactor genes
+PSDColor="magenta"
+
+ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
+    geom_point(data=dt_vips,
+               aes(x=X,y=Y),colour=baseColor,size = 7,shape=15,show.legend=F)+
+    geom_point(data=dt_res,
+               aes(x=X,y=Y, alpha=(X*Y)), size = 3,shape=16,show.legend=F)+
+    geom_label_repel(aes(label=as.vector(lbls)),
+                     fontface='bold',color='black',fill='white',box.padding=0.1,
+                     point.padding=NA,label.padding=0.15,segment.color='black',
+                     force=1,size=rel(3.8),show.legend=F,max.overlaps=200)+
+      labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
+    scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
+    scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
+    theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+          panel.grid.minor = element_line(colour="grey40",size=0.1),
+          panel.background = element_rect(fill="white"),
+          panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)+
+    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
+```
+
+```{r plot.dgn.sl.bridgenes,fig.height=6,fig.width=6}
+VIPs=V(dgnLCC)$name[as.numeric(V(dgnLCC)$DEG)>40]
+dgnLCC <- calcCentrality(dgnLCC)
+indx   <- match(V(dgnLCC)$name,VIPs)
+group <- ifelse( is.na(indx), 0,1)
+MainDivSize <- 0.8
+xmin        <- 0
+xmax        <- 1
+ymin        <- 0
+ymax        <- 1
+Xlab <- "Semilocal Centrality (SL)" 
+Ylab <- "Bridgeness (B)"
+X    <- as.numeric(igraph::get.vertex.attribute(dgnLCC,"SL",V(dgnLCC)))
+X    <- scale(X)
+Y       <- as.numeric(as.vector(br[,dim(br)[2]])) 
+lbls <- ifelse(!is.na(indx),V(dgnLCC)$Name,"")
+dt<-data.frame(X=X,Y=Y,vips=group,entres=V(dgnLCC)$name,name=V(dgnLCC)$Name)
+dt_vips<-dt[dt$vips==1,]
+dt_res<-dt[dt$vips==0,]
+##--- baseColor of genes
+baseColor="royalblue2"
+
+##--- SPcolor, colour highlighting any 'specical' genes
+SPColor="royalblue2"
+
+##--- PSDColor, colour of core PSD95 interactor genes
+PSDColor="magenta"
+
+ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
+    geom_point(data=dt_vips,
+               aes(x=X,y=Y),colour=baseColor,size = 7,shape=15,show.legend=F)+
+    geom_point(data=dt_res,
+               aes(x=X,y=Y, alpha=(X*Y)), size = 3,shape=16,show.legend=F)+
+    geom_label_repel(aes(label=as.vector(lbls)),
+                     fontface='bold',color='black',fill='white',box.padding=0.1,
+                     point.padding=NA,label.padding=0.15,segment.color='black',
+                     force=1,size=rel(3.8),show.legend=F,max.overlaps=200)+
+      labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
+    scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
+    scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
+    theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+          panel.grid.minor = element_line(colour="grey40",size=0.1),
+          panel.background = element_rect(fill="white"),
+          panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)+
+    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
+```
+
+# Map DGN on PPI
+Synaptome.DB allows to create two kind of PPI networks from the list of Entrez IDs:
+induced, which contains all found genes and all their neighbours, and limited
+which contains only interactions between listed genes:
+```{r make.ppi.networks}
+indPPI<-synaptome.db::getPPIbyEntrez(V(dgn)$name,type = 'induced')
+indPPIg<-synaptome.db::getIGraphFromPPI(indPPI)
+indPPIg<-igraph::simplify(indPPIg)
+limPPI<-synaptome.db::getPPIbyEntrez(V(dgn)$name,type = 'limited')
+limPPIg<-synaptome.db::getIGraphFromPPI(limPPI)
+limPPIg<-igraph::simplify(limPPIg)
+```
+
+```{r plot.induced.network,fig.width=15,fig.height=12}
+clrs<-rep('blue',vcount(indPPIg))
+clrs[V(indPPIg)$HumanEntrez%in%V(dgn)$name]<-'red'
+V(indPPIg)$color<-clrs
+lay<-layout_components(indPPIg,layout = layout_with_kk)
+plot(indPPIg,vertex.size=3,layout=lay,vertex.label=NA,vertex.color=clrs,margin=0,main='PPI network induced by DGN nodes')
+legend('topleft',legend=c('DGN vertices','Neighbours'),col=c('red','blue'),pch=19,ncol = 1,bty="n")
+```
+
+
+```{r plot.lim.network,fig.width=15,fig.height=12}
+clrs<-rep('blue',vcount(limPPIg))
+clrs[V(limPPIg)$HumanEntrez%in%V(dgn)$name]<-'red'
+lay<-layout_components(limPPIg,layout = layout_with_kk)
+plot(limPPIg,vertex.size=3,layout=lay,vertex.label=NA,vertex.color=clrs,margin=0,main='PPI network limited to DGN nodes')
+legend('topleft',legend=c('DGN vertices','Neighbours'),col=c('red','blue'),pch=19,ncol = 1,bty="n")
+```
+
+## Induced network analysis
+### Components of induced network
+```{r calc.ind.components}
+compIndPPI<-components(indPPIg)
+compIndPPI$no
+table(compIndPPI$csize)
+indCg<-induced_subgraph(indPPIg,vids = which(compIndPPI$membership!=which.max(compIndPPI$csize)))
+```
+
+```{r plot.ind.small.components}
+plot(indCg,vertex.size=3,layout=layout_nicely,vertex.label=V(indCg)$HumanName,margin=0,main='Small components of PPI network induced by DGN nodes')
+legend('topleft',legend=c('DGN vertices','Neighbours'),col=c('red','blue'),pch=19,ncol = 1,bty="n")
+```
+
+## Annotation in limited 
+## Count DGN-PPI edge overlapping
+```{r count.dgn.ppi.overlap}
+roverlap<-ppiCount(dgn)
+#loverlap<-sapply(lr.dgn,ppiCount)
+loverlap<-readRDS('loverlap.rds')
+```
+
+```{r plot.overlap,fig.height=6,fig.width=6,warning=FALSE}
+options("show.error.messages"=TRUE)
+coverlap<-data.frame(x=c(roverlap,loverlap),
+                     type=c('data',rep('random',length(loverlap))))
+ggplot(coverlap,aes(x=x,color=type))+geom_density()+
+  geom_vline(xintercept = roverlap)+ 
+  labs(x = "Number of interactions overlap",
+       title='DGN-PPI edge overlap')
+```
+
+
+\pagebreak
+# Appendix {.tabset}
+## Functions
+```{r functions, eval=FALSE, include=TRUE}
+```
+```{r queries, eval=FALSE, include=TRUE}
+```
+
+## Setup R
+```{r setup, eval=FALSE}
+```
+
+## Versions
+### Document version
+```{r docVersion, echo=FALSE, results='asis', cache=FALSE}
+cat(params$version)
+```
+
+### Session Info
+```{r sessionInfo, echo=FALSE, results='asis', class='text', warning=FALSE}
+si<-devtools::session_info()
+cat('Platform\n\n')
+pander::pander(si$platform)
+cat('Packages\n\n')
+knitr::kable(as.data.frame(si$packages)[,c('ondiskversion','loadedversion','date','source')],align = c('l','l'))
+```

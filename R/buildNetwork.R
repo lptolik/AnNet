@@ -1,9 +1,9 @@
 #---Find Largest CC
-#' Title
+#' Find Largest CC
 #'
-#' @param GG
+#' @param GG graph to analyze
 #'
-#' @return
+#' @return igraph representation largest CC
 #' @export
 #' @import igraph
 #'
