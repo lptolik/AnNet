@@ -7,7 +7,11 @@
 buildConsensusMatrix(lcc)
 }
 \arguments{
-\item{lcc}{list of clustering matrices obtained from sampleGraph}
+\item{lcc}{list of clustering matrices obtained from the
+\code{\link{sampleGraph}}}
+}
+\value{
+consensus matrix
 }
 \description{
 Build consensus matrix from the list of clusterings

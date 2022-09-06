@@ -12,13 +12,14 @@ FitDegree(
   DATAleg = "Fit power-law",
   threads = 4,
   WIDTH = 480,
-  HEIGHT = 480
+  HEIGHT = 480,
+  legpos = "bottomleft"
 )
 }
 \arguments{
 \item{DEG}{degree distribution}
 
-\item{threads}{}
+\item{legpos}{position of the legend @seealso{legend}}
 }
 \description{
 Fit Power Law to degree distribution.
