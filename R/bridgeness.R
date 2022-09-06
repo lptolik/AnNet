@@ -35,7 +35,7 @@ getBridgeness <- function(gg, alg,conmat) {
   }
   ##START filling meas after PageRank column
 
-    cat("calculating Bridgeness for: ", alg, "\n")
+    #cat("calculating Bridgeness for: ", alg, "\n")
 
        ##format consensus matrix
     ##the consensus matrix you may have made (as a numeric matrix)

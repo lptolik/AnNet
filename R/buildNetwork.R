@@ -117,8 +117,8 @@ addEdgeAtts <- function(GG, gg){
       names(VALUES)[a] = ATTS[a]
     }
 
-    cat("\n")
-    cat("scanning edges...")
+    # cat("\n")
+    # cat("scanning edges...")
     RES    = matrix("",nrow=M, ncol=length(ATTS))
 
     for( e in 1:M ){
@@ -140,7 +140,7 @@ addEdgeAtts <- function(GG, gg){
       }
     }
 
-    cat("done.\n")
+    # cat("done.\n")
 
     for( a in 1:length(ATTS) ){
       gg <- set.edge.attribute(gg,ATTS[a],E(gg),as.character(RES[,a]))
