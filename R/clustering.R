@@ -11,7 +11,11 @@
 calcMembership<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')){
   ids <- V(gg)$name
   cl<-getClustering(gg,alg)
-  cc       <- data.frame(names=cl$names,membership=cl$membership)
+  if(!is.null(cl)){
+    cc       <- data.frame(names=cl$names,membership=cl$membership)
+  }else{
+    cc <- data.frame(names='names',membership=0)[FALSE,]
+  }
   return(cc)
 }
 
@@ -33,9 +37,11 @@ calcAllClustering<-function(gg){
   for(ai in 2:length(cnames)){
     an<-colnames(m)[ai]
     cm<-calcMembership(gg,an)
-    m[,ai]<-as.character(cm$membership)
-    mod<-modularity(gg,cm$membership)
-    gg<-set.graph.attribute(gg,an,mod)
+    if(dim(cm)[1]>0){
+      m[,ai]<-as.character(cm$membership)
+      mod<-modularity(gg,cm$membership)
+      gg<-set.graph.attribute(gg,an,mod)
+    }
   }
   ggm<-applpMatrixToGraph(gg,m)
   return(ggm)
@@ -53,16 +59,20 @@ calcAllClustering<-function(gg){
 #'
 #' @examples
 calcClustering<-function(gg,alg){
-  ids <- V(gg)$name
-  m      <- matrix(NA, ncol=2, nrow=length(ids))
-  colnames(m)<-c('ID',alg)
-  m[,1]<-ids
   cl<-getClustering(gg,alg)
-  m[,2]<-as.character(cl$membership)
-  ggm<-applpMatrixToGraph(gg,m)
-  mod<-modularity(ggm,cl$membership)
-  ggm<-set.graph.attribute(ggm,alg,mod)
-  return(ggm)
+  if(!is.null(cl)){
+    ids <- V(gg)$name
+    m      <- matrix(NA, ncol=2, nrow=length(ids))
+    colnames(m)<-c('ID',alg)
+    m[,1]<-ids
+    m[,2]<-as.character(cl$membership)
+    ggm<-applpMatrixToGraph(gg,m)
+    mod<-modularity(ggm,cl$membership)
+    ggm<-set.graph.attribute(ggm,alg,mod)
+    return(ggm)
+  }else{
+    return(gg)
+  }
 }
 
 #' Get clustering results for the graph.
@@ -80,20 +90,25 @@ getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG
     lec     <- igraph::leading.eigenvector.community(gg)
     ll      <- igraph::leading.eigenvector.community(gg, start=membership(lec))
   }
-  cl<-switch(alg,
-             lec=lec(gg),
-             wt=igraph::walktrap.community(gg),
-             fc=igraph::fastgreedy.community(gg),
-             infomap=igraph::cluster_infomap(gg),
-             louvain=igraph::cluster_louvain(gg),
-             sgG1=igraph::spinglass.community(gg,
-                                              spins=as.numeric(500),gamma=1),
-             sgG2=igraph::spinglass.community(gg,
-                                              spins=as.numeric(500),gamma=2),
-             sgG5=igraph::spinglass.community(gg,
-                                              spins=as.numeric(500),gamma=5),
-             spectral=rSpectral::spectral_igraph_communities(gg)
-  )
+  cl<-try(switch(alg,
+                 lec=lec(gg),
+                 wt=igraph::walktrap.community(gg),
+                 fc=igraph::fastgreedy.community(gg),
+                 infomap=igraph::cluster_infomap(gg),
+                 louvain=igraph::cluster_louvain(gg),
+                 sgG1=igraph::spinglass.community(gg,
+                                                  spins=as.numeric(500),gamma=1),
+                 sgG2=igraph::spinglass.community(gg,
+                                                  spins=as.numeric(500),gamma=2),
+                 sgG5=igraph::spinglass.community(gg,
+                                                  spins=as.numeric(500),gamma=5),
+                 spectral=rSpectral::spectral_igraph_communities(gg)
+  ))
+  if(inherits(cl, "try-error")){
+    warning('Clustering calculations for algorithm "',alg,
+            '" failed. NULL is returned')
+    return(NULL)
+  }
   return(cl)
 }
 
@@ -106,6 +121,7 @@ getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG
 #' @export
 #'
 #' @examples
+#'
 clusteringSummary<-function(gg,att=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')){
   attN<-vertex_attr_names(gg)
   idx<-match(attN,att)
