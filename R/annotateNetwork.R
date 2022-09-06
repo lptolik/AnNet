@@ -210,7 +210,7 @@ annotate_vertex<-function(gg,name,values){
   val<-as.character(values[nidx,2])
   uids<-unique(vids)
   gidx<-match(uids,ids)
-  annL<-sapply(uids,
+  annL<-vapply(uids,
                function(.x) paste(unique(val[vids==.x]),collapse = ';'))
   ggm<-set.vertex.attribute(graph=ggm,
                             name=name,
@@ -247,7 +247,7 @@ escapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
     }
   }
 
-  res<-sapply(annList,escFun)
+  res<-vapply(annList,escFun)
   return(res)
 }
 

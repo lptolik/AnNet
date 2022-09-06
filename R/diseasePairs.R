@@ -301,16 +301,24 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,alpha=c(0.05,0.01,0.001
   resD<-calcDiseasePairs(gg=gg,name=name,diseases=diseases,permute = 'none')
   ds<-resD$gene_disease_separation
   loc<-resD$disease_localisation
-  resL<-lapply(1:Nperm,function(.x)calcDiseasePairs(gg=gg,name=name,diseases=diseases,permute='random'))
-  resGDS<-sapply(resL,function(.x)apply(.x$gene_disease_separation[,3:dim(.x$gene_disease_separation)[2]],c(1,2),as.numeric),simplify = "array")
+  resL<-lapply(1:Nperm,function(.x)calcDiseasePairs(gg=gg,name=name,
+                                                    diseases=diseases,
+                                                    permute='random'))
+  resGDS<-vapply(resL,function(.x)
+    apply(.x$gene_disease_separation[,3:dim(.x$gene_disease_separation)[2]],
+          c(1,2),as.numeric),
+    simplify = "array")
   m<-apply(resGDS,c(1,2),mean0)
-  RANds<-cbind(as.data.frame(resL[[1]]$gene_disease_separation[,1:2]),as.data.frame(m))
+  RANds<-cbind(as.data.frame(resL[[1]]$gene_disease_separation[,1:2]),
+               as.data.frame(m))
   ##comment out for moment
   disn <- colnames(ds)[3:length(ds[1,])]
 
-  ##--- output results file comparing observed disease pairs against randomised distribution.
+  ##--- output results file comparing observed disease pairs against
+  ##--- randomised distribution.
   disease_location_sig           <- matrix(0 ,ncol=7, nrow=length(disn))
-  colnames(disease_location_sig) <- c("HDO.ID","N","mean_ds","SD_ds","Ran_mean_ds","Ran_SD_ds","Utest.pvalue")
+  colnames(disease_location_sig) <- c("HDO.ID","N","mean_ds","SD_ds",
+                                      "Ran_mean_ds","Ran_SD_ds","Utest.pvalue")
   disease_location_sig[,1]       <- disn
   disease_location_sig[,2]<-loc[match(disease_location_sig[,1],loc[,1]),2]
 
@@ -338,7 +346,8 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,alpha=c(0.05,0.01,0.001
 
     ## compute wilcox test between observable ds and random ds, and store p.values,
     ## see (Menche et al., 2015).
-    if( !is.infinite(DS) && !is.nan(DS) && !is.na(DS) &&  !is.infinite(RDS) && !is.nan(RDS) && !is.na(RDS) ){
+    if( !is.infinite(DS) && !is.nan(DS) && !is.na(DS) &&  !is.infinite(RDS) &&
+        !is.nan(RDS) && !is.na(RDS) ){
       if( length(DS) != 0 && length(RDS) != 0 ){
         wt       <- wilcox.test(DS,RDS)
         disease_location_sig[i,7] <- as.numeric(wt$p.value)
@@ -346,7 +355,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,alpha=c(0.05,0.01,0.001
     }
   }
   sAB<-resD$disease_separation
-  RAW_sAB<-sapply(resL,function(.x).x$disease_separation,simplify = "array")
+  RAW_sAB<-vapply(resL,function(.x).x$disease_separation,simplify = "array")
   RAN_sAB_mean<-apply(RAW_sAB,c(1,2),mean0)
   RAN_sAB_sd<-apply(RAW_sAB,c(1,2),sd0)
   perms <- dim(RAW_sAB)[3]
@@ -358,7 +367,9 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,alpha=c(0.05,0.01,0.001
 
   ##--- Output file for disease-disease separation/overlap
   #CN <-  c("HDO.ID","Disease.long","Disease","N","HDO.ID","Disease.long","Disease","N","sAB","Separated","Overlap","zScore","pvalue","Separation/Overlap.than.chance","Bonferroni","p.adjusted","q-value")
-  CN <-  c("HDO.ID","N","HDO.ID","N","sAB","Separated","Overlap","zScore","pvalue","Separation/Overlap.than.chance","Bonferroni","p.adjusted","q-value")
+  CN <-  c("HDO.ID","N","HDO.ID","N","sAB","Separated","Overlap","zScore",
+           "pvalue","Separation/Overlap.than.chance","Bonferroni","p.adjusted",
+           "q-value")
   zs <- matrix(".", nrow=NELE, ncol=length(CN))
   colnames(zs) <- CN
   tests <- matrix(0, nrow=NELE,ncol=perms)

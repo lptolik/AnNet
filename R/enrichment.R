@@ -37,6 +37,6 @@ clusterORA<-function(g,alg,name,vid='name',alpha=0.1,col=COLLAPSE){
   resL<-lapply(1:length(cl),forafun)
   res<-do.call(rbind,resL)
   res<-res[res$padj<alpha,]
-  res$overlapGenes<-sapply(res$overlapGenes,paste,collapse = ', ')
+  res$overlapGenes<-vapply(res$overlapGenes,paste,collapse = ', ')
   return(res)
 }
