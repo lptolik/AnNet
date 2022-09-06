@@ -52,7 +52,7 @@ for (i in 1:length(alg)){
 for (j in 1:length(alg)){
 mi<-as.numeric(vertex_attr(ggc,alg[i]))
 mj<-as.numeric(vertex_attr(ggc,alg[j]))
-res[i,j] <- reduced_mutual_information(mi, mj, normalized = T)
+res[i,j] <- reduced_mutual_information(mi, mj, normalized = TRUE)
 }}
 pander(res)
 colnames(res) <- alg
