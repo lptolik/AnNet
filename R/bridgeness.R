@@ -118,8 +118,8 @@ scale <- function(x, VALUE=NULL){
 
   x = as.numeric(as.vector(x))
 
-  xmin <- min(x,na.rm=T)
-  xmax <- max(x,na.rm=T)
+  xmin <- min(x,na.rm=TRUE)
+  xmax <- max(x,na.rm=TRUE)
 
   if( is.null(VALUE) ){
 

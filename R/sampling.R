@@ -206,7 +206,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
 
       if( !is.null(edCC) ){
 
-        ggLCC    <- graph_from_data_frame(d=edCC, directed=F)
+        ggLCC    <- graph_from_data_frame(d=edCC, directed=FALSE)
         res <- getClustering(ggLCC,alg)
         oo       <- data.frame(names=res$names, membership=res$membership)
         if(dim(oo)[1]< Cnc[i]){
@@ -306,7 +306,7 @@ recluster <- function( GG, ALGN, CnMAX ){
 
       if( !is.null(edCC) ){
 
-        ggLCC    <- graph_from_data_frame(d=edCC, directed=F)
+        ggLCC    <- graph_from_data_frame(d=edCC, directed=FALSE)
         res <- getClustering(ggLCC,alg)
         oo       <- cbind(res$names, res$membership)
 

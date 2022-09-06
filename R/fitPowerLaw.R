@@ -100,14 +100,14 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.',
     y_lab="P(k)" ## the CDFs P(k) for the PPI network data
     leg_x = max(data)
     leg_y = 1
-    d = plot(m_pl,draw=F)
+    d = plot(m_pl,draw=FALSE)
     Xmax <- max(d$x) - max(d$x)*0.5
     yTICKS  = round(lseqBy(min(d$y),1,0.5),4)
     yLABELS = changeSciNot(yTICKS)
 
     plot(m_pl, xlab=sprintf("%s",x_lab), ylab=y_lab,
          panel.first=grid(col="grey60"),
-         pch=22, bg='black', axes = F, cex.lab = 1.5, yaxt='n' )
+         pch=22, bg='black', axes = FALSE, cex.lab = 1.5, yaxt='n' )
     box(col='black')
     axis(1, cex.axis = 1.5, font = 1.5, family = 'arial')
     axis(2, cex.axis = 1.5, font = 1.5, family = 'arial', at=yTICKS,

@@ -39,8 +39,8 @@ findTERM <- function(eatt, TERMS){
   eatt  <- as.vector(eatt)
   found <- rep(FALSE, length(eatt))
 
-  T = length(TERMS)
-  for( t in 1:T ){
+  Tl <- length(TERMS)
+  for( t in 1:Tl ){
     temp  <- grepl(eatt[t], eatt)
     found <- as.logical(found) | as.logical(temp)
   }
@@ -49,47 +49,39 @@ findTERM <- function(eatt, TERMS){
 
 }
 
-
-#' Title
-#'
-#' @param TERMS
-#'
-#' @return
-#' @export
-#'
-#' @examples
-filterPMIDs <- function(TERMS=NULL){
-
-  filterIDs <- c()
-
-  if( !is.null(TERMS ) && length(TERMS) != 0 ){
-
-    pmids <- read.delim("/afs/inf.ed.ac.uk/user/c/cmclean5/ownCloud/Synaptic_proteome/anaysis_17_05_2019/mined_PPIs/pmid_keywords.csv",sep="\t",header=T)
-
-    indX <- list()
-
-    for( i in 1:length(TERMS) ){
-      N = length(names(indX))
-      indX[[N+1]] <- grepl(TERMS[i], pmids[,4])
-      names(indX)[N+1] <- sprintf("%s_title",TERMS[i])
-      N = length(names(indX))
-      indX[[N+1]] <- grepl(TERMS[i], pmids[,5])
-      names(indX)[N+1] <- sprintf("%s_keywords",TERMS[i])
-    }
-
-    exc <- indX[[1]]
-    for( i in 2:length(names(indX)) ){
-      exc <- exc | indX[[i]]
-    }
-
-    filterIDs <- as.vector(pmids[exc,1])
-
-  }
-
-  return(filterIDs)
-
-}
-
+#
+# filterPMIDs <- function(TERMS=NULL){
+#
+#   filterIDs <- c()
+#
+#   if( !is.null(TERMS ) && length(TERMS) != 0 ){
+#
+#     pmids <- read.delim("/afs/inf.ed.ac.uk/user/c/cmclean5/ownCloud/Synaptic_proteome/anaysis_17_05_2019/mined_PPIs/pmid_keywords.csv",sep="\t",header=TRUE)
+#
+#     indX <- list()
+#
+#     for( i in 1:length(TERMS) ){
+#       N = length(names(indX))
+#       indX[[N+1]] <- grepl(TERMS[i], pmids[,4])
+#       names(indX)[N+1] <- sprintf("%s_title",TERMS[i])
+#       N = length(names(indX))
+#       indX[[N+1]] <- grepl(TERMS[i], pmids[,5])
+#       names(indX)[N+1] <- sprintf("%s_keywords",TERMS[i])
+#     }
+#
+#     exc <- indX[[1]]
+#     for( i in 2:length(names(indX)) ){
+#       exc <- exc | indX[[i]]
+#     }
+#
+#     filterIDs <- as.vector(pmids[exc,1])
+#
+#   }
+#
+#   return(filterIDs)
+#
+# }
+#
 #--- add attributes to igraph edges from it raw file
 #' Title
 #'
@@ -183,7 +175,7 @@ buildNetwork<-function(ff,kw=NA){
 
   }
   #--- build igraph, removing multiple edges and loops
-  gg <- simplify(GG,remove.multiple=T,remove.loops=T)
+  gg <- simplify(GG,remove.multiple=TRUE,remove.loops=TRUE)
   #---Find Largest CC
   gg  <- findLCC(gg)
   gg <- addEdgeAtts(GG,gg)

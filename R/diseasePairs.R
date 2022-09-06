@@ -20,7 +20,7 @@ qscore <- function(zz,FDR){
 #' @examples
 permute <- function(GNS, N){
 
-  temp <- sample(GNS,N,replace=F)
+  temp <- sample(GNS,N,replace=FALSE)
 
   return(temp)
 
@@ -63,11 +63,11 @@ zeroNA<-function(x){
 diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 
   #disease A genes
-  IDS1  <- V(GG)$name[grepl(disA,GDA,fixed=T)]
+  IDS1  <- V(GG)$name[grepl(disA,GDA,fixed=TRUE)]
   NIDS1 <- length(IDS1)
 
   #disease B genes
-  IDS2  <- V(GG)$name[grepl(disB,GDA,fixed=T)]
+  IDS2  <- V(GG)$name[grepl(disB,GDA,fixed=TRUE)]
   NIDS2 <- length(IDS2)
 
   #disease A given B
@@ -205,7 +205,7 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 
     for( d in 1:length(diseases) ){
 
-      IDS <- V(gg)$name[grepl(diseases[d],gda,fixed=T)]
+      IDS <- V(gg)$name[grepl(diseases[d],gda,fixed=TRUE)]
       N   <- length(IDS)
 
       if(permute=='random'){
@@ -232,13 +232,13 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
   ##--- loop over each disease
   for( d in 1:length(diseases) ){
 
-    IDS <- V(gg)$name[grepl(diseases[d],gda,fixed=T)]
+    IDS <- V(gg)$name[grepl(diseases[d],gda,fixed=TRUE)]
     N   <- length(IDS)
 
     ## for each gda, find the minimum shortest path to next gda (of the same disease)
     XX=igraph::shortest.paths(gg,IDS,IDS,weights=NA)
     diag(XX)       = NA
-    ds             = apply(XX,1,min,na.rm=T)
+    ds             = apply(XX,1,min,na.rm=TRUE)
     indX           = match(names(ds),oo[,1])
     oo[indX,(2+d)] = as.vector(ds)
 

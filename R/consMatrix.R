@@ -28,7 +28,7 @@ buildConsensusMatFromFiles <- function(Dir,file.name,skip=1,sep="\t"){
     if( file.exists(filein) && file.info(filein)$size!=0 ){
       tb = read.delim(filein,
                       skip=skip,
-                      header=F,
+                      header=FALSE,
                       sep=sep);
       ## make sure node id == -1 if node com == -1
       indx = tb[,3] == -1
@@ -42,8 +42,8 @@ buildConsensusMatFromFiles <- function(Dir,file.name,skip=1,sep="\t"){
         rm(temp)
       }
       k.coms    = tb[tb[,3] != -1,3]
-      k.max     = max(k.coms,na.rm=T)
-      k.min     = min(k.coms,na.rm=T)
+      k.max     = max(k.coms,na.rm=TRUE)
+      k.min     = min(k.coms,na.rm=TRUE)
       if( k.max > max_com   ){ max_com   = k.max; }
       if( k.min < min_com   ){ min_com   = k.min; }
       study = calculateConsensusMat( data=tb )

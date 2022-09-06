@@ -54,7 +54,7 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS){
       #--- Set Disease (geneRIF db) attributes in .gml graph
       set.vertex.attribute(GG, NAME[f],V(GG),"")
 
-      annoF    <- read.table(FILES[f],sep="\t",skip=1,strip.white=T,quote="")
+      annoF    <- read.table(FILES[f],sep="\t",skip=1,strip.white=TRUE,quote="")
       annoFIDS <- as.character(annoF[,3])
 
       typeF   <- unique(unlist(strsplit(as.character(unique(annoF[,2])),",")))
@@ -335,7 +335,7 @@ getAnnotationList<-function(annVec,col=COLLAPSE,sort=c('none','string','frequenc
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "AnNet")
-#' dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+#' dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 #' #agg<-annotate_topOnto_ovg(gg,dis)
 annotate_topOnto_ovg<-function(gg,dis){
   ids = V(gg)$name
@@ -345,11 +345,6 @@ annotate_topOnto_ovg<-function(gg,dis){
   #--- Set Disease (geneRIF db) attributes in .gml graph
   set.vertex.attribute(gg,"TopOnto_OVG",V(gg),"")
   set.vertex.attribute(gg,"TopOnto_OVG_HDO_ID",V(gg),"")
-
-  #par    <- read.table("flatfile_human_gene2HDO.parentTerm.csv",sep="\t",skip=1,strip.white=T,quote="")
-  #dis    <- read.table("flatfile_human_gene2HDO.csv",sep="\t",skip=1,header=F,strip.white=T,quote="")
-
-  #dis    <- rbind(dis,par)
 
   disIDS <- dis[,3]
 
@@ -404,10 +399,6 @@ annotate_topOnto_ov_P140papers<-function(gg,par,dis){
   #--- Set Disease (geneRIF db) attributes in .gml graph
   set.vertex.attribute(gg,"TopOnto_OV_PAPERS",V(gg),"")
   set.vertex.attribute(gg,"TopOnto_OVG_PAPERS_HDO_ID",V(gg),"")
-
-  #par    <- read.table("flatfile_human_gene2HDO.parentTerm.csv",sep="\t",skip=1,strip.white=T,quote="")
-  #dis    <- read.table("flatfile_human_ov_PAPERS.csv",sep="\t",skip=1,strip.white=T,quote="")
-
   dis    <- rbind(dis,par)
 
   disIDS <- dis[,3]
@@ -467,7 +458,7 @@ annotate_topOnto_ov_P140papers<-function(gg,par,dis){
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' afile<-system.file("extdata", "SCH_flatfile.csv", package = "AnNet")
-#' dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+#' dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 #' #agg<-annotate_SCHanno(gg,dis)
 annotate_SCHanno<-function(gg,anno){
   ids = V(gg)$name
@@ -476,7 +467,6 @@ annotate_SCHanno<-function(gg,anno){
   #--- Set Family attributes in .gml graph
   set.vertex.attribute(gg,"SCHanno",V(gg),"")
 
-  #anno    <- read.table("SCH_flatfile.csv",sep="\t",skip=1,strip.white=T)
   annoIDS <- as.character(anno[,3])
 
   type <- unique(unlist(strsplit(as.character(unique(anno[,2])),",")))
@@ -508,8 +498,6 @@ annotate_CHUA<-function(gg,anno){
 
   #--- Set Family attributes in .gml graph
   set.vertex.attribute(gg,"chua",V(gg),"")
-
-  #anno    <- read.table("flatfile_chua.csv",sep="\t",skip=1,strip.white=T)
   annoIDS <- as.character(anno[,3])
 
   type <- unique(unlist(strsplit(as.character(unique(anno[,2])),",")))
@@ -547,13 +535,9 @@ annotate_Interpro<-function(gg,annoF,annoD){
   set.vertex.attribute(gg,"InterProFamily",V(gg),"")
   set.vertex.attribute(gg,"InterProDomainID",V(gg),"")
   set.vertex.attribute(gg,"InterProDomain",V(gg),"")
-
-  #annoF    <- read.table("flatfile.interpro.Family.csv",sep="\t",skip=1,strip.white=T)
   annoFIDS <- as.character(annoF[,3])
 
   typeF <- unique(unlist(strsplit(as.character(unique(annoF[,2])),",")))
-
-  #annoD    <- read.table("flatfile.interpro.Domain.csv",sep="\t",skip=1,strip.white=T)
   annoDIDS <- as.character(annoD[,3])
 
   typeD <- unique(unlist(strsplit(as.character(unique(annoD[,2])),",")))
@@ -676,11 +660,11 @@ annotate_bridgeness_regions<-function(gg,str){
   }
   return(gg)
 }
-#Add GO MF
-#' Title
+#
+#' Add GO MF annotation to the graph vertices
 #'
-#' @param gg
-#' @param annoF
+#' @param gg graph to update
+#' @param annoF annotation table
 #'
 #' @return
 #' @export
@@ -694,8 +678,6 @@ annotate_go_mf<-function(gg,annoF){
   #--- Set Disease (geneRIF db) attributes in .gml graph
   set.vertex.attribute(gg,"GO_MF",V(gg),"")
   set.vertex.attribute(gg,"GO_MF_ID",V(gg),"")
-
-#  annoF    <- read.table("flatfile.go.MF.csv",sep="\t",skip=1,strip.white=T,quote="")
   annoFIDS <- as.character(annoF[,3])
 
   typeF <- unique(unlist(strsplit(as.character(unique(annoF[,2])),",")))
@@ -723,11 +705,11 @@ annotate_go_mf<-function(gg,annoF){
   }
   return(gg)
 }
-#Add GO BP
-#' Title
+#
+#' Add GO BP annotation to the graph vertices
 #'
-#' @param gg
-#' @param annoF
+#' @param gg graph to update
+#' @param annoF annotation table
 #'
 #' @return
 #' @export
@@ -741,8 +723,6 @@ annotate_go_bp<-function(gg,annoF){
   #--- Set Disease (geneRIF db) attributes in .gml graph
   set.vertex.attribute(gg,"GO_BP",V(gg),"")
   set.vertex.attribute(gg,"GO_BP_ID",V(gg),"")
-
-  #annoF    <- read.table("flatfile.go.BP.csv",sep="\t",skip=1,strip.white=T,quote="")
   annoFIDS <- as.character(annoF[,3])
 
   typeF <- unique(unlist(strsplit(as.character(unique(annoF[,2])),",")))
@@ -770,11 +750,11 @@ annotate_go_bp<-function(gg,annoF){
   }
   return(gg)
 }
-#Add GO CC
-#' Title
+#
+#' Add GO CC  annotation to the graph vertices
 #'
-#' @param gg
-#' @param annoF
+#' @param gg graph to update
+#' @param annoF annotation table
 #'
 #' @return
 #' @export
