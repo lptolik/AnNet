@@ -144,6 +144,14 @@ scale <- function(x, VALUE=NULL){
   value = ifelse(!is.na(value), value/(xmax-xmin), NA) 
   return(value)
 }
+ppiCount<-function(.dgn){
+  .limPPI<-synaptome.db::getPPIbyEntrez(V(.dgn)$name,type = 'limited')
+.limPPIg<-synaptome.db::getIGraphFromPPI(.limPPI)
+.limPPIg<-igraph::simplify(.limPPIg)
+el<-as_edgelist(.dgn)
+found<-sapply(1:dim(el)[1],function(.i)are_adjacent(.limPPIg,which(V(.limPPIg)$HumanEntrez==el[.i,1]),which(V(.limPPIg)$HumanEntrez==el[.i,2])))
+return(length(which(found)))
+}
 ```
 
 # Read data
@@ -165,10 +173,11 @@ to bipartite graph, like our diseasome, would create edges between nodes of the
 same type and break definition of bipartite graph. To avoid this we will use 
 `BiRewire` package for generation of the set of random graphs:
 ```{r rewire.bipartite.graph}
-Nperm<-100*ecount(diseasome)
-lr.diseasome<-lapply(1:10000,birewire.rewire.bipartite,max.iter=Nperm,
-                     incidence=diseasome,verbose=FALSE,exact=TRUE)
-saveRDS(lr.diseasome,file = 'lr.diseasome.rds')
+#Nperm<-100*ecount(diseasome)
+#lr.diseasome<-lapply(1:10000,birewire.rewire.bipartite,max.iter=Nperm,
+#                     incidence=diseasome,verbose=FALSE,exact=TRUE)
+#saveRDS(lr.diseasome,file = 'lr.diseasome.rds')
+lr.diseasome<-readRDS('lr.diseasome.rds')
 ```
 
 ```{r diseasome.components}
@@ -284,7 +293,13 @@ Vertical line on the graph corresponds to the size of the giant component of the
 original HDN  it accumulates `r 100*mcsz/vcount(hdn)`% of nodes. Like in the original Barabasi paper its size (`r mcsz`) is 
 significantly lower (pval=`r pVal`) than the average size of the giant component (`r avgMaxSize`±`r sdMaxSize`) in the set of rewired networks.
 
-## Component size fit to power law
+## Component size and degree fit to power law
+```
+{r degree.hdn.powerlaw, fig.width=12,fig.height=12,error=TRUE}
+options("show.error.messages"=TRUE)
+pFit <- FitDegree( as.vector(igraph::degree(graph=hdn)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
+
 ```
 {r copm.hdn.powerlaw, fig.width=12,fig.height=12,error=TRUE}
 options("show.error.messages"=TRUE)
@@ -370,6 +385,10 @@ original DGN it accumulates `r 100*mcsz/vcount(dgn)`% of nodes. Like in the orig
 significantly lower (pval=`r pVal`) than the average size of the giant component (`r avgMaxSize`±`r sdMaxSize`) in the set of rewired networks.
 
 ## Component size fit to power law
+```
+{r degree.dgn.powerlaw, fig.width=12,fig.height=12,error=TRUE}
+pFit <- FitDegree( as.vector(igraph::degree(graph=dgn)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
 ```
 {r copm.dgn.powerlaw, fig.width=12,fig.height=12,error=TRUE}
 options("show.error.messages"=TRUE)
@@ -553,22 +572,55 @@ limPPIg<-synaptome.db::getIGraphFromPPI(limPPI)
 limPPIg<-igraph::simplify(limPPIg)
 ```
 
-```{r plot.induced.network}
+```{r plot.induced.network,fig.width=15,fig.height=12}
 clrs<-rep('blue',vcount(indPPIg))
 clrs[V(indPPIg)$HumanEntrez%in%V(dgn)$name]<-'red'
-plot(indPPIg,vertex.size=3,layout=layout_with_kk,vertex.label=NA,vertex.color=clrs,margin=0,main='PPI network induced by DGN nodes')
+V(indPPIg)$color<-clrs
+lay<-layout_components(indPPIg,layout = layout_with_kk)
+plot(indPPIg,vertex.size=3,layout=lay,vertex.label=NA,vertex.color=clrs,margin=0,main='PPI network induced by DGN nodes')
 legend('topleft',legend=c('DGN vertices','Neighbours'),col=c('red','blue'),pch=19,ncol = 1,bty="n")
 ```
 
 
-```{r plot.lim.network}
+```{r plot.lim.network,fig.width=15,fig.height=12}
 clrs<-rep('blue',vcount(limPPIg))
 clrs[V(limPPIg)$HumanEntrez%in%V(dgn)$name]<-'red'
-plot(limPPIg,vertex.size=3,layout=layout_with_kk,vertex.label=NA,vertex.color=clrs,margin=0,main='PPI network limited to DGN nodes')
+lay<-layout_components(limPPIg,layout = layout_with_kk)
+plot(limPPIg,vertex.size=3,layout=lay,vertex.label=NA,vertex.color=clrs,margin=0,main='PPI network limited to DGN nodes')
 legend('topleft',legend=c('DGN vertices','Neighbours'),col=c('red','blue'),pch=19,ncol = 1,bty="n")
 ```
 
 ## Induced network analysis
+### Components of induced network
+```{r calc.ind.components}
+compIndPPI<-components(indPPIg)
+compIndPPI$no
+table(compIndPPI$csize)
+indCg<-induced_subgraph(indPPIg,vids = which(compIndPPI$membership!=which.max(compIndPPI$csize)))
+```
+
+```{r plot.ind.small.components}
+plot(indCg,vertex.size=3,layout=layout_nicely,vertex.label=V(indCg)$HumanName,margin=0,main='Small components of PPI network induced by DGN nodes')
+legend('topleft',legend=c('DGN vertices','Neighbours'),col=c('red','blue'),pch=19,ncol = 1,bty="n")
+```
+
+## Annotation in limited 
+## Count DGN-PPI edge overlapping
+```{r count.dgn.ppi.overlap}
+roverlap<-ppiCount(dgn)
+#loverlap<-sapply(lr.dgn,ppiCount)
+loverlap<-readRDS('loverlap.rds')
+```
+
+```{r plot.overlap,fig.width=12,fig.height=12,warning=FALSE}
+options("show.error.messages"=TRUE)
+coverlap<-data.frame(x=c(roverlap,loverlap),
+                     type=c('data',rep('random',length(loverlap))))
+ggplot(coverlap,aes(x=x,color=type))+geom_density()+
+  geom_vline(xintercept = roverlap)+ 
+  labs(x = "Number of interactions overlap",
+       title='DGN-PPI edge overlap')
+```
 
 
 \pagebreak
