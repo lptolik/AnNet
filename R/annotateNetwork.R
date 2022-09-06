@@ -103,7 +103,8 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS){
       GG <- set.vertex.attribute(GG,NAME[f],V(GG),as.character(oo[,2]))
 
       if( addIDS ){
-        GG <- set.vertex.attribute(GG,sprintf("%s_ID",NAME[f]),V(GG),as.character(oo[,3]))
+        GG <- set.vertex.attribute(GG,sprintf("%s_ID",NAME[f]),V(GG),
+                                   as.character(oo[,3]))
       }
 
 
@@ -312,12 +313,14 @@ getAnnotationVertexList<-function(g,name,vid='name',col=COLLAPSE){
 #' @return
 #' @export
 #' @examples
-getAnnotationList<-function(annVec,col=COLLAPSE,sort=c('none','string','frequency')){
+getAnnotationList<-function(annVec,col=COLLAPSE,
+                            sort=c('none','string','frequency')){
   sort <- match.arg(sort)
   res=switch (sort,
     none = unique(unlist(strsplit(annVec,col))),
     string = sort(unique(unlist(strsplit(annVec,col)))),
-    frequency = names(sort(table(unlist(strsplit(annVec,col))),decreasing = TRUE))
+    frequency = names(sort(table(unlist(strsplit(annVec,col))),
+                           decreasing = TRUE))
   )
   return(res)
 }
@@ -334,8 +337,10 @@ getAnnotationList<-function(annVec,col=COLLAPSE,sort=c('none','string','frequenc
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
-#' afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "AnNet")
-#' dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+#' afile<-system.file("extdata", "flatfile_human_gene2HDO.csv",
+#' package = "AnNet")
+#' dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,
+#' strip.white=TRUE,quote="")
 #' #agg<-annotate_topOnto_ovg(gg,dis)
 annotate_topOnto_ovg<-function(gg,dis){
   ids = V(gg)$name
@@ -370,11 +375,13 @@ annotate_topOnto_ovg<-function(gg,dis){
 
           if( Str1 == "" ) { Str1 <- as.character(dtype[indx[j]]) }
           else {
-            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),collapse=COLLAPSE) }
+            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),
+                          collapse=COLLAPSE) }
 
           if( Str2 == "" ) { Str2 <- as.character(disn[indx[j]]) }
           else {
-            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),collapse=COLLAPSE) }
+            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),
+                          collapse=COLLAPSE) }
         }
 
       }
@@ -424,11 +431,13 @@ annotate_topOnto_ov_P140papers<-function(gg,par,dis){
 
           if( Str1 == "" ) { Str1 <- as.character(dtype[indx[j]]) }
           else {
-            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),collapse=COLLAPSE) }
+            Str1 <- paste(c(Str1,as.character(dtype[indx[j]])),
+                          collapse=COLLAPSE) }
 
           if( Str2 == "" ) { Str2 <- as.character(disn[indx[j]]) }
           else {
-            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),collapse=COLLAPSE) }
+            Str2 <- paste(c(Str2,as.character(disn[indx[j]])),
+                          collapse=COLLAPSE) }
         }
 
       }
@@ -458,7 +467,8 @@ annotate_topOnto_ov_P140papers<-function(gg,par,dis){
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' afile<-system.file("extdata", "SCH_flatfile.csv", package = "AnNet")
-#' dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+#' dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,
+#' strip.white=TRUE,quote="")
 #' #agg<-annotate_SCHanno(gg,dis)
 annotate_SCHanno<-function(gg,anno){
   ids = V(gg)$name
@@ -769,7 +779,8 @@ annotate_go_cc<-function(gg,annoF){
   set.vertex.attribute(gg,"GO_CC",V(gg),"")
   set.vertex.attribute(gg,"GO_CC_ID",V(gg),"")
 
-  #annoF    <- read.table("flatfile.go.CC.csv",sep="\t",skip=1,strip.white=T,quote="")
+  #annoF    <- read.table("flatfile.go.CC.csv",sep="\t",skip=1,
+  strip.white=T,quote="")
   annoFIDS <- as.character(annoF[,3])
 
   typeF <- unique(unlist(strsplit(as.character(unique(annoF[,2])),",")))

@@ -52,10 +52,17 @@ getBridgeness <- function(gg, alg,conmat) {
     dat  <- data.frame(indA,indB)
 
     ##get community assigned to each vertex in edgelist from the algorithm 'alg'
-    elA    <- igraph::get.vertex.attribute(gg,alg,V(gg))[match(igraph::get.edgelist(gg)[,1],V(gg)$name)]
-    elB    <- igraph::get.vertex.attribute(gg,alg,V(gg))[match(igraph::get.edgelist(gg)[,2],V(gg)$name)]
+    elA    <- igraph::get.vertex.attribute(gg,alg,
+                                           V(gg))[match(
+                                             igraph::get.edgelist(gg)[,1],
+                                             V(gg)$name)]
+    elB    <- igraph::get.vertex.attribute(gg,alg,
+                                           V(gg))[match(
+                                             igraph::get.edgelist(gg)[,2],
+                                             V(gg)$name)]
 
-    ##for each edge record the community assigned to each vertex and it's consensus matrix value
+    ##for each edge record the community assigned to each vertex and it's
+    ##consensus matrix value
     ed      <- matrix(ncol=6,nrow=length(E(gg)))
     ed[,1]  <- igraph::get.edgelist(gg)[,1]
     ed[,2]  <- igraph::get.edgelist(gg)[,2]
@@ -98,7 +105,8 @@ getBridgeness <- function(gg, alg,conmat) {
       prob <- prob/sum(prob)
 
       ##calculate bridgeness of i'th vertex
-      ##Fuzzy communities and the concept of bridgeness in complex networks, T. Nepusz, arXiv, 2007
+      ##Fuzzy communities and the concept of bridgeness in complex networks,
+      ##T. Nepusz, arXiv, 2007
       b    <- sum( (prob - 1/Cmax) * (prob - 1/Cmax))
 
       Kzero <- Cmax - length(cc)

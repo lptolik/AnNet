@@ -56,7 +56,9 @@ findTERM <- function(eatt, TERMS){
 #
 #   if( !is.null(TERMS ) && length(TERMS) != 0 ){
 #
-#     pmids <- read.delim("/afs/inf.ed.ac.uk/user/c/cmclean5/ownCloud/Synaptic_proteome/anaysis_17_05_2019/mined_PPIs/pmid_keywords.csv",sep="\t",header=TRUE)
+#     pmids <- read.delim("/afs/inf.ed.ac.uk/user/c/cmclean5/ownCloud/
+#Synaptic_proteome/anaysis_17_05_2019/mined_PPIs/pmid_keywords.csv",sep="\t",
+#header=TRUE)
 #
 #     indX <- list()
 #
@@ -115,7 +117,8 @@ addEdgeAtts <- function(GG, gg){
 
     for( e in 1:M ){
 
-      indx = (ed[e,1] == ED[,1] & ed[e,2] == ED[,2]) | (ed[e,1] == ED[,2] & ed[e,2] == ED[,1])
+      indx = (ed[e,1] == ED[,1] & ed[e,2] == ED[,2]) |
+        (ed[e,1] == ED[,2] & ed[e,2] == ED[,1])
 
       for( a in 1:length(ATTS) ){
 
@@ -165,7 +168,8 @@ buildNetwork<-function(ff,kw=NA){
     GG = set.edge.attribute(GG,"METHOD",E(GG), as.character(ff[,3]))
     GG = set.edge.attribute(GG,"TYPE",E(GG), as.character(ff[,7]))
 
-    PMIDS = ifelse(!grepl("unassigned",ff[,4]), sprintf("PMID:%s",ff[,4]), ff[,4])
+    PMIDS = ifelse(!grepl("unassigned",ff[,4]),
+                   sprintf("PMID:%s",ff[,4]), ff[,4])
     GG = set.edge.attribute(GG,"PUBMED",E(GG), PMIDS)
 
     YEARS = kw[match(gsub("PMID:","",E(GG)$PUBMED),kw[,1]),3]
