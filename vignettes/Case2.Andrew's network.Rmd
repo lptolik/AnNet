@@ -2,7 +2,11 @@
 title: "Case 2. Andrew's network"
 author: "Oksana Sorokina"
 date: '2022-07-27'
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BuildNetwork}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
