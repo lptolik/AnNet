@@ -191,7 +191,7 @@ sdMaxSize<-sd(mcomp$csize)
 pVal<-length(which(mcomp$csize<=mcsz))/(dim(mcomp)[1])
 ```
 
-```{r plot.diseasome.components.distr,fig.width=12,fig.height=12,warning=FALSE}
+```{r plot.diseasome.components.distr,fig.height=6,fig.width=6,warning=FALSE}
 qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
   geom_vline(xintercept = mcsz)+ 
   labs(x = "Component size",
@@ -205,7 +205,7 @@ significantly lower (pval=`r pVal`) than the average size of the giant component
 
 ## Component size fit to power law
 ```
-{r  copm.diseasome.powerlaw,fig.width=12,fig.height=12,error=TRUE}
+{r  copm.diseasome.powerlaw,fig.height=6,fig.width=6,error=TRUE}
 options("show.error.messages"=TRUE)
 pFit <- FitDegree( as.vector(csz.df$csize[csz.df$src!='rewiring']),
                    plot=TRUE,WIDTH=2480, HEIGHT=2480)
@@ -229,7 +229,7 @@ ddf$page.rank<-as.numeric(V(hdn)$PR[idx])
 ddf$betweenness<-as.numeric(V(hdn)$BET[idx])
 ```
 
-```{r plot.hdn.disorder.class.boxplot,fig.width=12,fig.height=12}
+```{r plot.hdn.disorder.class.boxplot,fig.height=6,fig.width=6}
 ggplot(ddf,aes(Disorder.class,degree))+geom_boxplot()+ coord_flip()
 ggplot(ddf,aes(Disorder.class,page.rank))+geom_boxplot()+ coord_flip()
 ggplot(ddf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()
@@ -246,7 +246,7 @@ gdf$page.rank<-as.numeric(V(dgn)$PR[idx])
 gdf$betweenness<-as.numeric(V(dgn)$BET[idx])
 ```
 
-```{r plot.dgn.disorder.class.boxplot,fig.width=12,fig.height=12}
+```{r plot.dgn.disorder.class.boxplot,fig.width=6,fig.height=6}
 ggplot(gdf,aes(Disorder.class,degree))+geom_boxplot()+ coord_flip()
 ggplot(gdf,aes(Disorder.class,page.rank))+geom_boxplot()+ coord_flip()
 ggplot(gdf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()
@@ -281,7 +281,7 @@ sdMaxSize<-sd(mcomp$csize)
 pVal<-length(which(mcomp$csize<=mcsz))/(dim(mcomp)[1])
 ```
 
-```{r plot.hdn.components.distr,fig.width=12,fig.height=12,warning=FALSE}
+```{r plot.hdn.components.distr,fig.width=6,fig.height=6,warning=FALSE}
 qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
   geom_vline(xintercept = mcsz)+ 
   labs(x = "Component size",
@@ -295,13 +295,13 @@ significantly lower (pval=`r pVal`) than the average size of the giant component
 
 ## Component size and degree fit to power law
 ```
-{r degree.hdn.powerlaw, fig.width=12,fig.height=12,error=TRUE}
+{r degree.hdn.powerlaw, fig.height=6,fig.width=6,error=TRUE}
 options("show.error.messages"=TRUE)
 pFit <- FitDegree( as.vector(igraph::degree(graph=hdn)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
 
 ```
-{r copm.hdn.powerlaw, fig.width=12,fig.height=12,error=TRUE}
+{r copm.hdn.powerlaw, fig.height=6,fig.width=6,error=TRUE}
 options("show.error.messages"=TRUE)
 pFit <- FitDegree( as.vector(csz.df$csize[csz.df$src!='rewiring']),
                    plot=TRUE,WIDTH=2480, HEIGHT=2480)
@@ -330,7 +330,7 @@ alg = "louvain"
 conmat <- makeConsensusMatrix(hdnLCC, N=100,alg = alg, type = 2, mask = 10,reclust = FALSE, Cnmin = -1, Cnmax = 10)
 ```
 
-```{r plot.hdn.conmat.ecdf,fig.height=12,fig.width=12}
+```{r plot.hdn.conmat.ecdf,fig.height=6,fig.width=6}
 steps <- 100
 Fn  <- ecdf(conmat[lower.tri(conmat)])
 X<-seq(0,1,length.out=steps+1)
@@ -372,7 +372,7 @@ sdMaxSize<-sd(mcomp$csize)
 pVal<-length(which(mcomp$csize<=mcsz))/(dim(mcomp)[1])
 ```
 
-```{r plot.dgn.components.distr,fig.width=12,fig.height=12,warning=FALSE}
+```{r plot.dgn.components.distr,fig.width=6,fig.height=6,warning=FALSE}
 qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
   geom_vline(xintercept = mcsz)+ 
   labs(x = "Component size",
@@ -386,18 +386,18 @@ significantly lower (pval=`r pVal`) than the average size of the giant component
 
 ## Component size fit to power law
 ```
-{r degree.dgn.powerlaw, fig.width=12,fig.height=12,error=TRUE}
+{r degree.dgn.powerlaw, fig.height=6,fig.width=6,error=TRUE}
 pFit <- FitDegree( as.vector(igraph::degree(graph=dgn)),plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
 ```
-{r copm.dgn.powerlaw, fig.width=12,fig.height=12,error=TRUE}
+{r copm.dgn.powerlaw, fig.height=6,fig.width=6,error=TRUE}
 options("show.error.messages"=TRUE)
 pFit <- FitDegree( as.vector(csz.df$csize[csz.df$src!='rewiring']),
                    plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
 
 ## Clustering of the DGN
-```{r clusterSummary.dgn}
+```{r clusterSummary.dgn,fig.height=6,fig.width=6}
 dgnLCC <- calcAllClustering(findLCC(dgn))
 ```
 ```{r plot.dgn.lcc,fig.width=15,fig.height=12}
@@ -418,7 +418,7 @@ alg = "louvain"
 conmat <- makeConsensusMatrix(dgnLCC, N=10000,alg = alg, type = 2, mask = 10,reclust = FALSE, Cnmin = -1, Cnmax = 10)
 ```
 
-```{r plot.dgn.conmat.ecdf,fig.height=12,fig.width=12}
+```{r plot.dgn.conmat.ecdf,fig.height=6,fig.width=6}
 steps <- 100
 Fn  <- ecdf(conmat[lower.tri(conmat)])
 X<-seq(0,1,length.out=steps+1)
@@ -451,7 +451,7 @@ dgnLCC <- calcCentrality(dgnLCC)
 br<-getBridgeness(dgnLCC,alg = alg,conmat)
 ```
 
-```{r plot.dgn.pr.bridgenes,fig.width=12,fig.height=12}
+```{r plot.dgn.pr.bridgenes,fig.height=6,fig.width=6}
 VIPs=V(dgnLCC)$name[as.numeric(V(dgnLCC)$DEG)>40]
 dgnLCC <- calcCentrality(dgnLCC)
 indx   <- match(V(dgnLCC)$name,VIPs)
@@ -505,7 +505,7 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
 ```
 
-```{r plot.dgn.sl.bridgenes,fig.width=12,fig.height=12}
+```{r plot.dgn.sl.bridgenes,fig.height=6,fig.width=6}
 VIPs=V(dgnLCC)$name[as.numeric(V(dgnLCC)$DEG)>40]
 dgnLCC <- calcCentrality(dgnLCC)
 indx   <- match(V(dgnLCC)$name,VIPs)
@@ -612,7 +612,7 @@ roverlap<-ppiCount(dgn)
 loverlap<-readRDS('loverlap.rds')
 ```
 
-```{r plot.overlap,fig.width=12,fig.height=12,warning=FALSE}
+```{r plot.overlap,fig.height=6,fig.width=6,warning=FALSE}
 options("show.error.messages"=TRUE)
 coverlap<-data.frame(x=c(roverlap,loverlap),
                      type=c('data',rep('random',length(loverlap))))
