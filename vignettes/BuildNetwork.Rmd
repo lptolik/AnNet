@@ -80,7 +80,7 @@ head(V(gg)$GeneName)
 Adding diseases associations to genes linked to Human Disease Ontology (HDO) terms
 ```{r annotate_topOnto}
 afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "AnNet")
-dis    <- read.table(afile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 gg <- annotate_topOnto_ovg(gg, dis)
 summary(gg)
 
@@ -89,7 +89,7 @@ summary(gg)
 Adding Schizopherina related synaptic gene functional annotation from (Lips et al., 2012).
 ```{r annotate_Shanno}
 sfile<-system.file("extdata", "SCH_flatfile.csv", package = "AnNet")
-shan   <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+shan   <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 sgg<-annotate_SCHanno(gg,shan)
 summary(sgg)
 ```
@@ -98,7 +98,7 @@ Manually curated presynaptic genes functional annotation derived from (Boyken at
 
 ```{r annotate_Chua, eval=FALSE}
 sfile<-system.file("extdata", "PresynAn.csv", package = "AnNet")
-pres <- read.csv(sfile,skip=1,header=F,strip.white=T,quote="")
+pres <- read.csv(sfile,skip=1,header=FALSE,strip.white=TRUE,quote="")
 sgg <- AnNet:::annotate_CHUA(gg, pres)
 summary(sgg)
 ```
@@ -106,17 +106,17 @@ summary(sgg)
 Adding functionality from GO: BP, MF,CC
 ```{r annotate_go}
 sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "AnNet")
-goBP <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+goBP <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 sgg <- annotate_go_bp(gg, goBP)
 summary(sgg)
 
 sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "AnNet")
-goMF <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+goMF <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 sgg <- annotate_go_mf(gg, goMF)
 summary(sgg)
 
 sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "AnNet")
-goCC <- read.table(sfile,sep="\t",skip=1,header=F,strip.white=T,quote="")
+goCC <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 sgg <- annotate_go_cc(gg, goCC)
 summary(sgg)
 
@@ -320,8 +320,8 @@ scale <- function(x, VALUE=NULL){
   
   x = as.numeric(as.vector(x))
   
-  xmin <- min(x,na.rm=T)
-  xmax <- max(x,na.rm=T)
+  xmin <- min(x,na.rm=TRUE)
+  xmax <- max(x,na.rm=TRUE)
   
   if( is.null(VALUE) ){
     
@@ -370,13 +370,13 @@ PSDColor="magenta"
 
 ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_point(data=dt_vips,
-               aes(x=X,y=Y),colour=baseColor,size = 7,shape=15,show.legend=F)+
+               aes(x=X,y=Y),colour=baseColor,size = 7,shape=15,show.legend=FALSE)+
     geom_point(data=dt_res,
-               aes(x=X,y=Y, alpha=(X*Y)), size = 3,shape=16,show.legend=F)+
+               aes(x=X,y=Y, alpha=(X*Y)), size = 3,shape=16,show.legend=FALSE)+
     geom_label_repel(aes(label=as.vector(lbls)),
                      fontface='bold',color='black',fill='white',box.padding=0.1,
                      point.padding=NA,label.padding=0.15,segment.color='black',
-                     force=1,size=rel(3.8),show.legend=F,max.overlaps=200)+
+                     force=1,size=rel(3.8),show.legend=FALSE,max.overlaps=200)+
       labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
     scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
     scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
@@ -390,8 +390,10 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
           panel.grid.minor = element_line(colour="grey40",size=0.1),
           panel.background = element_rect(fill="white"),
           panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)+
-    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
+        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,
+                   linetype=2,show.legend=FALSE)+
+    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,
+               linetype=2,show.legend=FALSE)
 
 ```
 
@@ -400,9 +402,9 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
 library(plotly)
 p<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_point(data=dt_vips,
-               aes(x=X,y=Y),colour=baseColor,shape=15,show.legend=F)+
+               aes(x=X,y=Y),colour=baseColor,shape=15,show.legend=FALSE)+
     geom_point(data=dt_res,
-               aes(x=X,y=Y, alpha=(X*Y)),shape=16,show.legend=F)+
+               aes(x=X,y=Y, alpha=(X*Y)),shape=16,show.legend=FALSE)+
       labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
     scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
     scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
@@ -416,8 +418,10 @@ p<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
           panel.grid.minor = element_line(colour="grey40",size=0.1),
           panel.background = element_rect(fill="white"),
           panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)+
-    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,linetype=2,show.legend=F)
+        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,
+                   linetype=2,show.legend=FALSE)+
+    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,
+               linetype=2,show.legend=FALSE)
 ggplotly(p)
 ```
 
