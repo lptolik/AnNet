@@ -8,9 +8,20 @@ graph vertices.}
 calcAllClustering(gg)
 }
 \arguments{
-\item{gg}{}
+\item{gg}{graph for analysis}
+}
+\value{
+new graph object with all membership results stored as a vertex
+attribute.
 }
 \description{
-Calculate memberships for all clustering algorithms and store them on the
-graph vertices.
+Function apply \link{\code{calcClusttering}} for each name in standard
+list of available algorithms. In the case when clusterinc could not been
+calculated warning will be issued and no attributes added to the graph.
+}
+\examples{
+g1 <- make_star(10, mode="undirected")
+V(g1)$name <- letters[1:10]
+g1<-calcAllClustering(g1)
+clusteringSummary(g1)
 }

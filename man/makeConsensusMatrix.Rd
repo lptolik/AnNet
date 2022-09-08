@@ -6,8 +6,8 @@
 \usage{
 makeConsensusMatrix(
   gg,
-  N,
-  mask,
+  N = 500,
+  mask = 20,
   alg,
   type,
   reclust = FALSE,

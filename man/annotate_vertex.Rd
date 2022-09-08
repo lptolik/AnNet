@@ -18,3 +18,10 @@ It takes name of the attribute, and two column
 data.frame with vertex ID in the first column and annotation in the second.
 As a first step all attributes with provided names will be removed.
 }
+\examples{
+g1 <- make_star(10, mode="undirected")
+V(g1)$name <- letters[1:10]
+m<-data.frame(ID=letters[1:10],capital=LETTERS[1:10])
+g2<-annotate_vertex(g1,'cap',m)
+V(g2)$cap
+}

@@ -4,7 +4,15 @@
 \alias{sampleGraphClust}
 \title{Perturbe graph and calculate its clustering}
 \usage{
-sampleGraphClust(gg, mask, alg, type, reclust = FALSE, Cnmin = -1, Cnmax = 10)
+sampleGraphClust(
+  gg,
+  mask = 20,
+  alg,
+  type,
+  reclust = FALSE,
+  Cnmin = -1,
+  Cnmax = 10
+)
 }
 \arguments{
 \item{gg}{graph}

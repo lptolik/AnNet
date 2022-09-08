@@ -200,8 +200,16 @@ getDiseases<-function(){
 #' @export
 #'
 #' @examples
+#' g1 <- make_star(10, mode="undirected")
+#' V(g1)$name <- letters[1:10]
+#' m<-data.frame(ID=letters[1:10],capital=LETTERS[1:10])
+#' g2<-annotate_vertex(g1,'cap',m)
+#' V(g2)$cap
 annotate_vertex<-function(gg,name,values){
   ggm <- removeVertexTerm(gg,name)
+  ggm<-set.vertex.attribute(graph=ggm,
+                            name=name,
+                            value ='')
   ids = V(ggm)$name
   vids<-as.character(values[,1])
   idx<-match(vids,ids)

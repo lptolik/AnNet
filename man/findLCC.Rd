@@ -2,13 +2,16 @@
 % Please edit documentation in R/buildNetwork.R
 \name{findLCC}
 \alias{findLCC}
-\title{Title}
+\title{Find Largest CC}
 \usage{
 findLCC(GG)
 }
 \arguments{
-\item{GG}{}
+\item{GG}{graph to analyze}
+}
+\value{
+igraph representation largest CC
 }
 \description{
-Title
+Find Largest CC
 }

@@ -18,3 +18,10 @@ modified igraph object
 \description{
 Add annotation to the vertex in the case of unique annotation per node.
 }
+\examples{
+g1 <- make_star(10, mode="undirected")
+V(g1)$name <- letters[1:10]
+m<-cbind(ID=letters[1:10],capital=LETTERS[1:10])
+g1<-AnNet:::applpMatrixToGraph(g1,m)
+V(g1)$capital
+}
