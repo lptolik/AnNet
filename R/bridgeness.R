@@ -1,13 +1,22 @@
 #' Calculate bridginess from consensus matrix
-#'
+#' 
+#' Bridginess takes into account a vertices shared community membership 
+#' together with its local neighbourhood. It was proposed in 
+#' Nepusz et al., 2008 <doi:10.1103/PhysRevE.77.016107>.
+#' 
+#' Algorithm assume that clustering was already calculated and its 
+#' membership is stored in the appropriate vertex attribute. If 
+#' \link{\code{alg}} attribute is not found error will be issued.
+#' 
 #' @param gg igraph object
 #' @param alg clustering algorithm
 #' @param conmat consensus matrix calculated with that algorithm
-#'
-#' @return
+#' 
+#' @return data.frame with first column contains vertex ID, if GeneName 
+#'         attribute assigned to the vertices its value will be stored as a
+#'         second column, the last column contains bridginess values for the
+#          selected clustering algorithm.
 #' @export
-#'
-#' @examples
 getBridgeness <- function(gg, alg,conmat) {
   #---number of vertices/genes
   N    <- length(V(gg))
@@ -45,6 +54,13 @@ getBridgeness <- function(gg, alg,conmat) {
     # cm           <- as.matrix(cm);
     #cm<-conmat
 
+#' 
+#' @examples 
+#' library(AnNet)
+#' data(karate,package='igraphdata')
+#' gg <- calcClustering(karate, 'louvain')
+#' conmat <- makeConsensusMatrix(gg, N=10,alg = 'louvain', type = 2, mask = 10)
+#' br<-getBridgeness(gg,alg = 'louvain',conmat)
     ##get consensus matrix indices for each edge in edgelist
     indA <- match(igraph::get.edgelist(gg)[,1],rownames(conmat))
     indB <- match(igraph::get.edgelist(gg)[,2],rownames(conmat))
