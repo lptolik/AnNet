@@ -2,19 +2,30 @@
 % Please edit documentation in R/annotateNetwork.R
 \name{unescapeAnnotation}
 \alias{unescapeAnnotation}
-\title{Perform opposite to escapeAnnotation operations: remove all escape
-characters from annotation strings}
+\title{Unescape annotation strings}
 \usage{
 unescapeAnnotation(annVec, col = COLLAPSE, esc = ESC)
 }
 \arguments{
 \item{annVec}{vector of annotation strings}
 
-\item{col}{list separator character}
+\item{col}{list separator character within annotation string}
 
 \item{esc}{escape character}
 }
+\value{
+vector of annotation strings with removed escape characters
+}
 \description{
 Perform opposite to escapeAnnotation operations: remove all escape
-characters from annotation strings
+characters from annotation strings.
+}
+\details{
+NOTE: spaces are treated as regular
+characters, no trimming is applied before or after escaping.
+}
+\examples{
+annVec<-apply(matrix(letters,ncol=13),2,paste,collapse=';')
+escVec<-escapeAnnotation(annVec,';','|')
+cbind(annVec,escVec,unescapeAnnotation(escVec,';','|'))
 }
