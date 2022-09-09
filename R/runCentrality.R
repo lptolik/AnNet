@@ -248,6 +248,13 @@ getCentralityMatrix<-function(gg){
 #'     matrix should contains column "ID" to map value to the vertex.
 #'
 #' @return modified igraph object
+#' @export
+#' @examples
+#' g1 <- make_star(10, mode="undirected")
+#' V(g1)$name <- letters[1:10]
+#' m<-cbind(ID=letters[1:10],capital=LETTERS[1:10])
+#' g1<-AnNet:::applpMatrixToGraph(g1,m)
+#' V(g1)$capital
 applpMatrixToGraph<-function(gg,m){
   ggm<-gg
   measures<-colnames(m)
@@ -278,17 +285,20 @@ applpMatrixToGraph<-function(gg,m){
 #' Calculate centrality measures for graph nodes and save them as vertex
 #' property.
 #'
+#' Wrapper finction that calls \link{\code{getCentralityMatrix}} to calculate
+#' all available centrality
+#' measires and \link{\code{applpMatrixToGraph}} to store them as a vertex
+#' attributes.
+#'
 #' @param gg igraph object
 #'
 #' @return modified igraph object
 #' @export
 #'
 #' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
-#' ggm<-calcCentrality(gg)
+#' data(karate,package='igraphdata')
+#' ggm<-calcCentrality(garate)
+#' V(ggm)$DEG
 calcCentrality<-function(gg){
   m<-getCentralityMatrix(gg)
   ggm<-applpMatrixToGraph(gg,m)
@@ -296,23 +306,23 @@ calcCentrality<-function(gg){
 }
 
 #get centrality measures for random graph
-#' Title
+#' Generate a random graph  that mimic somehow properties of the input graph
+#' and calls \link{\code{getCentralityMatrix}} to
+#' calculate all available centrality measires. There are four different
 #'
-#' @param gg
+#' @param gg template graph to mimic
 #' @param type:
 #' * gnp -- G(n,p) Erdos-Renyi model
 #' * pa --  Barabasi-Albert model
 #' * cgnp -- new random graph from a given graph by randomly adding/removing edges
 #' * rw -- new random graph from a given graph by rewiring 25% of edges preserving the degree distribution
 #'
-#' @return
+#' @return matrix of random graph vertices centrality measure.
 #' @export
 #'
 #' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' data(karate,package='igraphdata')
+#' m<-getRandomGraphCentrality(karate,'pa')
 getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp','rw'),...){
   op<-options(warn= -1)
   type <- match.arg(type)

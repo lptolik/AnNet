@@ -22,27 +22,36 @@ calcMembership<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sg
 #' Calculate memberships for all clustering algorithms and store them on the
 #' graph vertices.
 #'
-#' @param gg
+#' Function apply \link{\code{calcClusttering}} for each name in standard
+#' list of available algorithms. In the case when clusterinc could not been
+#' calculated warning will be issued and no attributes added to the graph.
 #'
-#' @return
+#' @param gg graph for analysis
+#'
+#' @return new graph object with all membership results stored as a vertex
+#'         attribute.
 #' @export
 #'
 #' @examples
+#' g1 <- make_star(10, mode="undirected")
+#' V(g1)$name <- letters[1:10]
+#' g1<-calcAllClustering(g1)
+#' clusteringSummary(g1)
 calcAllClustering<-function(gg){
   ids <- V(gg)$name
   cnames<-c('ID','lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')
-  m      <- matrix(NA, ncol=length(cnames), nrow=length(ids))
-  colnames(m)<-cnames
-  m[,1]<-ids
+  l<-list()
+  l[[cnames[1]]]<-ids
   for(ai in 2:length(cnames)){
-    an<-colnames(m)[ai]
+    an<-cnames[ai]
     cm<-calcMembership(gg,an)
     if(dim(cm)[1]>0){
-      m[,ai]<-as.character(cm$membership)
+      l[[an]]<-as.character(cm$membership)
       mod<-modularity(gg,cm$membership)
       gg<-set.graph.attribute(gg,an,mod)
     }
   }
+  m<-do.call(cbind,l)
   ggm<-applpMatrixToGraph(gg,m)
   return(ggm)
 }
