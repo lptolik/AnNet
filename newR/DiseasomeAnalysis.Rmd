@@ -196,7 +196,7 @@ qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
   geom_vline(xintercept = mcsz)+ 
   labs(x = "Component size",
        title='Diseasome component size distribution',
-       fill = 'Type')
+       fill = 'Type')+theme_bw(18)
 ```
 
 Vertical line on the graph corresponds to the size of the giant component of the
@@ -247,10 +247,10 @@ gdf$betweenness<-as.numeric(V(dgn)$BET[idx])
 ```
 
 ```{r plot.dgn.disorder.class.boxplot,fig.width=6,fig.height=6}
-ggplot(gdf,aes(Disorder.class,degree))+geom_boxplot()+ coord_flip()
-ggplot(gdf,aes(Disorder.class,page.rank))+geom_boxplot()+ coord_flip()
-ggplot(gdf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()
-ggplot(gdf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()+scale_y_log10()
+ggplot(gdf,aes(Disorder.class,degree))+geom_boxplot()+ coord_flip()+theme_bw(18)
+ggplot(gdf,aes(Disorder.class,page.rank))+geom_boxplot()+ coord_flip()+theme_bw(18)
+ggplot(gdf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()+theme_bw(18)
+ggplot(gdf,aes(Disorder.class,betweenness))+geom_boxplot()+ coord_flip()+scale_y_log10()+theme_bw(18)
 ```
 
 And similarily we can create list of random HDN and DGN graphs from the list of 
@@ -285,8 +285,8 @@ pVal<-length(which(mcomp$csize<=mcsz))/(dim(mcomp)[1])
 qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
   geom_vline(xintercept = mcsz)+ 
   labs(x = "Component size",
-       title='HDN component size distribution',
-       fill = 'Type')
+       #title='HDN component size distribution',
+       fill = 'Type')+theme_bw(18)
 ```
 
 Vertical line on the graph corresponds to the size of the giant component of the
@@ -376,8 +376,8 @@ pVal<-length(which(mcomp$csize<=mcsz))/(dim(mcomp)[1])
 qplot(csize,data=csz.df,fill=src,bins=200,log = 'xy')+
   geom_vline(xintercept = mcsz)+ 
   labs(x = "Component size",
-       title='DGN component size distribution',
-       fill = 'Type')
+       #title='DGN component size distribution',
+       fill = 'Type')+theme_bw(18)
 ```
 
 Vertical line on the graph corresponds to the size of the giant component of the
@@ -616,10 +616,10 @@ loverlap<-readRDS('loverlap.rds')
 options("show.error.messages"=TRUE)
 coverlap<-data.frame(x=c(roverlap,loverlap),
                      type=c('data',rep('random',length(loverlap))))
-ggplot(coverlap,aes(x=x,color=type))+geom_density()+
+ggplot(coverlap,aes(x=x,color=type,fill=type))+geom_density()+
   geom_vline(xintercept = roverlap)+ 
-  labs(x = "Number of interactions overlap",
-       title='DGN-PPI edge overlap')
+  labs(x = "Number of interactions overlap")+theme_bw(18)#,
+       #title='DGN-PPI edge overlap')+theme_bw(18)
 ```
 
 

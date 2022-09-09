@@ -15,6 +15,9 @@ getCM(m, nm, keepOrder)
 
 \item{keepOrder}{if FALSE valuess will be sorted}
 }
+\value{
+vector of length \code{dim(m)[1]}
+}
 \description{
 Extracts particular measure from matrix and convert for distance calculation
 by calcCentralityInternalDistances and calcCentralityExternalDistances

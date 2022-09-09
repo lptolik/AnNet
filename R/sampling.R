@@ -163,7 +163,7 @@ getCommunityGraph<-function(gg,membership){
   V(g)$composition<-V(gg)$name
   cgg<-simplify(contract(g, membership,vertex.attr.comb =list(composition='concat', 'ignore')))
   V(cgg)$name<-as.character(V(cgg))
-  V(cgg)$size<-vapply(V(cgg)$composition,length)
+  V(cgg)$size<-vapply(V(cgg)$composition,length,c(len=0))
   return(cgg)
 }
 #' Recluster graph

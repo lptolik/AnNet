@@ -212,7 +212,8 @@ annotate_vertex<-function(gg,name,values){
   uids<-unique(vids)
   gidx<-match(uids,ids)
   annL<-vapply(uids,
-               function(.x) paste(unique(val[vids==.x]),collapse = ';'))
+               function(.x) paste(unique(val[vids==.x]),collapse = ';'),
+               c(ann=''))
   ggm<-set.vertex.attribute(graph=ggm,
                             name=name,
                             index = gidx,
@@ -221,20 +222,27 @@ annotate_vertex<-function(gg,name,values){
 }
 
 #' Escapes elements of list in annotation, so they'll be searchable by grep.
+#'
 #' In the case when annotation has not carefully planned, some annotations
 #' could be substring of other, for example search fo DOID:14 could return
 #' DOID:143, DOID:1433, and DOID:14330. To avoid this all names should be
 #' enclosed in escape characters, which unlikely to find within annotation
 #' itself.
+
+#' NOTE: spaces are treated as regular
+#' characters, no trimming is applied before or after escaping.
+#'
 #'
 #' @param annVec vector of annotation strings
 #' @param col list separator character
 #' @param esc escape character
 #'
-#' @return
+#' @return vector of annotation strings with elements escaped
 #' @export
 #'
 #' @examples
+#' annVec<-apply(matrix(letters,ncol=13),2,paste,collapse=';')
+#' cbind(annVec,escapeAnnotation(annVec,';','|'))
 escapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
   if(any(grepl(esc,annVec,fixed = TRUE))){
     stop("Either already escaped or escape charecter found in annotation\n")
@@ -248,21 +256,30 @@ escapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
     }
   }
 
-  res<-vapply(annList,escFun)
+  res<-vapply(annList,escFun,c(ann=''))
   return(res)
 }
 
+#' Unescape annotation strings
+#'
 #' Perform opposite to escapeAnnotation operations: remove all escape
-#' characters from annotation strings
+#' characters from annotation strings.
+#'
+#' NOTE: spaces are treated as regular
+#' characters, no trimming is applied before or after escaping.
+#'
 #'
 #' @param annVec vector of annotation strings
-#' @param col list separator character
+#' @param col list separator character within annotation string
 #' @param esc escape character
 #'
-#' @return
+#' @return vector of annotation strings with removed escape characters
 #' @export
 #'
 #' @examples
+#' annVec<-apply(matrix(letters,ncol=13),2,paste,collapse=';')
+#' escVec<-escapeAnnotation(annVec,';','|')
+#' cbind(annVec,escVec,unescapeAnnotation(escVec,';','|'))
 unescapeAnnotation<-function(annVec,col=COLLAPSE,esc=ESC){
   res<-gsub(esc,'',annVec,fixed = TRUE)
   return(res)
@@ -780,7 +797,7 @@ annotate_go_cc<-function(gg,annoF){
   set.vertex.attribute(gg,"GO_CC_ID",V(gg),"")
 
   #annoF    <- read.table("flatfile.go.CC.csv",sep="\t",skip=1,
-  strip.white=T,quote="")
+  #strip.white=T,quote="")
   annoFIDS <- as.character(annoF[,3])
 
   typeF <- unique(unlist(strsplit(as.character(unique(annoF[,2])),",")))

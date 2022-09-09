@@ -2,13 +2,15 @@
 % Please edit documentation in R/annotateNetwork.R
 \name{annotate_go_cc}
 \alias{annotate_go_cc}
-\title{Title}
+\title{Add GO CC  annotation to the graph vertices}
 \usage{
 annotate_go_cc(gg, annoF)
 }
 \arguments{
-\item{annoF}{}
+\item{gg}{graph to update}
+
+\item{annoF}{annotation table}
 }
 \description{
-Title
+Add GO CC  annotation to the graph vertices
 }

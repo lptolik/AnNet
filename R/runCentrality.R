@@ -58,8 +58,8 @@ fSemilocal<-function(gg){
     neig <- igraph::neighbors(graph,v=i,mode="all")
     return(sum(vec[neig]))
   }
-  meas[,2]<-vapply(1:N,neigSum,graph=gg,vec=meas[,1])
-  meas[,3]<-vapply(1:N,neigSum,graph=gg,vec=meas[,2])
+  meas[,2]<-vapply(1:N,neigSum,c(sum=0),graph=gg,vec=meas[,1])
+  meas[,3]<-vapply(1:N,neigSum,c(sum=0),graph=gg,vec=meas[,2])
   return(as.numeric(meas[,3]))
 }
 
@@ -373,7 +373,7 @@ getGraphCentralityECDF<-function(m){
 #' @param nm name of the measure from m
 #' @param keepOrder if FALSE valuess will be sorted
 #'
-#' @return
+#' @return vector of length \code{dim(m)[1]}
 #'
 #' @examples
 getCM<-function(m,nm,keepOrder){
@@ -399,7 +399,7 @@ calcCentralityInternalDistances<-function(l,keepOrder=FALSE,dist='euclidean'){
   resl<-list()
   for(i in 2:length(CN)){
     nm<-CN[i]
-    res<-vapply(l,getCM,nm=nm,keepOrder=keepOrder)
+    res<-do.call(cbind,lapply(l,getCM,nm=nm,keepOrder=keepOrder))
     if(is.matrix(res)){
     resl[[nm]]<-as.vector(dist(t(res),method=dist))
     }
@@ -425,7 +425,7 @@ calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
   for(i in 2:length(CN)){
     nm<-CN[i]
     rm<-getCM(m,nm=nm,keepOrder=keepOrder)
-    res<-vapply(l,getCM,nm=nm,keepOrder=keepOrder)
+    res<-do.call(cbind,lapply(l,getCM,nm=nm,keepOrder=keepOrder))
     if(is.matrix(res)){
     cmm<-cbind(rm,res)
     cmd<-as.matrix(dist(t(cmm),method=dist))

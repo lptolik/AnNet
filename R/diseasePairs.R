@@ -304,10 +304,9 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,alpha=c(0.05,0.01,0.001
   resL<-lapply(1:Nperm,function(.x)calcDiseasePairs(gg=gg,name=name,
                                                     diseases=diseases,
                                                     permute='random'))
-  resGDS<-vapply(resL,function(.x)
+  resGDS<-do.call(cbind,lapply(resL,function(.x)
     apply(.x$gene_disease_separation[,3:dim(.x$gene_disease_separation)[2]],
-          c(1,2),as.numeric),
-    simplify = "array")
+          c(1,2),as.numeric)))
   m<-apply(resGDS,c(1,2),mean0)
   RANds<-cbind(as.data.frame(resL[[1]]$gene_disease_separation[,1:2]),
                as.data.frame(m))
@@ -355,7 +354,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,alpha=c(0.05,0.01,0.001
     }
   }
   sAB<-resD$disease_separation
-  RAW_sAB<-vapply(resL,function(.x).x$disease_separation,simplify = "array")
+  RAW_sAB<-do.call(cbind,lapply(resL,function(.x).x$disease_separation))
   RAN_sAB_mean<-apply(RAW_sAB,c(1,2),mean0)
   RAN_sAB_sd<-apply(RAW_sAB,c(1,2),sd0)
   perms <- dim(RAW_sAB)[3]

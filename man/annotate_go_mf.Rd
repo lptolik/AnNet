@@ -2,13 +2,15 @@
 % Please edit documentation in R/annotateNetwork.R
 \name{annotate_go_mf}
 \alias{annotate_go_mf}
-\title{Title}
+\title{Add GO MF annotation to the graph vertices}
 \usage{
 annotate_go_mf(gg, annoF)
 }
 \arguments{
-\item{annoF}{}
+\item{gg}{graph to update}
+
+\item{annoF}{annotation table}
 }
 \description{
-Title
+Add GO MF annotation to the graph vertices
 }
