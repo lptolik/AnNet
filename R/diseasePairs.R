@@ -390,10 +390,16 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
   loc<-resD$disease_localisation
   resL<-lapply(1:Nperm,function(.x)calcDiseasePairs(gg=gg,name=name,
                                                     diseases=diseases,
-                                                    permute='random'))
-  resGDS<-do.call(cbind,lapply(resL,function(.x)
-    apply(.x$gene_disease_separation[,3:dim(.x$gene_disease_separation)[2]],
-          c(1,2),as.numeric)))
+                                                    permute=permute))
+  toNum<-function(.x){
+      Nc<-dim(.x$gene_disease_separation)[2]
+      apply(.x$gene_disease_separation[,seq(3,Nc)],c(1,2),as.numeric)
+  }
+  resGDS<-vapply(resL,toNum, FUN.VALUE = toNum(resL[[1]]))
+ 
+  # resGDS<-do.call(cbind,lapply(resL,function(.x)
+  #   apply(.x$gene_disease_separation[,3:dim(.x$gene_disease_separation)[2]],
+  #         c(1,2),as.numeric)))
   m<-apply(resGDS,c(1,2),mean0)
   RANds<-cbind(as.data.frame(resL[[1]]$gene_disease_separation[,1:2]),
                as.data.frame(m))
@@ -441,7 +447,8 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
     }
   }
   sAB<-resD$disease_separation
-  RAW_sAB<-do.call(cbind,lapply(resL,function(.x).x$disease_separation))
+  RAW_sAB<-vapply(resL, function(.x).x$disease_separation, 
+                  FUN.VALUE = sAB)
   RAN_sAB_mean<-apply(RAW_sAB,c(1,2),mean0)
   RAN_sAB_sd<-apply(RAW_sAB,c(1,2),sd0)
   perms <- dim(RAW_sAB)[3]
