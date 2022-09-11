@@ -11,15 +11,41 @@ normModularity(
 )
 }
 \arguments{
-\item{Nint}{}
+\item{gg}{graph object to analyze}
+
+\item{alg}{clustering algorithm}
+
+\item{Nint}{number of iterations}
+}
+\value{
+normalized modularity value
 }
 \description{
-Calculates the normalized network modularity value.
+To allow the comparison of network modularity with networks of different
+size and connectivity.
+}
+\details{
+Used the normalized network modularity value
+Qm based on the previous studies by Parter et al., 2007, Takemoto, 2012,
+Takemoto, 2013, Takemoto and Borjigin, 2011, which was defined as:
+Qm = (Qreal-Qrand)/(Qmax-Qrand)
+Where Qreal is the network modularity of a real-world signaling network and,
+Qrand is the average network modularity value obtained from 10,000
+randomized networks constructed from its real-world network. Qmax was
+estimated as: 1 − 1/M, where M is the number of modules in the real network.
+
+Randomized networks were generated from a real-world network using the
+edge-rewiring algorithm (Maslov and Sneppen, 2002).
 }
 \examples{
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
-  set.seed(100)
+
 nm<-normModularity(gg,alg='louvain')
+}
+\references{
+Takemoto, K. & Kihara, K. Modular organization of cancer
+signaling networks is associated with patient survivability.
+Biosystems 113, 149–154 (2013).
 }

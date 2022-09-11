@@ -7,8 +7,20 @@
 layoutByCluster(gg, mem, layout = layout_with_kk)
 }
 \arguments{
-\item{mem}{}
+\item{gg}{graph to layout}
+
+\item{mem}{membership data.frame from \code{\link{calcMembership}}}
+}
+\value{
+Layout in a form of 2D matrx.
 }
 \description{
-Calculate layout based upon membership
+Function split graph into clusters and layout each cluster idependently.
+}
+\examples{
+data(karate,package='igraphdata')
+alg<-'louvain'
+mem<-calcMembership(karate,alg = alg)
+lay<-layoutByCluster(karate,mem)
+#plot(karate,layout=lay)
 }

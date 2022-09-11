@@ -7,6 +7,10 @@
 getClusterSubgraphByID(clID, gg, mem)
 }
 \arguments{
+\item{clID}{cluster ID to extracte}
+
+\item{gg}{graph to analyze}
+
 \item{mem}{membership vector}
 }
 \value{
@@ -15,4 +19,11 @@ induced subgraph as igraph object
 \description{
 Function takes graph \code{gg}, membership data.frame \code{mem} and
 ID of the cluster in it, creates induced subgraph and returned it.
+}
+\examples{
+data(karate,package='igraphdata')
+alg<-'louvain'
+c<-getClustering(karate,alg = alg)
+gc3<-getClusterSubgraphByID(3,karate,membership(c))
+#plot(gc3,vertex.label=V(gc3)$name)
 }

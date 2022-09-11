@@ -35,10 +35,8 @@ separation
 }
 \description{
 Calculate each diease-pair overlap/seperation on a selected
-synaptic PPI network models, based on analysis described in:
-Menche, J. et al. Uncovering disease-disease relationships through the
-incomplete interactome.
-Science, 347, (6224):1257601 (2015).
+synaptic PPI network models, based on analysis described in
+Menche et al. 2005
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
@@ -51,6 +49,11 @@ diseases = c("DOID:10652","DOID:3312","DOID:12849"),
 permute = "n"
 )
 p$disease_separation
+}
+\references{
+Menche, J. et al. Uncovering disease-disease relationships
+through the incomplete interactome.
+Science, 347, (6224):1257601 (2015).
 }
 \seealso{
 degree.binned.GDAs

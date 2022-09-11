@@ -7,8 +7,20 @@
 layoutByRecluster(gg, remem, layout = layout_with_kk)
 }
 \arguments{
+\item{gg}{graph to layout}
+
+\item{remem}{}
+
 \item{layout}{}
 }
 \description{
 Takes results of recluster and apply \code{layoutByCluster} to each
+}
+\examples{
+data(karate,package='igraphdata')
+alg<-'louvain'
+mem<-calcMembership(karate,alg = alg)
+remem<-calcReclusterMatrix(karate,mem,alg,10)
+lay<-layoutByRecluster(karate,remem)
+#plot(karate,layout=lay)
 }

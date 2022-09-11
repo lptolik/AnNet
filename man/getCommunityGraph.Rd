@@ -18,3 +18,9 @@ community graph
 The idea based upon
 \href{https://stackoverflow.com/questions/62553280/visualizing-the-result-of-dividing-the-network-into-communities}{this StackOverflow answer}
 }
+\examples{
+data(karate,package='igraphdata')
+alg<-'louvain'
+mem<-calcMembership(karate,alg = alg)
+cg<-getCommunityGraph(karate,mem$membership)
+}

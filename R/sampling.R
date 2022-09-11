@@ -76,14 +76,19 @@ intraEdgesM <- function(GG, mem, CC, INTRA=NULL, INTER=NULL){
 #' Function takes graph \code{gg}, membership data.frame \code{mem} and
 #' ID of the cluster in it, creates induced subgraph and returned it.
 #'
-#' @param clID
-#' @param gg
+#' @param clID cluster ID to extracte
+#' @param gg graph to analyze
 #' @param mem membership vector
 #'
 #' @return induced subgraph as igraph object
 #' @export
 #'
 #' @examples
+#' data(karate,package='igraphdata')
+#' alg<-'louvain'
+#' c<-getClustering(karate,alg = alg)
+#' gc3<-getClusterSubgraphByID(3,karate,membership(c))
+#' #plot(gc3,vertex.label=V(gc3)$name)
 getClusterSubgraphByID<-function(clID,gg,mem){
   idx<-which(mem==clID)
   sg<-induced_subgraph(gg,V(gg)[idx],impl = "auto")
@@ -91,14 +96,21 @@ getClusterSubgraphByID<-function(clID,gg,mem){
 }
 
 #' Calculate layout based upon membership
+#' 
+#' Function split graph into clusters and layout each cluster idependently.
 #'
-#' @param gg
-#' @param mem
+#' @param gg graph to layout
+#' @param mem membership data.frame from \code{\link{calcMembership}}
 #'
-#' @return
+#' @return Layout in a form of 2D matrx.
 #' @export
 #'
 #' @examples
+#' data(karate,package='igraphdata')
+#' alg<-'louvain'
+#' mem<-calcMembership(karate,alg = alg)
+#' lay<-layoutByCluster(karate,mem)
+#' #plot(karate,layout=lay)
 layoutByCluster<-function(gg,mem,layout=layout_with_kk){
   Cn<-table(mem$membership)
   sgraphs<-lapply(names(Cn),getClusterSubgraphByID,gg=gg,mem=mem$membership)
@@ -114,14 +126,21 @@ layoutByCluster<-function(gg,mem,layout=layout_with_kk){
 #'
 #' Takes results of recluster and apply \code{layoutByCluster} to each
 #'
-#' @param gg
-#' @param remem
-#' @param layout
+#' @param gg graph to layout
+#' @param remem recluster result obtained by \code{\link{calcReclusterMatrix}}
+#'        invocation
+#' @param layout one of the layout algoritms from \code{\link[igrap]{layout_}}
 #'
-#' @return
+#' @return Layout in a form of 2D matrx.
 #' @export
 #'
 #' @examples
+#' data(karate,package='igraphdata')
+#' alg<-'louvain'
+#' mem<-calcMembership(karate,alg = alg)
+#' remem<-calcReclusterMatrix(karate,mem,alg,10)
+#' lay<-layoutByRecluster(karate,remem)
+#' #plot(karate,layout=lay)
 layoutByRecluster<-function(gg,remem,layout=layout_with_kk){
   Cn<-table(remem$membership)
   glist<-list()
@@ -158,6 +177,10 @@ layoutByRecluster<-function(gg,remem,layout=layout_with_kk){
 #' @export
 #'
 #' @examples
+#' data(karate,package='igraphdata')
+#' alg<-'louvain'
+#' mem<-calcMembership(karate,alg = alg)
+#' cg<-getCommunityGraph(karate,mem$membership)
 getCommunityGraph<-function(gg,membership){
   g<-gg
   V(g)$composition<-V(gg)$name
@@ -166,21 +189,28 @@ getCommunityGraph<-function(gg,membership){
   V(cgg)$size<-vapply(V(cgg)$composition,length,c(len=0))
   return(cgg)
 }
-#' Recluster graph
+
+#' Hierarchial graph clustering
 #'
 #' Function takes graph \code{gg} and its membership matrix \code{mem}
 #' as returned \code{calcMembership} and apply clustering algorithm \code{alg}
 #' to all clusters larger than \code{CnMAX}
 #'
-#' @param gg
-#' @param mem
-#' @param alg
-#' @param CnMAX
+#' @param gg graph to cluster
+#' @param mem data.frame with previous level clustering results
+#' @param alg algorithm to apply
+#' @param CnMAX maximus size of the cluster in \code{mem} that will not be 
+#'        processed
 #'
-#' @return
+#' @return remembership matrix, that contains vertex ID membership and 
+#'         result of reclustering
 #' @export
 #'
 #' @examples
+#' data(karate,package='igraphdata')
+#' alg<-'louvain'
+#' mem<-calcMembership(karate,alg = alg)
+#' remem<-calcReclusterMatrix(karate,mem,alg,10)
 calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
 
   if(is.matrix(mem)){
@@ -389,6 +419,8 @@ recluster <- function( GG, ALGN, CnMAX ){
 #' Result is stored as Nx3 matrix: first column is vertex ID, second column
 #' is a flag shownig was vertex clustered (vertex ID) or not (-1), and a third
 #' column is a membership value for clustered vertices or -1.
+#' 
+#' This is internal function and not supposed to be calle by end user.
 #'
 #' @param gg graph
 #' @param mask percentage of elements to perturbe
@@ -399,7 +431,12 @@ recluster <- function( GG, ALGN, CnMAX ){
 #'
 #' @return list of Nx3 matrices
 #'
+#' @noRd
 #' @examples
+#' data(karate,package='igraphdata')
+#' alg<-'louvain'
+#' mem<-calcMembership(karate,alg = alg)
+#' smpl<-AnNet:::sampleGraphClust(karate,mask=10,alg,type=2)
 sampleGraphClust<-function(gg,mask=20,alg,type,reclust=FALSE){
   IDS <- V(gg)$name;
   ids <- V(gg)$name;

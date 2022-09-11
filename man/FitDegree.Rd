@@ -8,7 +8,6 @@ FitDegree(
   DEG,
   Nsim = 100,
   plot = FALSE,
-  dir = ".",
   DATAleg = "Fit power-law",
   threads = 4,
   WIDTH = 480,
@@ -19,21 +18,34 @@ FitDegree(
 \arguments{
 \item{DEG}{degree distribution}
 
+\item{Nsim}{number of bootstrap iterations}
+
+\item{plot}{logical, do you want plot to be drawn}
+
+\item{DATAleg}{legend string for degree data}
+
+\item{threads}{number of parallel computational threads}
+
+\item{WIDTH}{width of the plot in ptx}
+
+\item{HEIGHT}{heigth of the plot in ptx}
+
 \item{legpos}{position of the legend @seealso{legend}}
+}
+\value{
+an object of class \code{\link{law}} with results of fitting
 }
 \description{
 Fit Power Law to degree distribution.
 }
 \examples{
 ##No: of bootstrap iterations
-bootStrap <- 100
+nsim <- 100
 
 ##Legend Titles
 Legend <- "Presynaptic PPI"
 
-dir<-'.'
-
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 gg <- igraph::read.graph(file,format="gml")
-pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1)
+pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1,Nsim=nsim)
 }

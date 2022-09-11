@@ -215,10 +215,12 @@ prepareGDA<-function(gg,name){
 #' Calculate each diease-pair overlap
 #'
 #' Calculate each diease-pair overlap/seperation on a selected
-#' synaptic PPI network models, based on analysis described in:
-#' Menche, J. et al. Uncovering disease-disease relationships through the 
-#' incomplete interactome.
-#' Science, 347, (6224):1257601 (2015).
+#' synaptic PPI network models, based on analysis described in 
+#' Menche et al. 2005
+#' 
+#' @references Menche, J. et al. Uncovering disease-disease relationships 
+#'             through the incomplete interactome. 
+#'             Science, 347, (6224):1257601 (2015).
 #'
 #'
 #' @param gg interactome network as igraph object

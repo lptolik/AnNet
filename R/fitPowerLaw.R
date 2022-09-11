@@ -14,7 +14,15 @@ HEIGHT=480
 ##set igraph as S4
 setClass("poweRlaw")
 
-## Gene Set Analysis (GSA) object
+#' Result of PawerLaw fit
+#'
+#' @slot fit \code{\link[poweRlaw]{displ-class}} result of power law fit. 
+#' @slot p numeric. 
+#' @slot alpha numeric degree of power-law. 
+#' @slot SDxmin numeric bootstrap sd of Xmin. 
+#' @slot SDalpha numeric bootstrap sd of alpha. 
+#'
+#' @export
 setClass(Class="law",representation(
   fit="displ",
   p="numeric",
@@ -57,33 +65,30 @@ changeSciNot <- function(n) {
 #' Fit Power Law to degree distribution.
 #'
 #' @param DEG degree distribution
-#' @param Nsim
-#' @param DATAleg
-#' @param WIDTH
-#' @param HEIGHT
-#' @param plot
-#' @param dir
-#' @param threads
+#' @param Nsim number of bootstrap iterations
+#' @param DATAleg legend string for degree data
+#' @param WIDTH width of the plot in ptx
+#' @param HEIGHT heigth of the plot in ptx
+#' @param plot logical, do you want plot to be drawn
+#' @param threads number of parallel computational threads
 #' @param legpos position of the legend @seealso{legend}
 #'
-#' @return
+#' @return an object of class \code{\link{law}} with results of fitting
 #' @export
 #' @import poweRlaw latex2exp methods grid scales
 #' @importFrom stringr str_sub
 #'
 #' @examples
 #' ##No: of bootstrap iterations
-#' bootStrap <- 100
+#' nsim <- 100
 #'
 #' ##Legend Titles
 #' Legend <- "Presynaptic PPI"
 #'
-#' dir<-'.'
-#'
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 #' gg <- igraph::read.graph(file,format="gml")
-#' pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1)
-FitDegree <- function(DEG,Nsim=100,  plot=FALSE, dir='.',
+#' pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1,Nsim=nsim)
+FitDegree <- function(DEG,Nsim=100,  plot=FALSE,
                       DATAleg='Fit power-law', threads=4,
                       WIDTH=480, HEIGHT=480 ,legpos="bottomleft"){
   DEG <- DEG[DEG > 0]
