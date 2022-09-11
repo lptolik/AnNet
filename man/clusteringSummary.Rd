@@ -18,5 +18,23 @@ clusteringSummary(
 matrix of clustering characteristics
 }
 \description{
-Matrix of cluster characteristics
+Function calculates statistics of clustering membership:
+\itemize{
+\item mod -- clustering modularity \code{\link[igraph]{modularity}}
+\item C -- number of clusters
+\item Cn1 -- number of singletones (clusters of size 1)
+\item Cn100 -- number of clusters containing more than 100 nodes
+\item mu -- fraction of intercluster edges
+\item Min. C -- minimum of the cluster size
+\item 1st Qu. C -- first quartile of the cluster size
+\item Median C -- median of the cluster size
+\item Mean C -- average cluster size
+\item 3rd Qu. C  -- third quartile of the cluster size
+\item Max. C -- maximum of the cluster size
+}
+}
+\examples{
+data(karate,package='igraphdata')
+g<-calcAllClustering(karate)
+clusteringSummary(g)
 }

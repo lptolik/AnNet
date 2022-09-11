@@ -198,7 +198,7 @@ buildNetwork<-function(ff,kw=NA){
   gg <- addEdgeAtts(GG,gg)
 }
 
-#' Utility function to create network from \code{\link{synaptome.db}} data
+#' Utility function to create network from \code{\link[synaptome.db]{synaptome.db}} data
 #' 
 #' 
 #'

@@ -10,8 +10,22 @@ calcMembership(
 )
 }
 \arguments{
-\item{alg}{}
+\item{gg}{igraph object to cluster}
+
+\item{alg}{algorithm name}
+}
+\value{
+data.frame with columns \code{names} and \code{membership}
 }
 \description{
-Calculate cluster memberships for the graph.
+Calculate clustering membership for ten algoritms defined in
+\code{\link{getClustering}}
+}
+\examples{
+data(karate,package='igraphdata')
+m<-calcMembership(karate,'lec')
+head(m)
+}
+\seealso{
+getClustering
 }
