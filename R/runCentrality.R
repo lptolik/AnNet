@@ -358,13 +358,21 @@ getPA<-function(gg,...){
   return(g)
 }
 
-#' Convert centrality matrix into
+#' Convert centrality matrix into ECDF 
 #'
-#' @param m
+#' @param m centrality matrix from \code{\link{getCentralityMatrix}} invocation.
 #'
-#' @return
+#' @return list of sever ecdf objects, corresponding to values in 
+#' centrality matrix from \code{\link{getCentralityMatrix}} invocation.
 #'
+#' @seealso getCentralityMatrix
 #' @examples
+#' library(synaptome.db)
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' m<-getCentralityMatrix(gg)
+#' ecdfL<-getGraphCentralityECDF(m)
 getGraphCentralityECDF<-function(m){
   idx<-which(colnames(m)!='ID')
   l<-list()
@@ -384,8 +392,7 @@ getGraphCentralityECDF<-function(m){
 #' @param keepOrder if FALSE valuess will be sorted
 #'
 #' @return vector of length \code{dim(m)[1]}
-#'
-#' @examples
+#' @noRd
 getCM<-function(m,nm,keepOrder){
   v<-as.numeric(m[,which(colnames(m)==nm)])
   if(keepOrder){
@@ -397,13 +404,30 @@ getCM<-function(m,nm,keepOrder){
 
 #' Function calculates matrix of distances between elements of list
 #'
-#' @param l
+#' @param l list of matrices, for example centrality obtained by invocation 
+#'         \code{\link{getRandomGraphCentrality}}
 #' @param keepOrder if FALSE valuess will be sorted
-#' @param dist methods available from dist function
+#' @param dist methods available from \code{\link{dist}} function
 #'
-#' @return
+#' @return matrix with seven columns containing distances between all pairs of
+#'         \code{l} elements.
 #'
+#' @seealso getRandomGraphCentrality
+#' @seealso getCentralityMatrix
 #' @examples
+#' \donttest{
+#' library(synaptome.db)
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' m<-getCentralityMatrix(gg)
+#' pa<-list()
+#' for(i in 1:10){
+#'     pa[[i]]<-getRandomGraphCentrality(gg,type = 'pa')
+#' }
+#' paIDist<-calcCentralityInternalDistances(pa)
+#' summary(paIDist)
+#' }
 calcCentralityInternalDistances<-function(l,keepOrder=FALSE,dist='euclidean'){
   CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
   resl<-list()
@@ -421,14 +445,32 @@ calcCentralityInternalDistances<-function(l,keepOrder=FALSE,dist='euclidean'){
 #' Function calculates matrix of distances between elements of list and
 #' the reference matrix
 #'
-#' @param m reference matrix
-#' @param l list of permuted matrix
+#' @param m reference matrix, for example centrality obtained by invocation 
+#'         \code{\link{getCentralityMatrix}}
+#' @param l list of permuted matrix, for example centrality obtained by invocation 
+#'         \code{\link{getRandomGraphCentrality}}
 #' @param keepOrder if FALSE valuess will be sorted
 #' @param dist methods available from dist function
 #'
-#' @return
+#' @return matrix with seven columns  containing distances between each element
+#'         of \code{l} and reference matrix \code{m}
 #'
+#' @seealso getRandomGraphCentrality
+#' @seealso getCentralityMatrix
 #' @examples
+#' \donttest{
+#' library(synaptome.db)
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' m<-getCentralityMatrix(gg)
+#' pa<-list()
+#' for(i in 1:10){
+#'     pa[[i]]<-getRandomGraphCentrality(gg,type = 'pa')
+#' }
+#' paIDist<-calcCentralityExternalDistances(m,pa)
+#' summary(paIDist)
+#' } 
 calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
   CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
   resl<-list()

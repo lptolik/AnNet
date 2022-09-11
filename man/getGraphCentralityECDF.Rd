@@ -2,13 +2,28 @@
 % Please edit documentation in R/runCentrality.R
 \name{getGraphCentralityECDF}
 \alias{getGraphCentralityECDF}
-\title{Convert centrality matrix into}
+\title{Convert centrality matrix into ECDF}
 \usage{
 getGraphCentralityECDF(m)
 }
 \arguments{
-\item{m}{}
+\item{m}{centrality matrix from \code{\link{getCentralityMatrix}} invocation.}
+}
+\value{
+list of sever ecdf objects, corresponding to values in
+centrality matrix from \code{\link{getCentralityMatrix}} invocation.
 }
 \description{
-Convert centrality matrix into
+Convert centrality matrix into ECDF
+}
+\examples{
+library(synaptome.db)
+cid<-match('Presynaptic',getCompartments()$Name)
+t<-getAllGenes4Compartment(cid)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+m<-getCentralityMatrix(gg)
+ecdfL<-getGraphCentralityECDF(m)
+}
+\seealso{
+getCentralityMatrix
 }

@@ -8,15 +8,41 @@ the reference matrix}
 calcCentralityExternalDistances(m, l, keepOrder = FALSE, dist = "euclidean")
 }
 \arguments{
-\item{m}{reference matrix}
+\item{m}{reference matrix, for example centrality obtained by invocation
+\code{\link{getCentralityMatrix}}}
 
-\item{l}{list of permuted matrix}
+\item{l}{list of permuted matrix, for example centrality obtained by invocation
+\code{\link{getRandomGraphCentrality}}}
 
 \item{keepOrder}{if FALSE valuess will be sorted}
 
 \item{dist}{methods available from dist function}
 }
+\value{
+matrix with seven columns  containing distances between each element
+of \code{l} and reference matrix \code{m}
+}
 \description{
 Function calculates matrix of distances between elements of list and
 the reference matrix
+}
+\examples{
+\donttest{
+library(synaptome.db)
+cid<-match('Presynaptic',getCompartments()$Name)
+t<-getAllGenes4Compartment(cid)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+m<-getCentralityMatrix(gg)
+pa<-list()
+for(i in 1:10){
+    pa[[i]]<-getRandomGraphCentrality(gg,type = 'pa')
+}
+paIDist<-calcCentralityExternalDistances(m,pa)
+summary(paIDist)
+} 
+}
+\seealso{
+getRandomGraphCentrality
+
+getCentralityMatrix
 }

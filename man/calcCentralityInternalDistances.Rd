@@ -7,10 +7,37 @@
 calcCentralityInternalDistances(l, keepOrder = FALSE, dist = "euclidean")
 }
 \arguments{
+\item{l}{list of matrices, for example centrality obtained by invocation
+\code{\link{getRandomGraphCentrality}}}
+
 \item{keepOrder}{if FALSE valuess will be sorted}
 
-\item{dist}{methods available from dist function}
+\item{dist}{methods available from \code{\link{dist}} function}
+}
+\value{
+matrix with seven columns containing distances between all pairs of
+\code{l} elements.
 }
 \description{
 Function calculates matrix of distances between elements of list
+}
+\examples{
+\donttest{
+library(synaptome.db)
+cid<-match('Presynaptic',getCompartments()$Name)
+t<-getAllGenes4Compartment(cid)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+m<-getCentralityMatrix(gg)
+pa<-list()
+for(i in 1:10){
+    pa[[i]]<-getRandomGraphCentrality(gg,type = 'pa')
+}
+paIDist<-calcCentralityInternalDistances(pa)
+summary(paIDist)
+}
+}
+\seealso{
+getRandomGraphCentrality
+
+getCentralityMatrix
 }
