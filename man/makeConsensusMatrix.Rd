@@ -4,16 +4,7 @@
 \alias{makeConsensusMatrix}
 \title{Function to build consensus matrix in memory}
 \usage{
-makeConsensusMatrix(
-  gg,
-  N = 500,
-  mask = 20,
-  alg,
-  type,
-  reclust = FALSE,
-  Cnmin = -1,
-  Cnmax = 10
-)
+makeConsensusMatrix(gg, N = 500, mask = 20, alg, type, reclust = FALSE)
 }
 \arguments{
 \item{gg}{graph to perturb}
@@ -26,22 +17,26 @@ makeConsensusMatrix(
 
 \item{type}{edges=>1 or nodes=>2  to mask}
 
-\item{reclust}{logical to decide wether to invoke reclustering}
-
-\item{Cnmin}{Cn min for Spectral algorithm}
-
-\item{Cnmax}{Cn max for reclustering algorithms}
+\item{reclust}{logical to decide wether to invoke reclustering via
+\code{\link{recluster}}}
 }
 \value{
 consensus matrix of Nvert X Nvert
 }
 \description{
-Function to build consensus matrix in memory
+For assessing the robustness of the clustering randomization study could be
+performed, which applies the same clustering algorithm to N perturbed
+networks and returns the consensus matrix where each pair of nodes will be
+assigned the probability to belong to the same cluster. Network is perturbed
+by deleting \code{mask} percent of edges (\code{type=1}) or nodes
+(\code{type=2}) from network before clustering.
 }
 \examples{
+\donttest{
 data(karate,package='igraphdata')
 alg<-'louvain'
 gg<-calcClustering(karate,alg = alg)
 conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
 dim(conmat)
+}
 }

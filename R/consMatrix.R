@@ -3,12 +3,13 @@
 ## clustering algorithm
 #' Build consensus matrix from set of files.
 #'
-#' @param Dir
-#' @param file.name
-#' @param skip
-#' @param sep
+#' @param Dir folder name
+#' @param file.name file name pattern
+#' @param skip number of lines to skip
+#' @param sep column separator
+#' @noRd
 #'
-#' @return
+#' @return consensus matrix
 buildConsensusMatFromFiles <- function(Dir,file.name,skip=1,sep="\t"){
 
   subdirs  = list.files(path=Dir,pattern=file.name);
@@ -117,34 +118,41 @@ matrixDiv <- function(x,y){
 }
 
 #' Function to build consensus matrix in memory
+#' 
+#' For assessing the robustness of the clustering randomization study could be 
+#' performed, which applies the same clustering algorithm to N perturbed 
+#' networks and returns the consensus matrix where each pair of nodes will be 
+#' assigned the probability to belong to the same cluster. Network is perturbed
+#' by deleting \code{mask} percent of edges (\code{type=1}) or nodes 
+#' (\code{type=2}) from network before clustering.
+#' 
 #'
 #' @param gg graph to perturb
 #' @param N number of perturbation steps
 #' @param mask percentage of elements to perturbe
 #' @param alg clustering alg.
 #' @param type edges=>1 or nodes=>2  to mask
-#' @param reclust logical to decide wether to invoke reclustering
-#' @param Cnmin Cn min for Spectral algorithm
-#' @param Cnmax Cn max for reclustering algorithms
+#' @param reclust logical to decide wether to invoke reclustering via 
+#'        \code{\link{recluster}}
 #'
 #' @return consensus matrix of Nvert X Nvert
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' data(karate,package='igraphdata')
 #' alg<-'louvain'
 #' gg<-calcClustering(karate,alg = alg)
 #' conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
 #' dim(conmat)
+#' }
 makeConsensusMatrix<-function(gg,N=500,mask=20,alg,type,
-                              reclust=FALSE,Cnmin=-1,Cnmax=10){
+                              reclust=FALSE){
   lcc<-lapply(1:N, function(.x)sampleGraphClust(gg=gg,
                                             mask=mask,
                                             alg=alg,
                                             type=type,
-                                            reclust=reclust,
-                                            Cnmin=Cnmin,
-                                            Cnmax=Cnmax))
+                                            reclust=reclust))
   mm<-buildConsensusMatrix(lcc)
   colnames(mm)<-V(gg)$name
   rownames(mm)<-V(gg)$name
