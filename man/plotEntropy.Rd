@@ -7,8 +7,28 @@
 plotEntropy(SRprime, subTIT = "Entropy", SRo = NULL, maxSr = NULL)
 }
 \arguments{
-\item{maxSr}{}
+\item{SRprime}{results of \code{\link{getEntropy}} invocation}
+
+\item{subTIT}{entropy axis label}
+
+\item{SRo}{second element of results of
+\code{\link{getEntropyRate}} invocation}
+
+\item{maxSr}{first element of results of
+\code{\link{getEntropyRate}} invocation}
+}
+\value{
+ggplot2 object with diagram
 }
 \description{
 Plot entropy values
+}
+\examples{
+cid<-match('Presynaptic',getCompartments()$Name)
+t<-getAllGenes4Compartment(cid)
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+gg<-annotateGeneNames(gg)
+ent <- getEntropyRate(gg)
+SRprime <- getEntropy(gg, maxSr = NULL)
+plotEntropy(SRprime, subTIT = "Entropy", SRo = ent$SRo, maxSr = ent$maxSr)
 }

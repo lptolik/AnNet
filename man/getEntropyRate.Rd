@@ -15,3 +15,7 @@ list with values of maxSr and SRo
 \description{
 Calculate parameters for Entropy plot and calculations.
 }
+\examples{
+data(karate,package='igraphdata')
+ent <- getEntropyRate(karate)
+}

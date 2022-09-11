@@ -16,6 +16,9 @@ Two columns are expected: \code{xx} and \code{lambda}. If NULL default values
 \code{c(2,14)} and \code{c(-14,14)} will be used for \code{xx}
 and \code{lambda} respectively.}
 }
+\value{
+matrix with EntrexID, GeneNames, Degree, Enttropy UP and Down
+}
 \description{
 Calculates perturbation entropy
 }

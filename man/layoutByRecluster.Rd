@@ -9,9 +9,13 @@ layoutByRecluster(gg, remem, layout = layout_with_kk)
 \arguments{
 \item{gg}{graph to layout}
 
-\item{remem}{}
+\item{remem}{recluster result obtained by \code{\link{calcReclusterMatrix}}
+invocation}
 
-\item{layout}{}
+\item{layout}{one of the layout algoritms from \code{\link[igrap]{layout_}}}
+}
+\value{
+Layout in a form of 2D matrx.
 }
 \description{
 Takes results of recluster and apply \code{layoutByCluster} to each

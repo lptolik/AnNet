@@ -26,6 +26,8 @@ maxLSi <- function( XX, BASE=0 ){
 #' @import RSpectra
 #'
 #' @examples
+#' data(karate,package='igraphdata')
+#' ent <- getEntropyRate(karate)
 getEntropyRate<-function(gg){
   V    <- length(V(gg))
   E    <- length(E(gg))
@@ -60,8 +62,6 @@ getEntropyRate<-function(gg){
 
 #' Calculates perturbation entropy and save it as attribute on the graph.
 #'
-#'
-#'
 #' @param gg igraph object
 #' @param maxSr maxSr value, if NULL \code{getEntropyRate} will be called.
 #' @param exVal expression values boundaries.
@@ -86,6 +86,7 @@ calcEntropy<-function(gg,maxSr=NULL,exVal=NULL){
   gg<-applpMatrixToGraph(gg,SRprime)
   return(gg)
 }
+
 #' Calculates perturbation entropy
 #'
 #' @param gg igraph object
@@ -95,7 +96,7 @@ calcEntropy<-function(gg,maxSr=NULL,exVal=NULL){
 #' \code{c(2,14)} and \code{c(-14,14)} will be used for \code{xx}
 #' and \code{lambda} respectively.
 #'
-#' @return
+#' @return matrix with EntrexID, GeneNames, Degree, Enttropy UP and Down
 #' @export
 #'
 #' @examples
@@ -272,16 +273,25 @@ getEntropyOverExpressed<-function(SRprime,perc=1){
 
 #' Plot entropy values
 #'
-#' @param SRprime
-#' @param subTIT
-#' @param SRo
-#' @param maxSr
+#' @param SRprime results of \code{\link{getEntropy}} invocation
+#' @param subTIT entropy axis label
+#' @param maxSr first element of results of 
+#'            \code{\link{getEntropyRate}} invocation
+#' @param SRo second element of results of 
+#'            \code{\link{getEntropyRate}} invocation
 #'
-#' @return
+#' @return ggplot2 object with diagram
 #' @export
 #' @import ggplot2
 #'
 #' @examples
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-annotateGeneNames(gg)
+#' ent <- getEntropyRate(gg)
+#' SRprime <- getEntropy(gg, maxSr = NULL)
+#' plotEntropy(SRprime, subTIT = "Entropy", SRo = ent$SRo, maxSr = ent$maxSr)
 plotEntropy<-function(SRprime,subTIT='Entropy',SRo=NULL,maxSr=NULL){
   colours <- c('lawngreen','firebrick2')
 
