@@ -23,6 +23,16 @@ applied, \code{random} -- annotation is randomly shuffled,
 \code{binned} -- annotation is shuffled in a way to preserve node
 degree-annotation relationship by \code{\link{degree.binned.GDAs}}.}
 }
+\value{
+list with three matrices:
+\itemize{
+\item disease_separation -- Ndisease X Ndisease matrix of separations
+\item gene_disease_separation -- Ngenes X Ndisease+2 matrix of gene-disease
+separation
+\item disease_localisation -- matrix with diseases in rows and number of genes
+(N), average and standard deviation of gene-disease separation in columns
+}
+}
 \description{
 Calculate each diease-pair overlap/seperation on a selected
 synaptic PPI network models, based on analysis described in:

@@ -229,11 +229,17 @@ prepareGDA<-function(gg,name){
 #'        \code{binned} -- annotation is shuffled in a way to preserve node
 #'        degree-annotation relationship by \code{\link{degree.binned.GDAs}}.
 #'
-#' @return
+#' @return list with three matrices: 
+#' * disease_separation -- Ndisease X Ndisease matrix of separations
+#' * gene_disease_separation -- Ngenes X Ndisease+2 matrix of gene-disease 
+#' separation
+#' * disease_localisation -- matrix with diseases in rows and number of genes
+#' (N), average and standard deviation of gene-disease separation in columns
 #' @export
 #'
 #' @seealso degree.binned.GDAs
 #' @seealso sample.deg.binned.GDA
+#' @md
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 #' gg <- igraph::read.graph(file,format="gml")
@@ -349,6 +355,19 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 
 #' Calculate disease-disease pair overlaps on permuted network to estimate
 #' its statistical significance
+#' 
+#' Function calculates disease overlap characteristics on the intact network 
+#' and then apply \code{Nperm} permutations of \code{permute} type. From 
+#' permuted networks function estimates significance of disease overlap and
+#' store p-value, Bonferoni-adjusted p-value and q-value in the 
+#' \code{Disease_overlap_sig}. 
+#' Function also compares average disease separation of intact and 
+#' permuted network and calculate p-value with Wilcox test and store it in
+#' \code{Disease_location_sig}.
+#' 
+#' 
+#' Run with care, as large number of permutations could require a lot of 
+#' memory and be timeconsuming. 
 #'
 #' @param gg interactome network as igraph object
 #' @param name name of the attribute that stores disease annotation
@@ -359,7 +378,9 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 #'        degree-annotation relationship by \code{\link{degree.binned.GDAs}}.
 #' @param alpha statistical significance levels
 #'
-#' @return 
+#' @return list of two matrices: \code{Disease_overlap_sig} gives statistics for
+#' each pair of disease, and \code{Disease_location_sig} gives intra-disease
+#' statistics
 #' @export
 #'
 #' @examples

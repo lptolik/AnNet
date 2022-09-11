@@ -29,9 +29,24 @@ degree-annotation relationship by \code{\link{degree.binned.GDAs}}.}
 
 \item{alpha}{statistical significance levels}
 }
+\value{
+list of two matrices: \code{Disease_overlap_sig} gives statistics for
+each pair of disease, and \code{Disease_location_sig} gives intra-disease
+statistics
+}
 \description{
-Calculate disease-disease pair overlaps on permuted network to estimate
-its statistical significance
+Function calculates disease overlap characteristics on the intact network
+and then apply \code{Nperm} permutations of \code{permute} type. From
+permuted networks function estimates significance of disease overlap and
+store p-value, Bonferoni-adjusted p-value and q-value in the
+\code{Disease_overlap_sig}.
+Function also compares average disease separation of intact and
+permuted network and calculate p-value with Wilcox test and store it in
+\code{Disease_location_sig}.
+}
+\details{
+Run with care, as large number of permutations could require a lot of
+memory and be timeconsuming.
 }
 \examples{
 \donttest{
