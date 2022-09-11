@@ -383,20 +383,24 @@ recluster <- function( GG, ALGN, CnMAX ){
 #Cnmax <- as.numeric(args[5]) #Cn max for reclustering algorithms
 
 #' Perturbe graph and calculate its clustering
+#' 
+#' Function delete \code{mask} percent of edges (\code{type=1}) or nodes 
+#' (\code{type=2}) from network find largest connected component and cluster it.
+#' Result is stored as Nx3 matrix: first column is vertex ID, second column
+#' is a flag shownig was vertex clustered (vertex ID) or not (-1), and a third
+#' column is a membership value for clustered vertices or -1.
 #'
 #' @param gg graph
 #' @param mask percentage of elements to perturbe
 #' @param alg clustering alg.
 #' @param type edges=>1 or nodes=>2  to mask
-#' @param reclust logical to decide wether to invoke reclustering
-#' @param Cnmin Cn min for Spectral algorithm
-#' @param Cnmax Cn max for reclustering algorithms
+#' @param reclust logical to decide wether to invoke reclustering via 
+#'        \code{\link{recluster}}
 #'
-#' @return
-#' @export
+#' @return list of Nx3 matrices
 #'
 #' @examples
-sampleGraphClust<-function(gg,mask=20,alg,type,reclust=FALSE,Cnmin=-1,Cnmax=10){
+sampleGraphClust<-function(gg,mask=20,alg,type,reclust=FALSE){
   IDS <- V(gg)$name;
   ids <- V(gg)$name;
 
@@ -427,17 +431,6 @@ sampleGraphClust<-function(gg,mask=20,alg,type,reclust=FALSE,Cnmin=-1,Cnmax=10){
   cc[,2]   <- ifelse(cc[,1] %in% V(ggLCC)$name,cc[,1],-1)
 
 
-  if( Cnmin > 0 ){
-    Cnmin = floor( (Cnmin*length(V(ggLCC)))/100 )
-  } else {
-    Cnmin = 1;
-  }
-  if( Cnmax > 0 ){
-    Cnmax = floor( (Cnmax*length(V(ggLCC)))/100 )
-  } else {
-    #---default is 10% of network size
-    Cnmax = floor( (10*length(V(ggLCC)))/100 )
-  }
   cl<-getClustering(ggLCC,alg)
   if(reclust){
     ggLCC = igraph::set.vertex.attribute(ggLCC,alg,V(ggLCC),cl$membership)
@@ -447,10 +440,8 @@ sampleGraphClust<-function(gg,mask=20,alg,type,reclust=FALSE,Cnmin=-1,Cnmax=10){
     if( !is.null(oo) ){
       cc[,3]   <- ifelse(cc[,2] %in% oo[,1],oo[,4],-1)
     }
-
-
   }else{
-  cc[,3]   <- ifelse(cc[,2] %in% cl$names,cl$membership,-1)
+      cc[,3]   <- ifelse(cc[,2] %in% cl$names,cl$membership,-1)
   }
   return(cc)
 }

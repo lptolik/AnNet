@@ -4,15 +4,7 @@
 \alias{sampleGraphClust}
 \title{Perturbe graph and calculate its clustering}
 \usage{
-sampleGraphClust(
-  gg,
-  mask = 20,
-  alg,
-  type,
-  reclust = FALSE,
-  Cnmin = -1,
-  Cnmax = 10
-)
+sampleGraphClust(gg, mask = 20, alg, type, reclust = FALSE)
 }
 \arguments{
 \item{gg}{graph}
@@ -23,12 +15,16 @@ sampleGraphClust(
 
 \item{type}{edges=>1 or nodes=>2  to mask}
 
-\item{reclust}{logical to decide wether to invoke reclustering}
-
-\item{Cnmin}{Cn min for Spectral algorithm}
-
-\item{Cnmax}{Cn max for reclustering algorithms}
+\item{reclust}{logical to decide wether to invoke reclustering via
+\code{\link{recluster}}}
+}
+\value{
+list of Nx3 matrices
 }
 \description{
-Perturbe graph and calculate its clustering
+Function delete \code{mask} percent of edges (\code{type=1}) or nodes
+(\code{type=2}) from network find largest connected component and cluster it.
+Result is stored as Nx3 matrix: first column is vertex ID, second column
+is a flag shownig was vertex clustered (vertex ID) or not (-1), and a third
+column is a membership value for clustered vertices or -1.
 }
