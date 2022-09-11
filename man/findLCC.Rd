@@ -2,16 +2,21 @@
 % Please edit documentation in R/buildNetwork.R
 \name{findLCC}
 \alias{findLCC}
-\title{Find Largest CC}
+\title{Find Largest Conneced Component of the graph}
 \usage{
 findLCC(GG)
 }
 \arguments{
-\item{GG}{graph to analyze}
+\item{GG}{igraph object to analyze}
 }
 \value{
 igraph representation largest CC
 }
 \description{
-Find Largest CC
+Find Largest Conneced Component of the graph
+}
+\examples{
+g1 <- make_star(10, mode="undirected") \%du\% make_ring(7) \%du\% make_ring(5)
+lcc<-findLCC(g1)
+summary(lcc)
 }

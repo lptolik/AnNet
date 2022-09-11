@@ -2,12 +2,18 @@
 % Please edit documentation in R/buildNetwork.R
 \name{buildFromSynaptomeByEntrez}
 \alias{buildFromSynaptomeByEntrez}
-\title{Title}
+\title{Utility function to create network from \link{\code{synaptome.db}} data}
 \usage{
 buildFromSynaptomeByEntrez(entrez)
 }
+\arguments{
+\item{entrez}{vector of EntrezIDs for network vertices}
+}
+\value{
+largest connected component of network defined by the gene list
+}
 \description{
-Title
+Utility function to create network from \link{\code{synaptome.db}} data
 }
 \examples{
 cid<-match('Presynaptic',getCompartments()$Name)

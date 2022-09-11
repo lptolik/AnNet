@@ -2,13 +2,25 @@
 % Please edit documentation in R/buildNetwork.R
 \name{addEdgeAtts}
 \alias{addEdgeAtts}
-\title{Title}
+\title{Copy edge attributes from one graph to another}
 \usage{
 addEdgeAtts(GG, gg)
 }
 \arguments{
-\item{gg}{}
+\item{GG}{igraph object, source of attributes}
+
+\item{gg}{igraph object, attributes recipient}
+}
+\value{
+annotated version of \code{gg} igraph object
 }
 \description{
-Title
+Copy edge attributes from one graph to another
+}
+\examples{
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+GG <- igraph::read.graph(file,format="gml")
+gg<-findLCC(GG)
+gg <- addEdgeAtts(GG,gg)
+edge_attr_names(gg)
 }

@@ -13,7 +13,8 @@ calcSparsness(gg)
 sparsness value
 }
 \description{
-Calculate sparsness of the graph.
+Sparsness is defined as ratio of graph edge numbers to the edge numbers of
+the full graph of the same size.
 }
 \examples{
 cid<-match('Presynaptic',getCompartments()$Name)

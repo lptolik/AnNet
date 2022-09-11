@@ -12,6 +12,9 @@ vector of disease abbreviations for synaptic PPI analysis.
 \description{
 Return vector of disease abbreviations for synaptic PPI analysis.
 }
+\examples{
+getDType()
+}
 \seealso{
 getDiseases
 }

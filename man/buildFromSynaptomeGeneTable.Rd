@@ -2,15 +2,18 @@
 % Please edit documentation in R/buildNetwork.R
 \name{buildFromSynaptomeGeneTable}
 \alias{buildFromSynaptomeGeneTable}
-\title{Title}
+\title{Utility function to create network from \link{\code{synaptome.db}} data}
 \usage{
 buildFromSynaptomeGeneTable(t)
 }
 \arguments{
-\item{t}{}
+\item{t}{data.frame described in \link{\code{synaptome.db::getGenesByID}}}
+}
+\value{
+largest connected component of network defined by the gene table
 }
 \description{
-Title
+Utility function to create network from \link{\code{synaptome.db}} data
 }
 \examples{
 cid<-match('Presynaptic',getCompartments()$Name)

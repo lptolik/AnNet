@@ -17,9 +17,13 @@ no annotation will be added}
 igraph object of the largest connected component
 }
 \description{
-Build network from data.table
+It is a wrapper for \link{\code{graph.data.frame}} that always return
+allow annotate edges largest connected component of the network defined
+by \code{ff}. It is also allows annotation of edges
+with PubMed data, if exists.
 }
 \examples{
-f<-data.frame(A=c('A','A','B'),B=c('B','C','C'))
+f<-data.frame(A=c('A','A','B','D'),B=c('B','C','C','E'))
 gg<-buildNetwork(f)
+V(gg)$name
 }

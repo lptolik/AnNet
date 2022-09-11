@@ -1,13 +1,16 @@
 #---Find Largest CC
-#' Find Largest CC
+#' Find Largest Conneced Component of the graph
 #'
-#' @param GG graph to analyze
+#' @param GG igraph object to analyze
 #'
 #' @return igraph representation largest CC
 #' @export
 #' @import igraph
 #'
 #' @examples
+#' g1 <- make_star(10, mode="undirected") %du% make_ring(7) %du% make_ring(5)
+#' lcc<-findLCC(g1)
+#' summary(lcc)
 findLCC <- function(GG){
 
   dec <- decompose.graph(GG)
@@ -25,15 +28,13 @@ findLCC <- function(GG){
 
 }
 
-#' Title
+#' Find term in the Annotation List
 #'
-#' @param eatt
-#' @param TERMS
+#' @param eatt annotation list
+#' @param TERMS vector of terms
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return logical vector
+#' @noRd
 findTERM <- function(eatt, TERMS){
 
   eatt  <- as.vector(eatt)
@@ -84,16 +85,22 @@ findTERM <- function(eatt, TERMS){
 #
 # }
 #
+
 #--- add attributes to igraph edges from it raw file
-#' Title
+#' Copy edge attributes from one graph to another
 #'
-#' @param GG
-#' @param gg
+#' @param GG igraph object, source of attributes
+#' @param gg igraph object, attributes recipient
 #'
-#' @return
+#' @return annotated version of \code{gg} igraph object
 #' @export
 #'
 #' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' GG <- igraph::read.graph(file,format="gml")
+#' gg<-findLCC(GG)
+#' gg <- addEdgeAtts(GG,gg)
+#' edge_attr_names(gg)
 addEdgeAtts <- function(GG, gg){
 
   ATTS = names(edge.attributes(GG))
@@ -148,6 +155,11 @@ addEdgeAtts <- function(GG, gg){
 }
 
 #' Build network from data.table
+#' 
+#' It is a wrapper for \link{\code{graph.data.frame}} that always return 
+#' allow annotate edges largest connected component of the network defined
+#' by \code{ff}. It is also allows annotation of edges 
+#' with PubMed data, if exists.
 #'
 #' @param ff network structure data.frame with first two columns defining the
 #' network edge nodes
@@ -159,8 +171,9 @@ addEdgeAtts <- function(GG, gg){
 #' @import igraph
 #'
 #' @examples
-#' f<-data.frame(A=c('A','A','B'),B=c('B','C','C'))
+#' f<-data.frame(A=c('A','A','B','D'),B=c('B','C','C','E'))
 #' gg<-buildNetwork(f)
+#' V(gg)$name
 buildNetwork<-function(ff,kw=NA){
   #--- build raw graph
   GG <- graph.data.frame(ff[,1:2],directed=F)
@@ -185,9 +198,13 @@ buildNetwork<-function(ff,kw=NA){
   gg <- addEdgeAtts(GG,gg)
 }
 
-#' Title
+#' Utility function to create network from \link{\code{synaptome.db}} data
+#' 
+#' 
 #'
-#' @return
+#' @param entrez vector of EntrezIDs for network vertices
+#'
+#' @return  largest connected component of network defined by the gene list 
 #' @export
 #' @import synaptome.db
 #'
@@ -201,11 +218,11 @@ buildFromSynaptomeByEntrez<-function(entrez){
   return(gg)
 }
 
-#' Title
+#' Utility function to create network from \link{\code{synaptome.db}} data
 #'
-#' @param t
+#' @param t data.frame described in \link{\code{synaptome.db::getGenesByID}}
 #'
-#' @return
+#' @return largest connected component of network defined by the gene table 
 #' @export
 #'
 #' @examples
@@ -221,6 +238,9 @@ buildFromSynaptomeGeneTable<-function(t){
 }
 
 #' Calculate sparsness of the graph.
+#' 
+#' Sparsness is defined as ratio of graph edge numbers to the edge numbers of
+#' the full graph of the same size.
 #'
 #' @param gg graph to evaluate
 #'
