@@ -1,13 +1,15 @@
 
 #' function to get the member robustness from the consensus matrices #BUG fixed 14/03/12 TIS
 #'
-#' @param x
-#' @param rm
+#' @param x consensus matrix
+#' @param rm reference matrix
 #'
-#' @return
+#' @return Returns a list of memroblist class objects, one for each cluster, 
+#' and the full membership robustness matrix as a memrobmatrix class object.
 #' @import clusterCons
-#'
-#' @examples
+#' 
+#' @noRd
+#' @seealso clusterCons::memrob
 memrob <- function(x,rm=data.frame()){
   if(is(x,'consmatrix')){
 		cmref <- x@rm
@@ -67,10 +69,20 @@ memrob <- function(x,rm=data.frame()){
 #' @param alg clustering algorithm
 #' @param conmat consensus matrix
 #'
-#' @return
+#' @return data.frame that for each cluster \code{C} shows its size \code{Cn},
+#' robustness \code{Crob} and robustness scaled to range [0,1] 
+#' \code{CrobScaled}.
 #' @export
 #'
 #' @examples
+#' \donttest{
+#' data(karate,package='igraphdata')
+#' alg<-'louvain'
+#' gg<-calcClustering(karate,alg = alg)
+#' conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
+#' clrob<-getRobustness(gg, alg = alg, conmat)
+#' clrob
+#' }
 getRobustness<-function(gg,alg,conmat){
 
   if(!alg%in%igraph::vertex_attr_names(gg)){
