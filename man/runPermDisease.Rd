@@ -2,19 +2,48 @@
 % Please edit documentation in R/diseasePairs.R
 \name{runPermDisease}
 \alias{runPermDisease}
-\title{Title}
+\title{Calculate disease-disease pair overlaps on permuted network to estimate
+its statistical significance}
 \usage{
 runPermDisease(
   gg,
   name,
   diseases = NULL,
   Nperm = 100,
+  permute = c("random", "binned"),
   alpha = c(0.05, 0.01, 0.001)
 )
 }
 \arguments{
-\item{Nperm}{}
+\item{gg}{interactome network as igraph object}
+
+\item{name}{name of the attribute that stores disease annotation}
+
+\item{diseases}{list of diseases to match}
+
+\item{Nperm}{number of permutations to apply}
+
+\item{permute}{type of permutations. \code{random} -- annotation is randomly shuffled,
+\code{binned} -- annotation is shuffled in a way to preserve node
+degree-annotation relationship by \code{\link{degree.binned.GDAs}}.}
+
+\item{alpha}{statistical significance levels}
 }
 \description{
-Title
+Calculate disease-disease pair overlaps on permuted network to estimate
+its statistical significance
+}
+\examples{
+\donttest{
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+gg <- igraph::read.graph(file,format="gml")
+agg<-annotateGeneNames(gg)
+r <- runPermDisease(
+gg,
+name = "TopOntoOVGHDOID",
+diseases = c("DOID:10652","DOID:3312","DOID:12849","DOID:1826"),
+Nperm = 10,
+alpha = c(0.05, 0.01, 0.001))
+r$Disease_location_sig
+}
 }

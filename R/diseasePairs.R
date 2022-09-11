@@ -1,4 +1,3 @@
-#' @export
 #' @import WGCNA
 qscore <- function(zz,FDR){
 
@@ -9,15 +8,19 @@ qscore <- function(zz,FDR){
   return(1)
 }
 
-#' Title
+#' Randomly shuffle annotations
 #'
-#' @param GNS
-#' @param N
+#' This function is a convinience wrapper to \code{\link[base]{sample}} with
+#' \code{replace= FALSE}
+#' 
+#' @param GNS annotation list to take data from
+#' @param N size of the sample
 #'
-#' @return
+#' @return random list of \code{GNS} values
 #' @export
 #'
 #' @examples
+#' permute(LETTERS,15)
 permute <- function(GNS, N){
 
   temp <- sample(GNS,N,replace=FALSE)
@@ -30,12 +33,14 @@ stars    <- c("*","**","***")
 
 #' Auxiliary function to replase NAs with zeros.
 #'
-#' @param x
+#' @param x matrix or vector to process
 #'
-#' @return
+#' @return matrix or vector with \code{NA}s replaced by zero. 
 #' @export
 #'
 #' @examples
+#' x<-matrix(NA,nrow = 3,ncol = 3)
+#' zeroNA(x)
 zeroNA<-function(x){
   x[is.na(x)]<-0
   return(x)
@@ -59,7 +64,6 @@ zeroNA<-function(x){
 # disA => name of disease A
 # disA => name of disease B
 # OO   => minimum shorest paths for each gda, and each disease
-#' @export
 diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 
   #disease A genes
@@ -96,7 +100,24 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 
 }
 
+#' Prepare mapping for degree-aware annotation shuffling.
+#' 
+#' @param gg graph to analyse
+#'
+#' @param GDA vertex annotations returned by \code{\link{prepareGDA}}
+#' @param dtype list of unique annotation terms to analyze
+#'
 #' @export
+#' @seealso prepareGDA
+#' @seealso getAnnotationList
+#' @seealso sample.deg.binned.GDA
+#' @examples 
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' agg<-annotateGeneNames(gg)
+#' m<-degree.binned.GDAs(gg,gda,getAnnotationList(gda))
+#' c(dim(m),vcount(gg),length(getAnnotationList(gda)))
+#' head(m)
 degree.binned.GDAs <- function(gg,GDA,dtype){
 
   deg  = degree(gg)
@@ -116,10 +137,26 @@ degree.binned.GDAs <- function(gg,GDA,dtype){
 
 }
 
+#' Perform degree-aware shuffling of the annotation.
+#' 
+#' @param org.map degree-annotation mapping returned by 
+#'        \code{\link{degree.binned.GDAs}}
+#' @param term annotation term to shuffle
+#'
+#' @return vertex IDs to assign \code{term} in shuffled annotation
+#'
 #' @export
-sample.deg.binned.GDA <- function(org.map,GDA){
+#' @seealso degree.binned.GDAs
+#' @examples 
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' agg<-annotateGeneNames(gg)
+#' diseases<-getAnnotationList(gda)
+#' m<-degree.binned.GDAs(gg,gda,diseases)
+#' sample.deg.binned.GDA(m,diseases[1])
+sample.deg.binned.GDA <- function(org.map,term){
 
-  gda.indx = match(GDA,colnames(org.map))
+  gda.indx = match(term,colnames(org.map))
 
   rnd.gene.set = NULL
 
@@ -143,21 +180,29 @@ sample.deg.binned.GDA <- function(org.map,GDA){
     }
   }
 
-  return(gdas=rnd.gene.set)
+  return(rnd.gene.set)
 
 }
 
 
-#' Get particular annotation from the graph and format it to the suitable
-#' form.
+#' Get particular annotation from the graph in the Vertex Annotation form
+#' and format it for further analysis.
 #'
-#' @param gg
-#' @param name
+#' @param gg igraph object to take annotation from
+#' @param name name of the vertex attribute that contains annotation. If graph
+#'        vertices has no such attribute error is thrown.
 #'
-#' @return
+#' @return escaped annotation in Vertex Annotation form 
 #' @export
-#'
+#' 
+#' @seealso getAnnotationVertexList
+#' @seealso escapeAnnotation
 #' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' agg<-annotateGeneNames(gg)
+#' gda<-prepareGDA(gg,'TopOntoOVGHDOID')
+#' head(gda)
 prepareGDA<-function(gg,name){
   if(!name%in%vertex_attr_names(gg)){
     stop("There is no attribute '",name,"' in the graph.\n")
@@ -167,17 +212,39 @@ prepareGDA<-function(gg,name){
   return(gda)
 }
 
-#' Title
+#' Calculate each diease-pair overlap
 #'
-#' @param gg
-#' @param name
-#' @param diseases
-#' @param permute
+#' Calculate each diease-pair overlap/seperation on a selected
+#' synaptic PPI network models, based on analysis described in:
+#' Menche, J. et al. Uncovering disease-disease relationships through the 
+#' incomplete interactome.
+#' Science, 347, (6224):1257601 (2015).
+#'
+#'
+#' @param gg interactome network as igraph object
+#' @param name name of the attribute that stores disease annotation
+#' @param diseases list of diseases to match
+#' @param permute type of permutations. \code{none} -- no permutation is 
+#'        applied, \code{random} -- annotation is randomly shuffled, 
+#'        \code{binned} -- annotation is shuffled in a way to preserve node
+#'        degree-annotation relationship by \code{\link{degree.binned.GDAs}}.
 #'
 #' @return
 #' @export
 #'
+#' @seealso degree.binned.GDAs
+#' @seealso sample.deg.binned.GDA
 #' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' agg<-annotateGeneNames(gg)
+#' p <- calcDiseasePairs(
+#' gg,
+#' name = "TopOntoOVGHDOID",
+#' diseases = c("DOID:10652","DOID:3312","DOID:12849"),
+#' permute = "n"
+#' )
+#' p$disease_separation
 calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binned')){
   permute<-match.arg(permute)
   gda<-prepareGDA(gg,name)
@@ -280,18 +347,38 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
   return(list(disease_separation=DAB,gene_disease_separation=oo,disease_localisation=res))
 }
 
-#' Title
+#' Calculate disease-disease pair overlaps on permuted network to estimate
+#' its statistical significance
 #'
-#' @param gg
-#' @param name
-#' @param diseases
-#' @param Nperm
+#' @param gg interactome network as igraph object
+#' @param name name of the attribute that stores disease annotation
+#' @param diseases list of diseases to match
+#' @param Nperm number of permutations to apply
+#' @param permute type of permutations. \code{random} -- annotation is randomly shuffled, 
+#'        \code{binned} -- annotation is shuffled in a way to preserve node
+#'        degree-annotation relationship by \code{\link{degree.binned.GDAs}}.
+#' @param alpha statistical significance levels
 #'
-#' @return
+#' @return 
 #' @export
 #'
 #' @examples
-runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,alpha=c(0.05,0.01,0.001)){
+#' \donttest{
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' agg<-annotateGeneNames(gg)
+#' r <- runPermDisease(
+#' gg,
+#' name = "TopOntoOVGHDOID",
+#' diseases = c("DOID:10652","DOID:3312","DOID:12849","DOID:1826"),
+#' Nperm = 10,
+#' alpha = c(0.05, 0.01, 0.001))
+#' r$Disease_location_sig
+#' }
+runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
+                         permute=c('random','binned'),
+                         alpha=c(0.05,0.01,0.001)){
+    permute<-match.arg(permute)
   mean0<-function(x){
     return(mean(zeroNA(x)))
   }

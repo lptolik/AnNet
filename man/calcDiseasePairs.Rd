@@ -2,7 +2,7 @@
 % Please edit documentation in R/diseasePairs.R
 \name{calcDiseasePairs}
 \alias{calcDiseasePairs}
-\title{Title}
+\title{Calculate each diease-pair overlap}
 \usage{
 calcDiseasePairs(
   gg,
@@ -12,8 +12,38 @@ calcDiseasePairs(
 )
 }
 \arguments{
-\item{permute}{}
+\item{gg}{interactome network as igraph object}
+
+\item{name}{name of the attribute that stores disease annotation}
+
+\item{diseases}{list of diseases to match}
+
+\item{permute}{type of permutations. \code{none} -- no permutation is
+applied, \code{random} -- annotation is randomly shuffled,
+\code{binned} -- annotation is shuffled in a way to preserve node
+degree-annotation relationship by \code{\link{degree.binned.GDAs}}.}
 }
 \description{
-Title
+Calculate each diease-pair overlap/seperation on a selected
+synaptic PPI network models, based on analysis described in:
+Menche, J. et al. Uncovering disease-disease relationships through the
+incomplete interactome.
+Science, 347, (6224):1257601 (2015).
+}
+\examples{
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+gg <- igraph::read.graph(file,format="gml")
+agg<-annotateGeneNames(gg)
+p <- calcDiseasePairs(
+gg,
+name = "TopOntoOVGHDOID",
+diseases = c("DOID:10652","DOID:3312","DOID:12849"),
+permute = "n"
+)
+p$disease_separation
+}
+\seealso{
+degree.binned.GDAs
+
+sample.deg.binned.GDA
 }

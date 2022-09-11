@@ -2,15 +2,33 @@
 % Please edit documentation in R/diseasePairs.R
 \name{prepareGDA}
 \alias{prepareGDA}
-\title{Get particular annotation from the graph and format it to the suitable
-form.}
+\title{Get particular annotation from the graph in the Vertex Annotation form
+and format it for further analysis.}
 \usage{
 prepareGDA(gg, name)
 }
 \arguments{
-\item{name}{}
+\item{gg}{igraph object to take annotation from}
+
+\item{name}{name of the vertex attribute that contains annotation. If graph
+vertices has no such attribute error is thrown.}
+}
+\value{
+escaped annotation in Vertex Annotation form
 }
 \description{
-Get particular annotation from the graph and format it to the suitable
-form.
+Get particular annotation from the graph in the Vertex Annotation form
+and format it for further analysis.
+}
+\examples{
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+gg <- igraph::read.graph(file,format="gml")
+agg<-annotateGeneNames(gg)
+gda<-prepareGDA(gg,'TopOntoOVGHDOID')
+head(gda)
+}
+\seealso{
+getAnnotationVertexList
+
+escapeAnnotation
 }

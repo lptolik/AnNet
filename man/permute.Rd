@@ -2,13 +2,22 @@
 % Please edit documentation in R/diseasePairs.R
 \name{permute}
 \alias{permute}
-\title{Title}
+\title{Randomly shuffle annotations}
 \usage{
 permute(GNS, N)
 }
 \arguments{
-\item{N}{}
+\item{GNS}{annotation list to take data from}
+
+\item{N}{size of the sample}
+}
+\value{
+random list of \code{GNS} values
 }
 \description{
-Title
+This function is a convinience wrapper to \code{\link[base]{sample}} with
+\code{replace= FALSE}
+}
+\examples{
+permute(LETTERS,15)
 }

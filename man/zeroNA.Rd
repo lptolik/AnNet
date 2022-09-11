@@ -7,8 +7,15 @@
 zeroNA(x)
 }
 \arguments{
-\item{x}{}
+\item{x}{matrix or vector to process}
+}
+\value{
+matrix or vector with \code{NA}s replaced by zero.
 }
 \description{
 Auxiliary function to replase NAs with zeros.
+}
+\examples{
+x<-matrix(NA,nrow = 3,ncol = 3)
+zeroNA(x)
 }
