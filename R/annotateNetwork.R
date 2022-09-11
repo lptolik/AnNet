@@ -33,7 +33,7 @@ ESC      <- "|"
 #' Annotate graph from list of files
 #' 
 #' This function is a syntactic sugar wrapper for the 
-#' \link{\code{annotate_vertex}} function. It could be used to quickly load
+#' \code{\link{annotate_vertex}} function. It could be used to quickly load
 #' annotation from the set of files, for example all three branches of GO in
 #' one run. Each file suppose to be TSV file (use TAB as a column separator) 
 #' and contains annotation ID in the first column, annotation term in the 
@@ -148,8 +148,8 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
 #' 
 #' For the protein-protein interaction (PPI) or disease gene interaction (DGN)
 #' graphs that have EntrezID as a vertex name this function extract standard
-#' name from \link{\code{org.Hs.eg.db}} and annotate vertices. If for some
-#' vertices EntresID does not match \link{\code{org.Hs.eg.db}} empty string is
+#' name from \code{\link[org.Hs.eg.db]{org.Hs.eg.db}} and annotate vertices. If for some
+#' vertices EntresID does not match \code{\link[org.Hs.eg.db]{org.Hs.eg.db}} empty string is
 #' added as GeneName.
 #'
 #' @param gg igraph object to annotate

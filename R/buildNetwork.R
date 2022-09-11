@@ -156,7 +156,7 @@ addEdgeAtts <- function(GG, gg){
 
 #' Build network from data.table
 #' 
-#' It is a wrapper for \link{\code{graph.data.frame}} that always return 
+#' It is a wrapper for \code{\link[igraph]{graph.data.frame}} that always return 
 #' allow annotate edges largest connected component of the network defined
 #' by \code{ff}. It is also allows annotation of edges 
 #' with PubMed data, if exists.
@@ -198,7 +198,7 @@ buildNetwork<-function(ff,kw=NA){
   gg <- addEdgeAtts(GG,gg)
 }
 
-#' Utility function to create network from \link{\code{synaptome.db}} data
+#' Utility function to create network from \code{\link{synaptome.db}} data
 #' 
 #' 
 #'
@@ -218,9 +218,9 @@ buildFromSynaptomeByEntrez<-function(entrez){
   return(gg)
 }
 
-#' Utility function to create network from \link{\code{synaptome.db}} data
+#' Utility function to create network from \code{\link[synaptome.db]{synaptome.db}} data
 #'
-#' @param t data.frame described in \link{\code{synaptome.db::getGenesByID}}
+#' @param t data.frame described in \code{\link[synaptome.db]{getGenesByID}}
 #'
 #' @return largest connected component of network defined by the gene table 
 #' @export
