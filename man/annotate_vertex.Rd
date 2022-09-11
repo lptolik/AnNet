@@ -7,11 +7,14 @@
 annotate_vertex(gg, name, values)
 }
 \arguments{
-\item{gg}{graph to annotate}
+\item{gg}{igraph object to annotate}
 
 \item{name}{name of the attribute}
 
 \item{values}{annotation data.frame}
+}
+\value{
+igraph object where vertex attribute \code{name} contains annotation
 }
 \description{
 It takes name of the attribute, and two column

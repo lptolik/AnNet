@@ -9,8 +9,22 @@ annotate_go_bp(gg, annoF)
 \arguments{
 \item{gg}{graph to update}
 
-\item{annoF}{annotation table}
+\item{annoF}{annotation matrix in Pair form}
+}
+\value{
+annotated igraph object
 }
 \description{
-Add GO BP annotation to the graph vertices
+Function takes data from \code{annoF} matrix and add them to attributes
+\code{GO_BP} for term and \code{GO_BP_ID} for IDs.
+}
+\examples{
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+gg <- igraph::read.graph(file,format="gml")
+sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "AnNet")
+goBP <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+sgg <- annotate_go_bp(gg, goBP)
+}
+\seealso{
+getAnnotationVertexList
 }

@@ -2,15 +2,20 @@
 % Please edit documentation in R/annotateNetwork.R
 \name{annotate_SCHanno}
 \alias{annotate_SCHanno}
-\title{Title}
+\title{Add SCHanno synaptic functional groups}
 \usage{
 annotate_SCHanno(gg, anno)
 }
 \arguments{
-\item{anno}{}
+\item{gg}{igraph object to annotate}
+
+\item{anno}{annotation matrix in Pairs form}
+}
+\value{
+annotated igraph object
 }
 \description{
-Title
+Add SCHanno synaptic functional groups
 }
 \examples{
 cid<-match('Presynaptic',getCompartments()$Name)
@@ -20,4 +25,7 @@ afile<-system.file("extdata", "SCH_flatfile.csv", package = "AnNet")
 dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,
 strip.white=TRUE,quote="")
 agg<-annotate_SCHanno(gg,dis)
+}
+\seealso{
+getAnnotationVertexList
 }

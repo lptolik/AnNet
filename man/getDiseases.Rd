@@ -2,13 +2,19 @@
 % Please edit documentation in R/annotateNetwork.R
 \name{getDiseases}
 \alias{getDiseases}
-\title{Title}
+\title{Get HDO disease IDs}
 \usage{
 getDiseases()
 }
 \value{
-vector of diseas IDs of interest
+vector of disease IDs of interest
 }
 \description{
-Title
+Return vector of HDO disease IDs for synaptic PPI analysis.
+}
+\examples{
+getDiseases()
+}
+\seealso{
+getDType
 }

@@ -2,23 +2,35 @@
 % Please edit documentation in R/annotateNetwork.R
 \name{annotate_topOnto_ovg}
 \alias{annotate_topOnto_ovg}
-\title{Title}
+\title{Annotate graph with disease terms}
 \usage{
 annotate_topOnto_ovg(gg, dis)
 }
 \arguments{
-\item{dis}{}
+\item{gg}{igraph object to annotate}
+
+\item{dis}{annotation matrix in Pairs form}
+}
+\value{
+annotated igraph object
 }
 \description{
-Title
+For the protein-protein interaction (PPI) or disease gene interaction (DGN)
+graphs that have EntrezID as a vertex name this function takes annotation
+from \code{dis} matrix and put it on the vertices with attributes
+TopOnto_OVG for terms and TopOnto_OVG_HDO_ID for IDs.
 }
 \examples{
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+# read HDO data extracted from hxin/topOnto.HDO.db for synaptic network
 afile<-system.file("extdata", "flatfile_human_gene2HDO.csv",
 package = "AnNet")
 dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,
 strip.white=TRUE,quote="")
-#agg<-annotate_topOnto_ovg(gg,dis)
+agg<-annotate_topOnto_ovg(gg,dis)
+}
+\seealso{
+getAnnotationVertexList
 }

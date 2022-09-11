@@ -6,10 +6,14 @@
 #' @param GG igraph object
 #' @param NAME name of the vertex property to remove
 #'
-#' @return
+#' @return igraph object with attribute removed
 #' @export
 #'
 #' @examples
+#' data(karate,package='igraphdata')
+#' vertex_attr_names(karate)
+#' m<-removeVertexTerm(karate,'color')
+#' vertex_attr_names(m)
 removeVertexTerm <- function(GG, NAME) {
     if (!is.null(get.vertex.attribute(GG, NAME))) {
         GG <- remove.vertex.attribute(GG, name = NAME)
@@ -27,17 +31,22 @@ COLLAPSE <- ";"
 ESC      <- "|"
 
 #' Annotate graph from list of files
+#' 
+#' This function is a syntactic sugar wrapper for the 
+#' \link{\code{annotate_vertex}} function. It could be used to quickly load
+#' annotation from the set of files, for example all three branches of GO in
+#' one run. Each file suppose to be TSV file (use TAB as a column separator) 
+#' and contains annotation ID in the first column, annotation term in the 
+#' second and vertex ID in the third. Names of the columns are ignored.
 #'
 #' @param GG igraph object
 #' @param FILES list of file path strings to read annotation from
-#' @param NAME name of the vertex property
+#' @param NAME vector of names of the vertex property
 #' @param IDS vertex IDs
 #' @param addIDS if TRUE NAME_ID property will be added
 #'
-#' @return
+#' @return igraph object with vertex attributes from NAME contain annotations
 #' @export
-#'
-#' @examples
 loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
     for (f in seq_along(FILES)) {
         GG <- removeVertexTerm(GG, NAME[f])
@@ -135,11 +144,17 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
 
 
 #Add GeneNames
-#' Title
+#' Annotate Human Gene Names
+#' 
+#' For the protein-protein interaction (PPI) or disease gene interaction (DGN)
+#' graphs that have EntrezID as a vertex name this function extract standard
+#' name from \link{\code{org.Hs.eg.db}} and annotate vertices. If for some
+#' vertices EntresID does not match \link{\code{org.Hs.eg.db}} empty string is
+#' added as GeneName.
 #'
-#' @param gg
+#' @param gg igraph object to annotate
 #'
-#' @return
+#' @return igraph object with new vertex attribute \code{GeneName}
 #' @export
 #' @import org.Hs.eg.db
 #'
@@ -159,7 +174,16 @@ annotateGeneNames <- function(gg) {
     return(gg)
 }
 
+#' Get DiseaseTypes
+#' 
+#' Return vector of disease abbreviations for synaptic PPI analysis.
+#' 
+#' @return vector of disease abbreviations for synaptic PPI analysis.
+#' 
+#' @seealso getDiseases
 #' @export
+#' @examples 
+#' getDType()
 getDType <- function() {
     #---HDO Disease short names
     dtype  <- vector(length = 12)
@@ -193,12 +217,16 @@ getDType <- function() {
 
     return(dtype)
 }
-#' Title
+#' Get HDO disease IDs
+#' 
+#' Return vector of HDO disease IDs for synaptic PPI analysis.
 #'
-#' @return vector of diseas IDs of interest
+#' @seealso getDType
+#' @return vector of disease IDs of interest
 #' @export
 #'
 #' @examples
+#' getDiseases()
 getDiseases <- function() {
     #---HDO ID DISEASES of INTEREST
     disn    <- vector(length = 12)
@@ -224,11 +252,11 @@ getDiseases <- function() {
 #' data.frame with vertex ID in the first column and annotation in the second.
 #' As a first step all attributes with provided names will be removed.
 #'
-#' @param gg graph to annotate
+#' @param gg igraph object to annotate
 #' @param name name of the attribute
 #' @param values annotation data.frame
 #'
-#' @return
+#' @return igraph object where vertex attribute \code{name} contains annotation
 #' @export
 #'
 #' @examples
@@ -265,23 +293,24 @@ annotate_vertex <- function(gg, name, values) {
 
 #' Escapes elements of list in annotation, so they'll be searchable by grep.
 #'
-#' In the case when annotation has not carefully planned, some annotations
+#' In the case when annotation has not carefully planned, some annotation terms
 #' could be substring of other, for example search fo DOID:14 could return
-#' DOID:143, DOID:1433, and DOID:14330. To avoid this all names should be
+#' DOID:143, DOID:1433, and DOID:14330. To avoid this all terms should be
 #' enclosed in escape characters, which unlikely to find within annotation
 #' itself.
-
+#' 
 #' NOTE: spaces are treated as regular
 #' characters, no trimming is applied before or after escaping.
 #'
 #'
 #' @param annVec vector of annotation strings
-#' @param col list separator character
+#' @param col term list separator character
 #' @param esc escape character
 #'
 #' @return vector of annotation strings with elements escaped
 #' @export
 #'
+#' @seealso unescapeAnnotation
 #' @examples
 #' annVec<-apply(matrix(letters,ncol=13),2,paste,collapse=';')
 #' cbind(annVec,escapeAnnotation(annVec,';','|'))
@@ -318,6 +347,7 @@ escapeAnnotation <- function(annVec, col = COLLAPSE, esc = ESC) {
 #' @return vector of annotation strings with removed escape characters
 #' @export
 #'
+#' @seealso escapeAnnotation
 #' @examples
 #' annVec<-apply(matrix(letters,ncol=13),2,paste,collapse=';')
 #' escVec<-escapeAnnotation(annVec,';','|')
@@ -350,6 +380,12 @@ unescapeAnnotation <- function(annVec, col = COLLAPSE, esc = ESC) {
 #'
 #' @return named list with annotation in Annotation Vertices form
 #' @export
+#' 
+#' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' avl<-getAnnotationVertexList(gg,'TopOntoOVGHDOID')
+#' head(avl)
 getAnnotationVertexList <- function(g, name, vid = 'name', col = COLLAPSE) {
     gda <- prepareGDA(g, name)
     vertices <- get.vertex.attribute(g, vid)
@@ -363,6 +399,7 @@ getAnnotationVertexList <- function(g, name, vid = 'name', col = COLLAPSE) {
 }
 
 #' Extract unique values from annotations.
+#' 
 #' It is not uncommon that some nodes are annotated with list of terms and some
 #' terms annotates multiple nodes. This function creates vector of unique terms
 #' that were used in annotation.
@@ -370,10 +407,16 @@ getAnnotationVertexList <- function(g, name, vid = 'name', col = COLLAPSE) {
 #' @param annVec vector of annotation strings
 #' @param col list separator character
 #' @param sort how to sort the result list
-#'
-#' @return
+#' @return vector of unique annotation terms
+
 #' @export
+#' @seealso getAnnotationVertexList
 #' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' annVec<-V(gg)$TopOntoOVG
+#' al<-getAnnotationList(annVec)
+#' al
 getAnnotationList <- function(annVec,
                               col = COLLAPSE,
                               sort = c('none', 'string', 'frequency')) {
@@ -391,24 +434,32 @@ getAnnotationList <- function(annVec,
     )
     return(res)
 }
+
 #Add topOnto_ovg
-#' Title
+#' Annotate graph with disease terms
+#' 
+#' For the protein-protein interaction (PPI) or disease gene interaction (DGN)
+#' graphs that have EntrezID as a vertex name this function takes annotation
+#' from \code{dis} matrix and put it on the vertices with attributes
+#' TopOnto_OVG for terms and TopOnto_OVG_HDO_ID for IDs. 
 #'
-#' @param gg
-#' @param dis
+#' @param gg igraph object to annotate
+#' @param dis annotation matrix in Pairs form
 #'
-#' @return
+#' @return annotated igraph object
 #' @export
+#' @seealso getAnnotationVertexList
 #'
 #' @examples
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' # read HDO data extracted from hxin/topOnto.HDO.db for synaptic network
 #' afile<-system.file("extdata", "flatfile_human_gene2HDO.csv",
 #' package = "AnNet")
 #' dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,
 #' strip.white=TRUE,quote="")
-#' #agg<-annotate_topOnto_ovg(gg,dis)
+#' agg<-annotate_topOnto_ovg(gg,dis)
 annotate_topOnto_ovg <- function(gg, dis) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "TopOnto_OVG")
@@ -474,6 +525,7 @@ annotate_topOnto_ovg <- function(gg, dis) {
     }
     return(gg)
 }
+
 #Add topOnto_ov_P140papers
 annotate_topOnto_ov_P140papers <- function(gg, par, dis) {
     ids <- V(gg)$name
@@ -539,15 +591,16 @@ annotate_topOnto_ov_P140papers <- function(gg, par, dis) {
     }
     return(gg)
 }
-#Add SCHanno synaptic functional groups
-#' Title
+#' Add SCHanno synaptic functional groups
+#' 
 #'
-#' @param gg
-#' @param anno
+#' @param gg igraph object to annotate
+#' @param anno annotation matrix in Pairs form
 #'
-#' @return
+#' @return annotated igraph object
 #' @export
 #'
+#' @seealso getAnnotationVertexList
 #' @examples
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
@@ -802,14 +855,24 @@ annotate_bridgeness_regions <- function(gg, str) {
 }
 #
 #' Add GO MF annotation to the graph vertices
+#' 
+#' Function takes data from \code{annoF} matrix and add them to attributes
+#'  \code{GO_MF} for term and \code{GO_MF_ID} for IDs.
+#' 
 #'
 #' @param gg graph to update
-#' @param annoF annotation table
+#' @param annoF annotation matrix in Pair form
 #'
-#' @return
+#' @return annotated igraph object
 #' @export
+#' @seealso getAnnotationVertexList
 #'
 #' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "AnNet")
+#' goMF <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+#' sgg <- annotate_go_mf(gg, goMF)
 annotate_go_mf <- function(gg, annoF) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "GO_MF")
@@ -861,13 +924,23 @@ annotate_go_mf <- function(gg, annoF) {
 #
 #' Add GO BP annotation to the graph vertices
 #'
-#' @param gg graph to update
-#' @param annoF annotation table
+#' Function takes data from \code{annoF} matrix and add them to attributes
+#'  \code{GO_BP} for term and \code{GO_BP_ID} for IDs.
+#' 
 #'
-#' @return
+#' @param gg graph to update
+#' @param annoF annotation matrix in Pair form
+#'
+#' @return annotated igraph object
 #' @export
+#' @seealso getAnnotationVertexList
 #'
 #' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "AnNet")
+#' goBP <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+#' sgg <- annotate_go_bp(gg, goBP)
 annotate_go_bp <- function(gg, annoF) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "GO_BP")
@@ -919,13 +992,23 @@ annotate_go_bp <- function(gg, annoF) {
 #
 #' Add GO CC  annotation to the graph vertices
 #'
-#' @param gg graph to update
-#' @param annoF annotation table
+#' Function takes data from \code{annoF} matrix and add them to attributes
+#'  \code{GO_CC} for term and \code{GO_CC_ID} for IDs.
+#' 
 #'
-#' @return
+#' @param gg graph to update
+#' @param annoF annotation matrix in Pair form
+#'
+#' @return annotated igraph object
 #' @export
+#' @seealso getAnnotationVertexList
 #'
 #' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' gg <- igraph::read.graph(file,format="gml")
+#' sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "AnNet")
+#' goCC <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+#' sgg <- annotate_go_cc(gg, goCC)
 annotate_go_cc <- function(gg, annoF) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "GO_CC")

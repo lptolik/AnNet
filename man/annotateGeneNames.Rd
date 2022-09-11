@@ -2,15 +2,22 @@
 % Please edit documentation in R/annotateNetwork.R
 \name{annotateGeneNames}
 \alias{annotateGeneNames}
-\title{Title}
+\title{Annotate Human Gene Names}
 \usage{
 annotateGeneNames(gg)
 }
 \arguments{
-\item{gg}{}
+\item{gg}{igraph object to annotate}
+}
+\value{
+igraph object with new vertex attribute \code{GeneName}
 }
 \description{
-Title
+For the protein-protein interaction (PPI) or disease gene interaction (DGN)
+graphs that have EntrezID as a vertex name this function extract standard
+name from \link{\code{org.Hs.eg.db}} and annotate vertices. If for some
+vertices EntresID does not match \link{\code{org.Hs.eg.db}} empty string is
+added as GeneName.
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")

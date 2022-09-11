@@ -9,8 +9,22 @@ annotate_go_cc(gg, annoF)
 \arguments{
 \item{gg}{graph to update}
 
-\item{annoF}{annotation table}
+\item{annoF}{annotation matrix in Pair form}
+}
+\value{
+annotated igraph object
 }
 \description{
-Add GO CC  annotation to the graph vertices
+Function takes data from \code{annoF} matrix and add them to attributes
+\code{GO_CC} for term and \code{GO_CC_ID} for IDs.
+}
+\examples{
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+gg <- igraph::read.graph(file,format="gml")
+sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "AnNet")
+goCC <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+sgg <- annotate_go_cc(gg, goCC)
+}
+\seealso{
+getAnnotationVertexList
 }

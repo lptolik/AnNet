@@ -34,3 +34,9 @@ containing vertex IDs}
 This function takes Vertex Annotation from vertex attribute
 and convert it to Annotation Vertices form.
 }
+\examples{
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+gg <- igraph::read.graph(file,format="gml")
+avl<-getAnnotationVertexList(gg,'TopOntoOVGHDOID')
+head(avl)
+}

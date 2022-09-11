@@ -29,3 +29,6 @@ annVec<-apply(matrix(letters,ncol=13),2,paste,collapse=';')
 escVec<-escapeAnnotation(annVec,';','|')
 cbind(annVec,escVec,unescapeAnnotation(escVec,';','|'))
 }
+\seealso{
+escapeAnnotation
+}

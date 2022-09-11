@@ -2,10 +2,7 @@
 % Please edit documentation in R/annotateNetwork.R
 \name{getAnnotationList}
 \alias{getAnnotationList}
-\title{Extract unique values from annotations.
-It is not uncommon that some nodes are annotated with list of terms and some
-terms annotates multiple nodes. This function creates vector of unique terms
-that were used in annotation.}
+\title{Extract unique values from annotations.}
 \usage{
 getAnnotationList(
   annVec,
@@ -20,9 +17,21 @@ getAnnotationList(
 
 \item{sort}{how to sort the result list}
 }
+\value{
+vector of unique annotation terms
+}
 \description{
-Extract unique values from annotations.
 It is not uncommon that some nodes are annotated with list of terms and some
 terms annotates multiple nodes. This function creates vector of unique terms
 that were used in annotation.
+}
+\examples{
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+gg <- igraph::read.graph(file,format="gml")
+annVec<-V(gg)$TopOntoOVG
+al<-getAnnotationList(annVec)
+al
+}
+\seealso{
+getAnnotationVertexList
 }

@@ -9,7 +9,7 @@ escapeAnnotation(annVec, col = COLLAPSE, esc = ESC)
 \arguments{
 \item{annVec}{vector of annotation strings}
 
-\item{col}{list separator character}
+\item{col}{term list separator character}
 
 \item{esc}{escape character}
 }
@@ -17,15 +17,20 @@ escapeAnnotation(annVec, col = COLLAPSE, esc = ESC)
 vector of annotation strings with elements escaped
 }
 \description{
-In the case when annotation has not carefully planned, some annotations
+In the case when annotation has not carefully planned, some annotation terms
 could be substring of other, for example search fo DOID:14 could return
-DOID:143, DOID:1433, and DOID:14330. To avoid this all names should be
+DOID:143, DOID:1433, and DOID:14330. To avoid this all terms should be
 enclosed in escape characters, which unlikely to find within annotation
 itself.
+}
+\details{
 NOTE: spaces are treated as regular
 characters, no trimming is applied before or after escaping.
 }
 \examples{
 annVec<-apply(matrix(letters,ncol=13),2,paste,collapse=';')
 cbind(annVec,escapeAnnotation(annVec,';','|'))
+}
+\seealso{
+unescapeAnnotation
 }

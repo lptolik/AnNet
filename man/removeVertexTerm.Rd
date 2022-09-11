@@ -11,6 +11,15 @@ removeVertexTerm(GG, NAME)
 
 \item{NAME}{name of the vertex property to remove}
 }
+\value{
+igraph object with attribute removed
+}
 \description{
 Remove vertex property.
+}
+\examples{
+data(karate,package='igraphdata')
+vertex_attr_names(karate)
+m<-removeVertexTerm(karate,'color')
+vertex_attr_names(m)
 }

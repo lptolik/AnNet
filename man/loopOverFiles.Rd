@@ -11,12 +11,20 @@ loopOverFiles(GG, FILES, NAME, IDS, addIDS)
 
 \item{FILES}{list of file path strings to read annotation from}
 
-\item{NAME}{name of the vertex property}
+\item{NAME}{vector of names of the vertex property}
 
 \item{IDS}{vertex IDs}
 
 \item{addIDS}{if TRUE NAME_ID property will be added}
 }
+\value{
+igraph object with vertex attributes from NAME contain annotations
+}
 \description{
-Annotate graph from list of files
+This function is a syntactic sugar wrapper for the
+\link{\code{annotate_vertex}} function. It could be used to quickly load
+annotation from the set of files, for example all three branches of GO in
+one run. Each file suppose to be TSV file (use TAB as a column separator)
+and contains annotation ID in the first column, annotation term in the
+second and vertex ID in the third. Names of the columns are ignored.
 }
