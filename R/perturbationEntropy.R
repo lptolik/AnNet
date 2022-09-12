@@ -65,9 +65,9 @@ getEntropyRate<-function(gg){
 #' @param gg igraph object
 #' @param maxSr maxSr value, if NULL \code{getEntropyRate} will be called.
 #' @param exVal expression values boundaries.
-#' Two columns are expected: \code{xx} and \code{lambda}. If NULL default values
-#' \code{c(2,14)} and \code{c(-14,14)} will be used for \code{xx}
-#' and \code{lambda} respectively.
+#' Two columns are expected: \code{xx} and \code{lambda}. If NULL 
+#' default values \code{c(2,14)} and \code{c(-14,14)} will be used 
+#' for \code{xx}  and \code{lambda} respectively.
 #'
 #' @return graph with SR_UP and SR_DOWN attributes storing entropy values for
 #' over- and underexpression respectively
@@ -92,9 +92,9 @@ calcEntropy<-function(gg,maxSr=NULL,exVal=NULL){
 #' @param gg igraph object
 #' @param maxSr maxSr value, if NULL \code{getEntropyRate} will be called.
 #' @param exVal expression values boundaries.
-#' Two columns are expected: \code{xx} and \code{lambda}. If NULL default values
-#' \code{c(2,14)} and \code{c(-14,14)} will be used for \code{xx}
-#' and \code{lambda} respectively.
+#' Two columns are expected: \code{xx} and \code{lambda}. 
+#' If NULL default values \code{c(2,14)} and \code{c(-14,14)} will 
+#' be used for \code{xx} and \code{lambda} respectively. 
 #'
 #' @return matrix with EntrexID, GeneNames, Degree, Enttropy UP and Down
 #' @export
@@ -181,7 +181,9 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
 
     #--- PI' when v is not N(v)
     for( s in 1:length(lambda) ){
-      PIprime[,s] <- ifelse(oo[,2] == 1, (1/NORM[s] * xx[s] * xx[s] * as.numeric(oo[,1])), ".")
+      PIprime[,s] <- ifelse(oo[,2] == 1, 
+                            (1/NORM[s] * xx[s] * xx[s] * as.numeric(oo[,1])), 
+                            ".")
     }
 
     #--- PI' when v is v
@@ -196,15 +198,19 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
     }
 
     #--- PI' when v is N(v)
-    for( s in 1:length(lambda) ){
-      PIprime[,s] <- ifelse(oo[,2] == 0, (1/NORM[s] * xx[s] * ( xx[s] + lambda[s] + (as.numeric(oo[,1]) - 1) * xx[s])),PIprime[,s])
+    for (s in 1:length(lambda)) {
+        PIprime[, s] <- ifelse(oo[, 2] == 0,
+                               (1 / NORM[s] * xx[s] * (xx[s] + lambda[s] + (
+                                   as.numeric(oo[, 1]) - 1
+                               ) * xx[s])), PIprime[, s])
     }
-
+    
 
     #--- LS' when v is not N(v)
     for( s in 1:length(lambda) ){
       X <- as.numeric(xx[s])
-      LSprime[,s] <- ifelse(oo[,2] == 1, (-log(X) + log(X*as.numeric(oo[,1]))),".")
+      LSprime[,s] <- ifelse(oo[,2] == 1, 
+                            (-log(X) + log(X*as.numeric(oo[,1]))),".")
     }
 
     #--- LS' when v is N(v)

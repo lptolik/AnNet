@@ -1,5 +1,6 @@
 ##---Semi-local Centrality (Cl)
-##   Identifying influential nodes in complex networks, D. Chen et al., Physica A, 2012
+##   Identifying influential nodes in complex networks, 
+##   D. Chen et al., Physica A, 2012
 Semilocal <- function(gg){
 
   N    <- length(V(gg)$name)
@@ -14,7 +15,9 @@ Semilocal <- function(gg){
     if( length(neig) > 0 ){
 
       for( w in 1:length(neig) ){
-        neig <- c(neig,igraph::neighbors(gg,v=as.character(V(gg)$name[neig[w]]),mode="all"))
+        neig <- c(neig,igraph::neighbors(gg,
+                                         v=as.character(V(gg)$name[neig[w]]),
+                                         mode="all"))
       }
 
       neig <- unique(neig)
@@ -88,7 +91,8 @@ calShorestPaths <- function(gg){
 #   ft <- list()
 #
 #   for( d in 1:length(DIR) ){
-#     tt <- read.table(sprintf("%s/random_%s_permuteDEGREE.csv",DIR[d],SUB),sep="\t",header=T)
+#     tt <- read.table(sprintf("%s/random_%s_permuteDEGREE.csv",DIR[d],SUB),
+#     sep="\t",header=T)
 #
 #     Nc <- length(tt[1,])
 #     tt <- tt[,2:Nc]
@@ -113,9 +117,11 @@ calShorestPaths <- function(gg){
 #   for( d in 1:length(DIR) ){
 #
 #     if( C == 6 ){
-#       tt <- read.table(sprintf("%s/random_MEAN_%s_permute%s.csv",DIR[d],SUB,CENT[C]),sep="\t",header=T)
+#       tt <- read.table(sprintf("%s/random_MEAN_%s_permute%s.csv",DIR[d],
+#     SUB,CENT[C]),sep="\t",header=T)
 #     } else {
-#       tt <- read.table(sprintf("%s/random_%s_permute%s.csv",DIR[d],SUB,CENT[C]),sep="\t",header=T)
+#       tt <- read.table(sprintf("%s/random_%s_permute%s.csv",DIR[d],SUB,
+#     CENT[C]),sep="\t",header=T)
 #     }
 #
 #
@@ -314,8 +320,10 @@ calcCentrality<-function(gg){
 #' @param type:
 #' * gnp -- G(n,p) Erdos-Renyi model
 #' * pa --  Barabasi-Albert model
-#' * cgnp -- new random graph from a given graph by randomly adding/removing edges
-#' * rw -- new random graph from a given graph by rewiring 25% of edges preserving the degree distribution
+#' * cgnp -- new random graph from a given graph by randomly a
+#' dding/removing edges
+#' * rw -- new random graph from a given graph by rewiring 25% of 
+#' edges preserving the degree distribution
 #'
 #' @return matrix of random graph vertices centrality measure.
 #' @export
@@ -352,7 +360,8 @@ getGNP<-function(gg,...){
 
 getPA<-function(gg,...){
   nv<-vcount(gg)
-  pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), Nsim=100, plot=FALSE )
+  pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), 
+                     Nsim=100, plot=FALSE )
   pwr <- pFit@alpha
   g<- sample_pa(nv,power=pwr,directed = FALSE,...)
   return(g)
@@ -360,7 +369,8 @@ getPA<-function(gg,...){
 
 #' Convert centrality matrix into ECDF 
 #'
-#' @param m centrality matrix from \code{\link{getCentralityMatrix}} invocation.
+#' @param m centrality matrix from \code{\link{getCentralityMatrix}} 
+#' invocation.
 #'
 #' @return list of sever ecdf objects, corresponding to values in 
 #' centrality matrix from \code{\link{getCentralityMatrix}} invocation.
@@ -383,15 +393,17 @@ getGraphCentralityECDF<-function(m){
   return(l)
 }
 
-#' Extracts particular measure from matrix and convert for distance calculation
-#' by calcCentralityInternalDistances and calcCentralityExternalDistances
-#' functions.
+#' Extracts particular measure from matrix and convert for distance 
+#' calculation by \code{\linc{calcCentralityInternalDistances}} and 
+#' \code{\link{calcCentralityExternalDistances}} functions.
 #'
 #' @param m matrix of centrality measures as returned by getCentralityMatrix
 #' @param nm name of the measure from m
 #' @param keepOrder if FALSE valuess will be sorted
 #'
 #' @return vector of length \code{dim(m)[1]}
+#' @seealso calcCentralityInternalDistances
+#' @seealso calcCentralityExternalDistances
 #' @noRd
 getCM<-function(m,nm,keepOrder){
   v<-as.numeric(m[,which(colnames(m)==nm)])

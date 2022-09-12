@@ -17,7 +17,7 @@
 #'         second column, the last column contains bridginess values for the
 #          selected clustering algorithm.
 #' @export
-#' 
+#' @importFrom igraph get.edgelist get.vertex.attribute
 #' @examples 
 #' library(AnNet)
 #' data(karate,package='igraphdata')
@@ -52,16 +52,16 @@ getBridgeness <- function(gg, alg, conmat) {
         meas[, 2] <- as.character(V(gg)$GeneName)
     }
     ##get consensus matrix indices for each edge in edgelist
-    indA <- match(igraph::get.edgelist(gg)[, 1], rownames(conmat))
-    indB <- match(igraph::get.edgelist(gg)[, 2], rownames(conmat))
+    indA <- match(get.edgelist(gg)[, 1], rownames(conmat))
+    indB <- match(get.edgelist(gg)[, 2], rownames(conmat))
     dat  <- data.frame(indA, indB)
     ##get community assigned to each vertex in edgelist from the algorithm 'alg'
-    elA    <- igraph::get.vertex.attribute(gg, alg,
-                                           V(gg))[match(igraph::get.edgelist(gg)[, 1],
-                                                        V(gg)$name)]
-    elB    <- igraph::get.vertex.attribute(gg, alg,
-                                           V(gg))[match(igraph::get.edgelist(gg)[, 2],
-                                                        V(gg)$name)]
+    elA <- get.vertex.attribute(gg, alg,
+                                V(gg))[match(get.edgelist(gg)[, 1],
+                                             V(gg)$name)]
+    elB <- get.vertex.attribute(gg, alg,
+                                V(gg))[match(get.edgelist(gg)[, 2],
+                                             V(gg)$name)]
     ##for each edge record the community assigned to each vertex and it's
     ##consensus matrix value
     ed      <- matrix(ncol = 6, nrow = length(E(gg)))

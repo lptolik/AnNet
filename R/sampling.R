@@ -1,8 +1,8 @@
 #---Get all edges internal to a community
 intraEdges <- function(GG, ALG, CC, INTRA=NULL, INTER=NULL){
 
-  intra = NULL #edges in the community CC
-  inter = NULL #edges going out from community CC
+  intra <- NULL #edges in the community CC
+  inter <- NULL #edges going out from community CC
 
   if( !is.null(igraph::get.vertex.attribute(GG,ALG)) ){
 
@@ -10,26 +10,28 @@ intraEdges <- function(GG, ALG, CC, INTRA=NULL, INTER=NULL){
 
     if( length(which(coms == CC)) != 0 ){
 
-      ed_cc = E(GG)[inc(coms == CC)]
+      ed_cc <- E(GG)[inc(coms == CC)]
 
       all_edges_m <- get.edges(GG, ed_cc) #matrix representation
 
-      inter = (ed_cc[!(all_edges_m[, 1] %in% V(GG)[coms == CC] & all_edges_m[, 2] %in% V(GG)[coms == CC])])
+      inter <- (ed_cc[!(all_edges_m[, 1] %in% V(GG)[coms == CC] & 
+                           all_edges_m[, 2] %in% V(GG)[coms == CC])])
 
-      intra = (ed_cc[(all_edges_m[, 1] %in% V(GG)[coms == CC] & all_edges_m[, 2] %in% V(GG)[coms == CC])])
+      intra <- (ed_cc[(all_edges_m[, 1] %in% V(GG)[coms == CC] & 
+                          all_edges_m[, 2] %in% V(GG)[coms == CC])])
 
     }
   }
 
   if( INTRA==TRUE && !is.null(intra) ){
-    intra_m = get.edges(GG,intra)
-    intra   = cbind(V(GG)$name[intra_m[,1]],V(GG)$name[intra_m[,2]])
+    intra_m <- get.edges(GG,intra)
+    intra   <- cbind(V(GG)$name[intra_m[,1]],V(GG)$name[intra_m[,2]])
     return(intra)
   }
 
   if( INTER==TRUE && !is.null(inter) ){
-    inter_m = get.edges(GG,inter)
-    inter   = cbind(V(GG)$name[inter_m[,1]],V(GG)$name[inter_m[,2]])
+    inter_m <- get.edges(GG,inter)
+    inter   <- cbind(V(GG)$name[inter_m[,1]],V(GG)$name[inter_m[,2]])
     return(inter)
   }
 
@@ -39,31 +41,33 @@ intraEdges <- function(GG, ALG, CC, INTRA=NULL, INTER=NULL){
 
 intraEdgesM <- function(GG, mem, CC, INTRA=NULL, INTER=NULL){
 
-  intra = NULL #edges in the community CC
-  inter = NULL #edges going out from community CC
+  intra <- NULL #edges in the community CC
+  inter <- NULL #edges going out from community CC
 
   idx<- (mem$membership == CC)
     if( length(which(idx)) != 0 ){
 
-      ed_cc = E(GG)[inc(idx)]
+      ed_cc <- E(GG)[inc(idx)]
 
       all_edges_m <- get.edges(GG, ed_cc) #matrix representation
 
-      inter = (ed_cc[!(all_edges_m[, 1] %in% V(GG)[idx] & all_edges_m[, 2] %in% V(GG)[idx])])
+      inter <- (ed_cc[!(all_edges_m[, 1] %in% V(GG)[idx] & 
+                           all_edges_m[, 2] %in% V(GG)[idx])])
 
-      intra = (ed_cc[(all_edges_m[, 1] %in% V(GG)[idx] & all_edges_m[, 2] %in% V(GG)[idx])])
+      intra <- (ed_cc[(all_edges_m[, 1] %in% V(GG)[idx] & 
+                          all_edges_m[, 2] %in% V(GG)[idx])])
 
     }
 
   if( INTRA==TRUE && !is.null(intra) && length(intra)>0 ){
-    intra_m = get.edges(GG,intra)
-    intra   = cbind(V(GG)$name[intra_m[,1]],V(GG)$name[intra_m[,2]])
+    intra_m <- get.edges(GG,intra)
+    intra   <- cbind(V(GG)$name[intra_m[,1]],V(GG)$name[intra_m[,2]])
     return(intra)
   }
 
   if( INTER==TRUE && !is.null(inter) && length(inter)>0 ){
-    inter_m = get.edges(GG,inter)
-    inter   = cbind(V(GG)$name[inter_m[,1]],V(GG)$name[inter_m[,2]])
+    inter_m <- get.edges(GG,inter)
+    inter   <- cbind(V(GG)$name[inter_m[,1]],V(GG)$name[inter_m[,2]])
     return(inter)
   }
 
@@ -184,7 +188,11 @@ layoutByRecluster<-function(gg,remem,layout=layout_with_kk){
 getCommunityGraph<-function(gg,membership){
   g<-gg
   V(g)$composition<-V(gg)$name
-  cgg<-simplify(contract(g, membership,vertex.attr.comb =list(composition='concat', 'ignore')))
+  cgg <- simplify(contract(
+      g,
+      membership,
+      vertex.attr.comb = list(composition = 'concat', 'ignore')
+  ))
   V(cgg)$name<-as.character(V(cgg))
   V(cgg)$size<-vapply(V(cgg)$composition,length,c(len=0))
   return(cgg)
@@ -232,7 +240,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
     k=1
     for( i in 1:length(cc) ){
 
-      edCC = intraEdgesM(gg, mem, cc[i], INTRA=TRUE)
+      edCC <- intraEdgesM(gg, mem, cc[i], INTRA=TRUE)
 
       if( !is.null(edCC) ){
 
@@ -266,7 +274,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
     indx     <- ifelse(is.na(indx),TRUE, FALSE)
     ALG2$split <- ifelse(indx, ALG2$membership, ALG2$split)
 
-    CCmax = max(as.numeric(ALG2$split))
+    CCmax <- max(as.numeric(ALG2$split))
 
     for( i in 1:length(cc) ){
 
@@ -277,12 +285,12 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
 
       ALG2$split <- ifelse(is.na(indx),ALG2$split,temp$membership[indx])
 
-      CCmax = max(as.numeric(ALG2$split))
+      CCmax <- max(as.numeric(ALG2$split))
 
     }
 
     #---reorder ALG2$split
-    N = length(V(gg));
+    N <- length(V(gg));
 
     temp    <- rep(-1, N)
     counter <- min(as.numeric(ALG2$split))
@@ -295,7 +303,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
 
       for(v in 1:N ){
         if( as.numeric(ALG2$split[v]) == counter ){
-          temp[v] = Knew;
+          temp[v] <- Knew;
           found=TRUE;
         }
       }
@@ -332,7 +340,7 @@ recluster <- function( GG, ALGN, CnMAX ){
     k=1
     for( i in 1:length(cc) ){
 
-      edCC = intraEdges(GG, ALG, cc[i], INTRA=TRUE)
+      edCC <- intraEdges(GG, ALG, cc[i], INTRA=TRUE)
 
       if( !is.null(edCC) ){
 
@@ -357,7 +365,7 @@ recluster <- function( GG, ALGN, CnMAX ){
     indx     <- ifelse(is.na(indx),TRUE, FALSE)
     ALG2[,3] <- ifelse(indx, ALG2[,2], ALG2[,3])
 
-    CCmax = max(as.numeric(ALG2[,3]))
+    CCmax <- max(as.numeric(ALG2[,3]))
 
     for( i in 1:length(cc) ){
 
@@ -367,14 +375,14 @@ recluster <- function( GG, ALGN, CnMAX ){
       indx <- match(ALG2[,1],temp[,1])
       indx <- temp[indx,2]
 
-      ALG2[,3] = ifelse(is.na(indx),ALG2[,3],indx)
+      ALG2[,3] <- ifelse(is.na(indx),ALG2[,3],indx)
 
-      CCmax = max(as.numeric(ALG2[,3]))
+      CCmax <- max(as.numeric(ALG2[,3]))
 
     }
 
     #---reorder ALG2[,3]
-    N = length(V(GG));
+    N <- length(V(GG));
 
     temp    <- rep(-1, N)
     counter <- min(as.numeric(ALG2[,3]))
@@ -387,7 +395,7 @@ recluster <- function( GG, ALGN, CnMAX ){
 
       for(v in 1:N ){
         if( as.numeric(ALG2[v,3]) == counter ){
-          temp[v] = Knew;
+          temp[v] <- Knew;
           found=TRUE;
         }
       }
@@ -470,9 +478,9 @@ sampleGraphClust<-function(gg,mask=20,alg,type,reclust=FALSE){
 
   cl<-getClustering(ggLCC,alg)
   if(reclust){
-    ggLCC = igraph::set.vertex.attribute(ggLCC,alg,V(ggLCC),cl$membership)
+    ggLCC <- igraph::set.vertex.attribute(ggLCC,alg,V(ggLCC),cl$membership)
 
-    oo = recluster( ggLCC, alg, Cnmax )
+    oo <- recluster( ggLCC, alg, Cnmax )
 
     if( !is.null(oo) ){
       cc[,3]   <- ifelse(cc[,2] %in% oo[,1],oo[,4],-1)

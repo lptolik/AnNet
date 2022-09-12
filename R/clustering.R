@@ -15,7 +15,9 @@
 #' data(karate,package='igraphdata')
 #' m<-calcMembership(karate,'lec')
 #' head(m)
-calcMembership<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')){
+calcMembership<-function(gg,
+                         alg=c('lec','wt','fc','infomap',
+                               'louvain','sgG1','sgG2','sgG5','spectral')){
   ids <- V(gg)$name
   cl<-getClustering(gg,alg)
   if(!is.null(cl)){
@@ -47,7 +49,8 @@ calcMembership<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sg
 #' clusteringSummary(g1)
 calcAllClustering<-function(gg){
   ids <- V(gg)$name
-  cnames<-c('ID','lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')
+  cnames<-c('ID','lec','wt','fc','infomap',
+            'louvain','sgG1','sgG2','sgG5','spectral')
   l<-list()
   l[[cnames[1]]]<-ids
   for(ai in 2:length(cnames)){
@@ -64,8 +67,8 @@ calcAllClustering<-function(gg){
   return(ggm)
 }
 
-#' Calculate memberships for particular clustering algorithms and store them on the
-#' graph vertices.
+#' Calculate memberships for particular clustering algorithms and store 
+#' them on the graph vertices.
 #' 
 #' Results of clustering algorithm application to the same graph could differ
 #' between runs due to use of stochastic algorithm. To allow reproducible 
@@ -146,25 +149,31 @@ calcClustering<-function(gg,alg){
 #' data(karate,package='igraphdata')
 #' c<-getClustering(karate,'lec')
 #' c$modularity
-getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')){
+getClustering<-function(gg,
+                        alg=c('lec','wt','fc','infomap',
+                              'louvain','sgG1','sgG2','sgG5','spectral')){
   alg <- match.arg(alg)
   lec<-function(gg){
     lec     <- igraph::leading.eigenvector.community(gg)
     ll      <- igraph::leading.eigenvector.community(gg, start=membership(lec))
   }
-  cl<-try(switch(alg,
-                 lec=lec(gg),
-                 wt=igraph::walktrap.community(gg),
-                 fc=igraph::fastgreedy.community(gg),
-                 infomap=igraph::cluster_infomap(gg),
-                 louvain=igraph::cluster_louvain(gg),
-                 sgG1=igraph::spinglass.community(gg,
-                                                  spins=as.numeric(500),gamma=1),
-                 sgG2=igraph::spinglass.community(gg,
-                                                  spins=as.numeric(500),gamma=2),
-                 sgG5=igraph::spinglass.community(gg,
-                                                  spins=as.numeric(500),gamma=5),
-                 spectral=rSpectral::spectral_igraph_communities(gg)
+  cl <- try(switch(
+      alg,
+      lec = lec(gg),
+      wt = igraph::walktrap.community(gg),
+      fc = igraph::fastgreedy.community(gg),
+      infomap = igraph::cluster_infomap(gg),
+      louvain = igraph::cluster_louvain(gg),
+      sgG1 = igraph::spinglass.community(gg,
+                                         spins = as.numeric(500), gamma =
+                                             1),
+      sgG2 = igraph::spinglass.community(gg,
+                                         spins = as.numeric(500), gamma =
+                                             2),
+      sgG5 = igraph::spinglass.community(gg,
+                                         spins = as.numeric(500), gamma =
+                                             5),
+      spectral = rSpectral::spectral_igraph_communities(gg)
   ))
   if(inherits(cl, "try-error")){
     warning('Clustering calculations for algorithm "',alg,
@@ -200,7 +209,9 @@ getClustering<-function(gg,alg=c('lec','wt','fc','infomap','louvain','sgG1','sgG
 #' data(karate,package='igraphdata')
 #' g<-calcAllClustering(karate)
 #' clusteringSummary(g)
-clusteringSummary<-function(gg,att=c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')){
+clusteringSummary<-function(gg,
+                            att=c('lec','wt','fc','infomap',
+                                  'louvain','sgG1','sgG2','sgG5','spectral')){
   attN<-vertex_attr_names(gg)
   idx<-match(attN,att)
   clusterings<-attN[!is.na(idx)]

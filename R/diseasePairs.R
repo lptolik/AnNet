@@ -107,8 +107,8 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 #' @param GDA vertex annotations returned by \code{\link{prepareGDA}}
 #' @param dtype list of unique annotation terms to analyze
 #' 
-#' @return mapping matrix between vertices, vertex-degree groups and annotation
-#'         terms.
+#' @return mapping matrix between vertices, vertex-degree groups and 
+#'         annotation terms.
 #'
 #' @export
 #' @seealso prepareGDA
@@ -172,7 +172,8 @@ sample.deg.binned.GDA <- function(org.map,term){
     map=org.map
     for( i in 1:Nset ){
       seq.map  = seq(1,dim(map)[1],1)
-      rnd.indx = seq.map[!is.na(match(as.numeric(map[,3]),as.numeric(gda.set[i])))]
+      rnd.indx = seq.map[!is.na(match(as.numeric(map[,3]),
+                                      as.numeric(gda.set[i])))]
       if( length(rnd.indx) > 1 ){
         rnd.indx = as.numeric(sample(rnd.indx))[1]
       }
@@ -256,7 +257,8 @@ prepareGDA<-function(gg,name){
 #' permute = "n"
 #' )
 #' p$disease_separation
-calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binned')){
+calcDiseasePairs<-function(gg,name,diseases=NULL,
+                           permute=c('none','random','binned')){
   permute<-match.arg(permute)
   gda<-prepareGDA(gg,name)
   NN  <- length(which(gda!=""))
@@ -294,7 +296,8 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
       }
       rgda[match(IDS,V(gg)$name),d]<-1
     }
-    gda<-apply(rgda,1,function(.x)paste(diseases[!is.na(.x)],collapse = COLLAPSE))
+    gda<-apply(rgda,1,function(.x)paste(diseases[!is.na(.x)],
+                                        collapse = COLLAPSE))
   }
   res           <- matrix(0 ,ncol=4, nrow=length(diseases))
   colnames(res) <- c("Disease","N","mean_ds","SD_ds")
@@ -313,7 +316,8 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
     IDS <- V(gg)$name[grepl(diseases[d],gda,fixed=TRUE)]
     N   <- length(IDS)
 
-    ## for each gda, find the minimum shortest path to next gda (of the same disease)
+    ## for each gda, find the minimum shortest path to next 
+    ## gda (of the same disease)
     XX=igraph::shortest.paths(gg,IDS,IDS,weights=NA)
     diag(XX)       = NA
     ds             = apply(XX,1,min,na.rm=TRUE)
@@ -343,7 +347,8 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
       DAB[i,j] <- 0
 
       if( i != j ){
-        DAB[i,j] <- diseaseOverlap(gg,gda,rownames(DAB)[i],colnames(DAB)[j],oo)
+        DAB[i,j] <- diseaseOverlap(gg,gda,rownames(DAB)[i],
+                                   colnames(DAB)[j],oo)
       }
 
     }
@@ -355,7 +360,9 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
   if(permute=='none'){
     oo<-oo[gda !="",]
   }
-  return(list(disease_separation=DAB,gene_disease_separation=oo,disease_localisation=res))
+  return(list(disease_separation=DAB,
+              gene_disease_separation=oo,
+              disease_localisation=res))
 }
 
 #' Calculate disease-disease pair overlaps on permuted network to estimate
@@ -378,14 +385,15 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,permute=c('none','random','binn
 #' @param name name of the attribute that stores disease annotation
 #' @param diseases list of diseases to match
 #' @param Nperm number of permutations to apply
-#' @param permute type of permutations. \code{random} -- annotation is randomly shuffled, 
+#' @param permute type of permutations. 
+#'        \code{random} -- annotation is randomly shuffled, 
 #'        \code{binned} -- annotation is shuffled in a way to preserve node
 #'        degree-annotation relationship by \code{\link{degree.binned.GDAs}}.
 #' @param alpha statistical significance levels
 #'
-#' @return list of two matrices: \code{Disease_overlap_sig} gives statistics for
-#' each pair of disease, and \code{Disease_location_sig} gives intra-disease
-#' statistics
+#' @return list of two matrices: \code{Disease_overlap_sig} gives s
+#'         tatistics for each pair of disease, and 
+#'         \code{Disease_location_sig} gives intra-disease statistics
 #' @export
 #'
 #' @examples
@@ -424,7 +432,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
   resGDS<-vapply(resL,toNum, FUN.VALUE = toNum(resL[[1]]))
  
   # resGDS<-do.call(cbind,lapply(resL,function(.x)
-  #   apply(.x$gene_disease_separation[,3:dim(.x$gene_disease_separation)[2]],
+  #  apply(.x$gene_disease_separation[,3:dim(.x$gene_disease_separation)[2]],
   #         c(1,2),as.numeric)))
   m<-apply(resGDS,c(1,2),mean0)
   RANds<-cbind(as.data.frame(resL[[1]]$gene_disease_separation[,1:2]),
@@ -436,7 +444,8 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
   ##--- randomised distribution.
   disease_location_sig           <- matrix(0 ,ncol=7, nrow=length(disn))
   colnames(disease_location_sig) <- c("HDO.ID","N","mean_ds","SD_ds",
-                                      "Ran_mean_ds","Ran_SD_ds","Utest.pvalue")
+                                      "Ran_mean_ds",
+                                      "Ran_SD_ds","Utest.pvalue")
   disease_location_sig[,1]       <- disn
   disease_location_sig[,2]<-loc[match(disease_location_sig[,1],loc[,1]),2]
 
@@ -462,9 +471,11 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
     disease_location_sig[i,6] <- as.numeric(sd0(RDS))
     disease_location_sig[i,7] <- 1.0
 
-    ## compute wilcox test between observable ds and random ds, and store p.values,
+    ## compute wilcox test between observable ds and 
+    ## random ds, and store p.values,
     ## see (Menche et al., 2015).
-    if( !is.infinite(DS) && !is.nan(DS) && !is.na(DS) &&  !is.infinite(RDS) &&
+    if( !is.infinite(DS) && !is.nan(DS) && 
+        !is.na(DS) &&  !is.infinite(RDS) &&
         !is.nan(RDS) && !is.na(RDS) ){
       if( length(DS) != 0 && length(RDS) != 0 ){
         wt       <- wilcox.test(DS,RDS)
@@ -485,9 +496,14 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
   Nlevels = NELE;
 
   ##--- Output file for disease-disease separation/overlap
-  #CN <-  c("HDO.ID","Disease.long","Disease","N","HDO.ID","Disease.long","Disease","N","sAB","Separated","Overlap","zScore","pvalue","Separation/Overlap.than.chance","Bonferroni","p.adjusted","q-value")
-  CN <-  c("HDO.ID","N","HDO.ID","N","sAB","Separated","Overlap","zScore",
-           "pvalue","Separation/Overlap.than.chance","Bonferroni","p.adjusted",
+  #CN <-  c("HDO.ID","Disease.long","Disease","N","HDO.ID",
+  #"Disease.long","Disease","N","sAB","Separated","Overlap",
+  #"zScore","pvalue","Separation/Overlap.than.chance","Bonferroni",
+  #"p.adjusted","q-value")
+  CN <-  c("HDO.ID","N","HDO.ID","N","sAB","Separated",
+           "Overlap","zScore",
+           "pvalue","Separation/Overlap.than.chance",
+           "Bonferroni","p.adjusted",
            "q-value")
   zs <- matrix(".", nrow=NELE, ncol=length(CN))
   colnames(zs) <- CN
@@ -505,10 +521,13 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
 
     if( !is.nan(as.numeric(RAN_sAB_sd[i,j])) ){
 
-      ## compute z-score, i.e. separation of mean sAB, against a randomised model (of the mean of sAB),
+      ## compute z-score, i.e. separation of mean sAB, against a 
+      ## randomised model (of the mean of sAB),
       ## see (Menche et al., 2015).
       if( as.numeric(RAN_sAB_sd[i,j]) != 0){
-        zScore = (as.numeric(as.vector(sAB[i,j])) - as.numeric(as.vector(RAN_sAB_mean[i,j])))/(as.numeric(as.vector(RAN_sAB_sd[i,j])))
+        zScore = (as.numeric(as.vector(sAB[i,j])) - 
+                      as.numeric(as.vector(RAN_sAB_mean[i,j])))/
+            (as.numeric(as.vector(RAN_sAB_sd[i,j])))
       }
 
       ## compute p.value from the normal distribution
@@ -522,7 +541,8 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
       zs[(k+1),3] <- disn[j]
       zs[(k+1),4] <- as.character(loc[which(loc[,1]==disn[j]),2])
 
-      ## sAB, the disease-disease separation/overlap measure, on the interactome
+      ## sAB, the disease-disease separation/overlap measure, 
+      ## on the interactome
       zs[(k+1),5] <- as.character(sAB[i,j])
 
       ## sAB > 0, implies separation
@@ -535,15 +555,18 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
       zs[(k+1),8] <- as.character(zScore)
       zs[(k+1),9] <- as.character(pval)
 
-      ## z-scores < 0 (>0), implies separation/overlap smaller (larger) than by chance
-      zs[(k+1),10] <- ifelse((as.numeric(zs[(k+1),8]) < 0), "Smaller", "larger")
+      ## z-scores < 0 (>0), implies separation/overlap smaller 
+      ## (larger) than by chance
+      zs[(k+1),10] <- ifelse((as.numeric(zs[(k+1),8]) < 0), 
+                             "Smaller", "larger")
 
       ## Bonferroni correction for p.value ('stars' can be found in 'setUp.R')
       temp <- "."
-      for( x in 1:length(alpha) ){
-        if(as.numeric(zs[(k+1),9]) < as.numeric(alpha[x]/Nlevels)){ temp <- stars[x] }
+      for (x in 1:length(alpha)) {
+          if (as.numeric(zs[(k + 1), 9]) < as.numeric(alpha[x] / Nlevels)) {
+              temp <- stars[x]
+          }
       }
-
       ## save the Bonerroni correction, repersented by stars, here.
       zs[(k+1),11] <- temp
       ## default fill of output container
@@ -575,5 +598,6 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
   ## if calFDR is FALSE, we'll use WGCNA's qvalue calculation for FDR
   zs[,13] <- qvalue(as.numeric(zs[,9]))$qvalue
 
-  return(list(Disease_overlap_sig=zs,Disease_location_sig=disease_location_sig))
+  return(list(Disease_overlap_sig=zs,
+              Disease_location_sig=disease_location_sig))
 }

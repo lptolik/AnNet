@@ -119,12 +119,12 @@ matrixDiv <- function(x,y){
 
 #' Function to build consensus matrix in memory
 #' 
-#' For assessing the robustness of the clustering randomization study could be 
-#' performed, which applies the same clustering algorithm to N perturbed 
+#' For assessing the robustness of the clustering randomization study could  
+#' be performed, which applies the same clustering algorithm to N perturbed 
 #' networks and returns the consensus matrix where each pair of nodes will be 
-#' assigned the probability to belong to the same cluster. Network is perturbed
-#' by deleting \code{mask} percent of edges (\code{type=1}) or nodes 
-#' (\code{type=2}) from network before clustering.
+#' assigned the probability to belong to the same cluster. Network is 
+#' perturbed by deleting \code{mask} percent of edges (\code{type=1}) or 
+#' nodes (\code{type=2}) from network before clustering.
 #' 
 #'
 #' @param gg graph to perturb

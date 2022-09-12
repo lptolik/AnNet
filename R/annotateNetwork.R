@@ -89,21 +89,24 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
                         Str1 <- as.character(annoF[ind1[1], 2])
                     }
                     else {
-                        Str1 <- paste(as.character(annoF[ind1, 2]), collapse = COLLAPSE)
+                        Str1 <- paste(as.character(annoF[ind1, 2]), 
+                                      collapse = COLLAPSE)
                     }
 
                     if (length(ind1) == 1) {
                         Str2 <- as.character(annoF[ind1[1], 1])
                     }
                     else {
-                        Str2 <- paste(as.character(annoF[ind1, 1]), collapse = COLLAPSE)
+                        Str2 <- paste(as.character(annoF[ind1, 1]), 
+                                      collapse = COLLAPSE)
                     }
 
                     if (grepl(COLLAPSE, Str1)) {
                         Str1 <- strsplit(Str1, COLLAPSE)[[1]]
                         Str1 <- unique(Str1)
                         if (length(Str1) > 1) {
-                            Str1 <- paste(as.character(Str1), collapse = COLLAPSE)
+                            Str1 <- paste(as.character(Str1), 
+                                          collapse = COLLAPSE)
                         }
                     }
 
@@ -111,7 +114,8 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
                         Str2 <- strsplit(Str2, COLLAPSE)[[1]]
                         Str2 <- unique(Str2)
                         if (length(Str2) > 1) {
-                            Str2 <- paste(as.character(Str2), collapse = COLLAPSE)
+                            Str2 <- paste(as.character(Str2), 
+                                          collapse = COLLAPSE)
                         }
                     }
 
@@ -147,9 +151,10 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
 #' 
 #' For the protein-protein interaction (PPI) or disease gene interaction (DGN)
 #' graphs that have EntrezID as a vertex name this function extract standard
-#' name from \code{\link[org.Hs.eg.db]{org.Hs.eg.db}} and annotate vertices. If for some
-#' vertices EntresID does not match \code{\link[org.Hs.eg.db]{org.Hs.eg.db}} empty string is
-#' added as GeneName.
+#' name from \code{\link[org.Hs.eg.db]{org.Hs.eg.db}} and annotate vertices. 
+#' If for some
+#' vertices EntresID does not match \code{\link[org.Hs.eg.db]{org.Hs.eg.db}} 
+#' empty string is added as GeneName.
 #'
 #' @param gg igraph object to annotate
 #'
@@ -640,10 +645,7 @@ annotate_SCHanno <- function(gg, anno) {
         }
 
         V(gg)[i]$Schanno <- as.character(Str)
-
-
-
-    }
+   }
     return(gg)
 }
 #Add CHUA synaptic functional groups
@@ -688,92 +690,92 @@ annotate_Interpro <- function(gg, annoF, annoD) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "InterProFamilyID")
     gg <- removeVertexTerm(gg, "InterProFamily")
-
+    
     gg <- removeVertexTerm(gg, "InterProDomainID")
     gg <- removeVertexTerm(gg, "InterProDomain")
-
+    
     #--- Set interproFamily attributes in .gml graph
     set.vertex.attribute(gg, "InterProFamilyID", V(gg), "")
     set.vertex.attribute(gg, "InterProFamily", V(gg), "")
     set.vertex.attribute(gg, "InterProDomainID", V(gg), "")
     set.vertex.attribute(gg, "InterProDomain", V(gg), "")
     annoFIDS <- as.character(annoF[, 3])
-
+    
     typeF <-
         unique(unlist(strsplit(as.character(unique(
             annoF[, 2]
         )), ",")))
     annoDIDS <- as.character(annoD[, 3])
-
+    
     typeD <-
         unique(unlist(strsplit(as.character(unique(
             annoD[, 2]
         )), ",")))
-
-
+    
+    
     for (i in seq_along(ids)) {
         ind1 <- which(annoFIDS == ids[i])
-
+        
         Str1 <- ""
-
+        
         Str2 <- ""
-
-
+        
+        
         if (length(ind1) != 0) {
             if (length(ind1) == 1) {
                 Str1 <- as.character(annoF[ind1[1], 2])
             }
             else {
-                Str1 <- paste(as.character(annoF[ind1, 2]), collapse = COLLAPSE)
+                Str1 <- paste(as.character(annoF[ind1, 2]),
+                              collapse = COLLAPSE)
             }
-
+            
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoF[ind1[1], 1])
             }
             else {
-                Str2 <- paste(as.character(annoF[ind1, 1]), collapse = COLLAPSE)
+                Str2 <- paste(as.character(annoF[ind1, 1]),
+                              collapse = COLLAPSE)
             }
-
+            
         }
-
+        
         V(gg)[i]$InterProFamilyID <- as.character(Str2)
-
+        
         V(gg)[i]$InterProFamily   <- as.character(Str1)
-
-
-
+        
+        
+        
         ind1 <- which(annoDIDS == ids[i])
-
+        
         Str1 <- ""
-
+        
         Str2 <- ""
-
-
+        
+        
         if (length(ind1) != 0) {
             if (length(ind1) == 1) {
                 Str1 <- as.character(annoD[ind1[1], 2])
             }
             else {
-                Str1 <- paste(as.character(annoD[ind1, 2]), collapse = COLLAPSE)
+                Str1 <- paste(as.character(annoD[ind1, 2]),
+                              collapse = COLLAPSE)
             }
-
+            
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoD[ind1[1], 1])
             }
             else {
-                Str2 <- paste(as.character(annoD[ind1, 1]), collapse = COLLAPSE)
+                Str2 <- paste(as.character(annoD[ind1, 1]),
+                              collapse = COLLAPSE)
             }
-
+            
         }
-
+        
         V(gg)[i]$InterProDomainID <- as.character(Str2)
-
+        
         V(gg)[i]$InterProDomain   <- as.character(Str1)
-
-
-
     }
-
     return(gg)
 }
 #Add Core PSD and Pre-synpatic compartmental genes
@@ -783,12 +785,12 @@ annotate_compartments <- function(gg, preSet, psd95Set) {
     gg <- removeVertexTerm(gg, "CORESPD")
 
 
-    #---ADD VIP gene lists
-    # VIP <- vector(length=2)
-    # VIP[1] <- "SynsysBaits.csv"
-    # VIP[2] <- "CorePSD95Complex.csv"
-    # set1 <- read.table(sprintf("%s/%s",OUT[4],VIP[1]),sep="\t",header=F)[[1]]
-    # set2 <- read.table(sprintf("%s/%s",OUT[4],VIP[2]),sep="\t",header=F)[[1]]
+#---ADD VIP gene lists
+# VIP <- vector(length=2)
+# VIP[1] <- "SynsysBaits.csv"
+# VIP[2] <- "CorePSD95Complex.csv"
+# set1 <- read.table(sprintf("%s/%s",OUT[4],VIP[1]),sep="\t",header=F)[[1]]
+# set2 <- read.table(sprintf("%s/%s",OUT[4],VIP[2]),sep="\t",header=F)[[1]]
     set1 <- preSet
     set2 <- psd95Set
 
@@ -846,7 +848,8 @@ annotate_bridgeness_regions <- function(gg, str) {
                              header = FALSE)
 
             gg <-
-                set.vertex.attribute(gg, fn[i], V(gg), ff[match(ff[, 1], ids), 2])
+                set.vertex.attribute(gg, fn[i], V(gg), 
+                                     ff[match(ff[, 1], ids), 2])
 
         }
     }
@@ -870,7 +873,8 @@ annotate_bridgeness_regions <- function(gg, str) {
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 #' gg <- igraph::read.graph(file,format="gml")
 #' sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "AnNet")
-#' goMF <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+#' goMF <- read.table(sfile,sep="\t",skip=1,header=FALSE,
+#' strip.white=TRUE,quote="")
 #' sgg <- annotate_go_mf(gg, goMF)
 annotate_go_mf <- function(gg, annoF) {
     ids <- V(gg)$name
@@ -900,14 +904,16 @@ annotate_go_mf <- function(gg, annoF) {
                 Str1 <- as.character(annoF[ind1[1], 2])
             }
             else {
-                Str1 <- paste(as.character(annoF[ind1, 2]), collapse = COLLAPSE)
+                Str1 <- paste(as.character(annoF[ind1, 2]), 
+                              collapse = COLLAPSE)
             }
 
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoF[ind1[1], 1])
             }
             else {
-                Str2 <- paste(as.character(annoF[ind1, 1]), collapse = COLLAPSE)
+                Str2 <- paste(as.character(annoF[ind1, 1]), 
+                              collapse = COLLAPSE)
             }
 
         }
@@ -938,7 +944,8 @@ annotate_go_mf <- function(gg, annoF) {
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 #' gg <- igraph::read.graph(file,format="gml")
 #' sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "AnNet")
-#' goBP <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+#' goBP <- read.table(sfile,sep="\t",skip=1,header=FALSE,
+#' strip.white=TRUE,quote="")
 #' sgg <- annotate_go_bp(gg, goBP)
 annotate_go_bp <- function(gg, annoF) {
     ids <- V(gg)$name
@@ -968,14 +975,16 @@ annotate_go_bp <- function(gg, annoF) {
                 Str1 <- as.character(annoF[ind1[1], 2])
             }
             else {
-                Str1 <- paste(as.character(annoF[ind1, 2]), collapse = COLLAPSE)
+                Str1 <- paste(as.character(annoF[ind1, 2]), 
+                              collapse = COLLAPSE)
             }
 
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoF[ind1[1], 1])
             }
             else {
-                Str2 <- paste(as.character(annoF[ind1, 1]), collapse = COLLAPSE)
+                Str2 <- paste(as.character(annoF[ind1, 1]), 
+                              collapse = COLLAPSE)
             }
 
         }
@@ -1006,7 +1015,8 @@ annotate_go_bp <- function(gg, annoF) {
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 #' gg <- igraph::read.graph(file,format="gml")
 #' sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "AnNet")
-#' goCC <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+#' goCC <- read.table(sfile,sep="\t",skip=1,header=FALSE,
+#' strip.white=TRUE,quote="")
 #' sgg <- annotate_go_cc(gg, goCC)
 annotate_go_cc <- function(gg, annoF) {
     ids <- V(gg)$name
@@ -1039,14 +1049,16 @@ annotate_go_cc <- function(gg, annoF) {
                 Str1 <- as.character(annoF[ind1[1], 2])
             }
             else {
-                Str1 <- paste(as.character(annoF[ind1, 2]), collapse = COLLAPSE)
+                Str1 <- paste(as.character(annoF[ind1, 2]), 
+                              collapse = COLLAPSE)
             }
 
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoF[ind1[1], 1])
             }
             else {
-                Str2 <- paste(as.character(annoF[ind1, 1]), collapse = COLLAPSE)
+                Str2 <- paste(as.character(annoF[ind1, 1]), 
+                              collapse = COLLAPSE)
             }
 
         }
