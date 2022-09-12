@@ -106,6 +106,9 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 #'
 #' @param GDA vertex annotations returned by \code{\link{prepareGDA}}
 #' @param dtype list of unique annotation terms to analyze
+#' 
+#' @return mapping matrix between vertices, vertex-degree groups and annotation
+#'         terms.
 #'
 #' @export
 #' @seealso prepareGDA

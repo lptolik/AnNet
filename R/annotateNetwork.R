@@ -46,7 +46,6 @@ ESC      <- "|"
 #' @param addIDS if TRUE NAME_ID property will be added
 #'
 #' @return igraph object with vertex attributes from NAME contain annotations
-#' @export
 loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
     for (f in seq_along(FILES)) {
         GG <- removeVertexTerm(GG, NAME[f])
@@ -844,7 +843,7 @@ annotate_bridgeness_regions <- function(gg, str) {
         if (file.exists(sprintf("%s/%s", str, files[i]))) {
             ff <- read.table(sprintf("%s/%s", str, files[i]),
                              sep = "\t",
-                             header = F)
+                             header = FALSE)
 
             gg <-
                 set.vertex.attribute(gg, fn[i], V(gg), ff[match(ff[, 1], ids), 2])

@@ -13,6 +13,10 @@ degree.binned.GDAs(gg, GDA, dtype)
 
 \item{dtype}{list of unique annotation terms to analyze}
 }
+\value{
+mapping matrix between vertices, vertex-degree groups and annotation
+terms.
+}
 \description{
 Prepare mapping for degree-aware annotation shuffling.
 }

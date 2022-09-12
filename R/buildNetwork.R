@@ -176,7 +176,7 @@ addEdgeAtts <- function(GG, gg){
 #' V(gg)$name
 buildNetwork<-function(ff,kw=NA){
   #--- build raw graph
-  GG <- graph.data.frame(ff[,1:2],directed=F)
+  GG <- graph.data.frame(ff[,1:2],directed=FALSE)
   if( !is.na(kw) ){
     GG = set.edge.attribute(GG,"METHOD",E(GG), as.character(ff[,3]))
     GG = set.edge.attribute(GG,"TYPE",E(GG), as.character(ff[,7]))

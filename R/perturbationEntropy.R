@@ -332,8 +332,11 @@ plotEntropy<-function(SRprime,subTIT='Entropy',SRo=NULL,maxSr=NULL){
           panel.border = element_rect(linetype="solid",fill=NA))+
     scale_color_manual("",breaks=levels(DF$GROUP),values=c(colours))#+
   if(!is.null(SRo) && !is.null(maxSr)){
-    gplot <- gplot + geom_hline(yintercept=SRo/maxSr,colour="black",size=2,linetype=2,show.legend=F)
+    gplot <- gplot + 
+        geom_hline(yintercept=SRo/maxSr,colour="black",
+                   size=2,linetype=2,show.legend=FALSE)
   }
-  #geom_hline(yintercept=SRo/maxSr,colour="grey40",size=2,linetype=2,show.legend=F)
+  # geom_hline(yintercept=SRo/maxSr,colour="grey40",
+  #            size=2,linetype=2,show.legend=F)
   return(gplot)
 }

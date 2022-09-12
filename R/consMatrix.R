@@ -139,13 +139,11 @@ matrixDiv <- function(x,y){
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' data(karate,package='igraphdata')
 #' alg<-'louvain'
 #' gg<-calcClustering(karate,alg = alg)
 #' conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
 #' dim(conmat)
-#' }
 makeConsensusMatrix<-function(gg,N=500,mask=20,alg,type,
                               reclust=FALSE){
   lcc<-lapply(1:N, function(.x)sampleGraphClust(gg=gg,

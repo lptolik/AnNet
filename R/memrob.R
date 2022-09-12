@@ -75,14 +75,12 @@ memrob <- function(x,rm=data.frame()){
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' data(karate,package='igraphdata')
 #' alg<-'louvain'
 #' gg<-calcClustering(karate,alg = alg)
 #' conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
 #' clrob<-getRobustness(gg, alg = alg, conmat)
 #' clrob
-#' }
 getRobustness<-function(gg,alg,conmat){
 
   if(!alg%in%igraph::vertex_attr_names(gg)){
