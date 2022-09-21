@@ -2,8 +2,8 @@
 % Please edit documentation in R/clustering.R
 \name{calcClustering}
 \alias{calcClustering}
-\title{Calculate memberships for particular clustering algorithms and store them on the
-graph vertices.}
+\title{Calculate memberships for particular clustering algorithms and store
+them on the graph vertices.}
 \usage{
 calcClustering(gg, alg)
 }

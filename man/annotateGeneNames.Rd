@@ -15,9 +15,10 @@ igraph object with new vertex attribute \code{GeneName}
 \description{
 For the protein-protein interaction (PPI) or disease gene interaction (DGN)
 graphs that have EntrezID as a vertex name this function extract standard
-name from \code{\link[org.Hs.eg.db]{org.Hs.eg.db}} and annotate vertices. If for some
-vertices EntresID does not match \code{\link[org.Hs.eg.db]{org.Hs.eg.db}} empty string is
-added as GeneName.
+name from \code{\link[org.Hs.eg.db]{org.Hs.eg.db}} and annotate vertices.
+If for some
+vertices EntresID does not match \code{\link[org.Hs.eg.db]{org.Hs.eg.db}}
+empty string is added as GeneName.
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")

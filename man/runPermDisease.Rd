@@ -23,16 +23,17 @@ runPermDisease(
 
 \item{Nperm}{number of permutations to apply}
 
-\item{permute}{type of permutations. \code{random} -- annotation is randomly shuffled,
+\item{permute}{type of permutations.
+\code{random} -- annotation is randomly shuffled,
 \code{binned} -- annotation is shuffled in a way to preserve node
 degree-annotation relationship by \code{\link{degree.binned.GDAs}}.}
 
 \item{alpha}{statistical significance levels}
 }
 \value{
-list of two matrices: \code{Disease_overlap_sig} gives statistics for
-each pair of disease, and \code{Disease_location_sig} gives intra-disease
-statistics
+list of two matrices: \code{Disease_overlap_sig} gives s
+tatistics for each pair of disease, and
+\code{Disease_location_sig} gives intra-disease statistics
 }
 \description{
 Function calculates disease overlap characteristics on the intact network

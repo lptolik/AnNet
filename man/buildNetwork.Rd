@@ -17,9 +17,9 @@ no annotation will be added}
 igraph object of the largest connected component
 }
 \description{
-It is a wrapper for \code{\link[igraph]{graph.data.frame}} that always return
-allow annotate edges largest connected component of the network defined
-by \code{ff}. It is also allows annotation of edges
+It is a wrapper for \code{\link[igraph]{graph.data.frame}} that always
+return allow annotate edges largest connected component of the network
+defined by \code{ff}. It is also allows annotation of edges
 with PubMed data, if exists.
 }
 \examples{

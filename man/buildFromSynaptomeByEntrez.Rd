@@ -2,7 +2,8 @@
 % Please edit documentation in R/buildNetwork.R
 \name{buildFromSynaptomeByEntrez}
 \alias{buildFromSynaptomeByEntrez}
-\title{Utility function to create network from \code{\link[synaptome.db]{synaptome.db}} data}
+\title{Utility function to create network from
+\code{\link[synaptome.db]{synaptome.db}} data}
 \usage{
 buildFromSynaptomeByEntrez(entrez)
 }
@@ -13,7 +14,8 @@ buildFromSynaptomeByEntrez(entrez)
 largest connected component of network defined by the gene list
 }
 \description{
-Utility function to create network from \code{\link[synaptome.db]{synaptome.db}} data
+Utility function to create network from
+\code{\link[synaptome.db]{synaptome.db}} data
 }
 \examples{
 cid<-match('Presynaptic',getCompartments()$Name)

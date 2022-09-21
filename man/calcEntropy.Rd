@@ -12,9 +12,9 @@ calcEntropy(gg, maxSr = NULL, exVal = NULL)
 \item{maxSr}{maxSr value, if NULL \code{getEntropyRate} will be called.}
 
 \item{exVal}{expression values boundaries.
-Two columns are expected: \code{xx} and \code{lambda}. If NULL default values
-\code{c(2,14)} and \code{c(-14,14)} will be used for \code{xx}
-and \code{lambda} respectively.}
+Two columns are expected: \code{xx} and \code{lambda}. If NULL
+default values \code{c(2,14)} and \code{c(-14,14)} will be used
+for \code{xx}  and \code{lambda} respectively.}
 }
 \value{
 graph with SR_UP and SR_DOWN attributes storing entropy values for

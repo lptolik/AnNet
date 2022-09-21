@@ -7,7 +7,8 @@
 getGraphCentralityECDF(m)
 }
 \arguments{
-\item{m}{centrality matrix from \code{\link{getCentralityMatrix}} invocation.}
+\item{m}{centrality matrix from \code{\link{getCentralityMatrix}}
+invocation.}
 }
 \value{
 list of sever ecdf objects, corresponding to values in
