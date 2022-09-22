@@ -14,12 +14,12 @@
 findLCC <- function(GG){
 
   dec <- decompose.graph(GG)
-  d=1
-  CC=length(V(dec[[1]]))
+  d <- 1
+  CC <- length(V(dec[[1]]))
   for( i in seq_along(dec) ){
     if(length(V(dec[[i]])) > CC){
-      d=i
-      CC=length(V(dec[[i]]))
+      d <- i
+      CC <- length(V(dec[[i]]))
     }
   }
 
@@ -102,33 +102,33 @@ findTERM <- function(eatt, TERMS){
 #' edge_attr_names(gg)
 addEdgeAtts <- function(GG, gg){
 
-  ATTS = names(edge.attributes(GG))
+  ATTS <- names(edge.attributes(GG))
 
   if( !is.null(ATTS) ){
 
-    ed = get.edgelist(gg)
-    M  = length(E(gg))
-    ED = get.edgelist(GG)
+    ed <- get.edgelist(gg)
+    M <- length(E(gg))
+    ED <- get.edgelist(GG)
 
-    VALUES = list()
+    VALUES <- list()
 
     for( a in seq_along(ATTS) ){
-      VALUES[[a]] = get.edge.attribute(GG,ATTS[a],E(GG))
-      names(VALUES)[a] = ATTS[a]
+      VALUES[[a]] <- get.edge.attribute(GG,ATTS[a],E(GG))
+      names(VALUES)[a] <- ATTS[a]
     }
 
     # cat("\n")
     # cat("scanning edges...")
-    RES    = matrix("",nrow=M, ncol=length(ATTS))
+    RES <-  matrix("",nrow=M, ncol=length(ATTS))
 
     for( e in seq_len(M) ){
 
-      indx = (ed[e,1] == ED[,1] & ed[e,2] == ED[,2]) |
+      indx  <-  (ed[e,1] == ED[,1] & ed[e,2] == ED[,2]) |
         (ed[e,1] == ED[,2] & ed[e,2] == ED[,1])
 
       for( a in seq_along(ATTS) ){
 
-        res = VALUES[[a]][indx]
+        res <- VALUES[[a]][indx]
 
         if( res != "" ){
           res <- unique(res)
@@ -177,16 +177,16 @@ buildNetwork<-function(ff,kw=NA){
   #--- build raw graph
   GG <- graph.data.frame(ff[,seq_len(2)],directed=FALSE)
   if( !is.na(kw) ){
-    GG = set.edge.attribute(GG,"METHOD",E(GG), as.character(ff[,3]))
-    GG = set.edge.attribute(GG,"TYPE",E(GG), as.character(ff[,7]))
+    GG <- set.edge.attribute(GG,"METHOD",E(GG), as.character(ff[,3]))
+    GG <- set.edge.attribute(GG,"TYPE",E(GG), as.character(ff[,7]))
 
-    PMIDS = ifelse(!grepl("unassigned",ff[,4]),
+    PMIDS <- ifelse(!grepl("unassigned",ff[,4]),
                    sprintf("PMID:%s",ff[,4]), ff[,4])
-    GG = set.edge.attribute(GG,"PUBMED",E(GG), PMIDS)
+    GG <- set.edge.attribute(GG,"PUBMED",E(GG), PMIDS)
 
-    YEARS = kw[match(gsub("PMID:","",E(GG)$PUBMED),kw[,1]),3]
-    YEARS = ifelse(is.na(YEARS),"na",YEARS)
-    GG = set.edge.attribute(GG,"YEAR",E(GG), YEARS)
+    YEARS <- kw[match(gsub("PMID:","",E(GG)$PUBMED),kw[,1]),3]
+    YEARS <- ifelse(is.na(YEARS),"na",YEARS)
+    GG <- set.edge.attribute(GG,"YEAR",E(GG), YEARS)
     #---
 
   }

@@ -1,6 +1,6 @@
 Package: AnNet
 Title: Analysis of Networks
-Version: 0.99.005
+Version: 0.99.007
 Authors@R: c(
     person("Colin", "Mclean", 
         email="Colin.D.Mclean@ed.ac.uk", role=c("aut", "cre")), 
@@ -20,7 +20,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Depends: igraph, poweRlaw, org.Hs.eg.db, latex2exp, RSpectra, rSpectral, WGCNA, ggplot2, Rdpack
-Imports: stringr, synaptome.db, clusterCons, fgsea
+Imports: stringr, synaptome.db, clusterCons, fgsea, grid, methods, scales
 RdMacros: Rdpack
 Suggests: 
     knitr, 

@@ -28,7 +28,7 @@ gnp<-list()
 for(i in 1:10){
     gnp[[i]]<-getRandomGraphCentrality(karate,type = 'gnp')
 }
-gnpIDist<-calcCentralityExternalDistances(gnp)
+gnpIDist<-calcCentralityInternalDistances(gnp)
 summary(gnpIDist)
 }
 \seealso{

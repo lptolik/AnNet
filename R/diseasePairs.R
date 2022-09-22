@@ -107,7 +107,7 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
   dB   <- mean(as.numeric(as.vector(OO[OO[,indB[1]]!=".",indB[1]])))
 
   #overlap between disease A and B
-  sAB = as.numeric(dAB) - (as.numeric(dA)+as.numeric(dB))/2
+  sAB <- as.numeric(dAB) - (as.numeric(dA)+as.numeric(dB))/2
 
   return(sAB)
 
@@ -136,18 +136,18 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 #' head(m)
 degree.binned.GDAs <- function(gg,GDA,dtype){
 
-  deg  = degree(gg)
-  bins = table(deg)
-  map  = cbind(names(deg),as.vector(deg))
-  map  = cbind(map,match(map[,2],names(bins)))
+  deg <- degree(gg)
+  bins <- table(deg)
+  map <- cbind(names(deg),as.vector(deg))
+  map <- cbind(map,match(map[,2],names(bins)))
 
-  #nGDAs=length(dtype)
+  #nGDAs <- length(dtype)
 
   for( i in seq_along(dtype)){
-    map=cbind(map,ifelse(grepl(dtype[i],GDA,fixed=TRUE),1,0))
+    map <- cbind(map,ifelse(grepl(dtype[i],GDA,fixed=TRUE),1,0))
   }
 
-  colnames(map) = c("EntrezID","Degree","Bin",dtype)
+  colnames(map) <- c("EntrezID","Degree","Bin",dtype)
 
   return(map)
 
@@ -172,27 +172,27 @@ degree.binned.GDAs <- function(gg,GDA,dtype){
 #' sample.deg.binned.GDA(m,diseases[1])
 sample.deg.binned.GDA <- function(org.map,term){
 
-  gda.indx = match(term,colnames(org.map))
+  gda.indx <- match(term,colnames(org.map))
 
-  rnd.gene.set = NULL
+  rnd.gene.set <- NULL
 
   if( length(gda.indx) > 0 ){
 
-    gda.set = as.vector(org.map[org.map[,gda.indx]==1,3])
-    Nset    = length(gda.set)
+    gda.set <- as.vector(org.map[org.map[,gda.indx]==1,3])
+    Nset <- length(gda.set)
 
-    rnd.gene.set = rep(NA,Nset)
-    map=org.map
+    rnd.gene.set <- rep(NA,Nset)
+    map <- org.map
     for( i in seq_len(Nset) ){
-      seq.map  = seq(1,dim(map)[1],1)
-      rnd.indx = seq.map[!is.na(match(as.numeric(map[,3]),
+      seq.map <- seq(1,dim(map)[1],1)
+      rnd.indx <- seq.map[!is.na(match(as.numeric(map[,3]),
                                       as.numeric(gda.set[i])))]
       if( length(rnd.indx) > 1 ){
-        rnd.indx = as.numeric(sample(rnd.indx))[1]
+        rnd.indx <- as.numeric(sample(rnd.indx))[1]
       }
       if( length(rnd.indx) > 0 ){
-        rnd.gene.set[i] = map[rnd.indx,1]
-        map             = map[-rnd.indx,]
+        rnd.gene.set[i] <- map[rnd.indx,1]
+        map <- map[-rnd.indx,]
       }
     }
   }
@@ -332,15 +332,15 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,
 
     ## for each gda, find the minimum shortest path to next 
     ## gda (of the same disease)
-    XX=igraph::shortest.paths(gg,IDS,IDS,weights=NA)
-    diag(XX)       = NA
-    ds             = apply(XX,1,min,na.rm=TRUE)
-    indX           = match(names(ds),oo[,1])
-    oo[indX,(2+d)] = as.vector(ds)
+    XX <- igraph::shortest.paths(gg,IDS,IDS,weights=NA)
+    diag(XX) <- NA
+    ds <- apply(XX,1,min,na.rm=TRUE)
+    indX <- match(names(ds),oo[,1])
+    oo[indX,(2+d)] <- as.vector(ds)
 
-    res[d,2]       = as.character(N)
-    res[d,3]       = as.character(mean(ds))
-    res[d,4]       = as.character(sd(ds))
+    res[d,2] <- as.character(N)
+    res[d,3] <- as.character(mean(ds))
+    res[d,4] <- as.character(sd(ds))
 
   }
 
@@ -505,7 +505,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
   NELE  <- Nn*(Nn+1)/2
 
   ##---no: of levels for Bonferroni correction
-  Nlevels = NELE;
+  Nlevels <- NELE;
 
   ##--- Output file for disease-disease separation/overlap
   #CN <-  c("HDO.ID","Disease.long","Disease","N","HDO.ID",
@@ -523,13 +523,13 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
   for( k in 0:(NELE-1) ){
 
     ##--- linear indexing for symmetric matrix
-    i = floor( (2*Nn+1 - sqrt( (2*Nn+1)*(2*Nn+1) - 8*k ))/2 );
-    j = k - Nn*i + i*(i-1)/2;
+    i <- floor( (2*Nn+1 - sqrt( (2*Nn+1)*(2*Nn+1) - 8*k ))/2 );
+    j <- k - Nn*i + i*(i-1)/2;
 
-    i = i + 1;
-    j = j + i;
+    i <- i + 1;
+    j <- j + i;
 
-    zScore = 0
+    zScore <- 0
 
     if( !is.nan(as.numeric(RAN_sAB_sd[i,j])) ){
 
@@ -537,7 +537,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
       ## randomised model (of the mean of sAB),
       ## see (Menche et al., 2015).
       if( as.numeric(RAN_sAB_sd[i,j]) != 0){
-        zScore = (as.numeric(as.vector(sAB[i,j])) - 
+        zScore <- (as.numeric(as.vector(sAB[i,j])) - 
                       as.numeric(as.vector(RAN_sAB_mean[i,j])))/
             (as.numeric(as.vector(RAN_sAB_sd[i,j])))
       }

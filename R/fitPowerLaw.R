@@ -8,8 +8,8 @@
 #library(stringr);
 
 ##---WIDTH and HEIGHT for plots
-WIDTH=480
-HEIGHT=480
+WIDTH <- 480
+HEIGHT <- 480
 
 ##set igraph as S4
 setClass("poweRlaw")
@@ -93,22 +93,22 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE,
                       WIDTH=480, HEIGHT=480 ,legpos="bottomleft"){
   DEG <- DEG[DEG > 0]
   data <- DEG
-  m_pl = displ$new(data)
-  est = estimate_xmin(m_pl)
+  m_pl <- displ$new(data)
+  est <- estimate_xmin(m_pl)
   m_pl$setXmin(est)
   suppressMessages(
     gof <- poweRlaw::bootstrap_p(m_pl, no_of_sims = Nsim, threads=threads)
   )
   if(plot){
     op<-options(warn= -1)
-    x_lab="k"    ##degree
-    y_lab="P(k)" ## the CDFs P(k) for the PPI network data
-    leg_x = max(data)
-    leg_y = 1
-    d = plot(m_pl,draw=FALSE)
+    x_lab <- "k"    ##degree
+    y_lab <- "P(k)" ## the CDFs P(k) for the PPI network data
+    leg_x <- max(data)
+    leg_y <- 1
+    d <- plot(m_pl,draw=FALSE)
     Xmax <- max(d$x) - max(d$x)*0.5
-    yTICKS  = round(lseqBy(min(d$y),1,0.5),4)
-    yLABELS = changeSciNot(yTICKS)
+    yTICKS <- round(lseqBy(min(d$y),1,0.5),4)
+    yLABELS <- changeSciNot(yTICKS)
 
     plot(m_pl, xlab=sprintf("%s",x_lab), ylab=y_lab,
          panel.first=grid(col="grey60"),
@@ -118,13 +118,13 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE,
     axis(2, cex.axis = 1.5, font = 1.5, family = 'arial', at=yTICKS,
          labels=yLABELS)
     lines(m_pl, col=2, lwd=3)
-    S1 = round(m_pl$xmin,2)
-    S2 = round(m_pl$pars,2)
-    S3 = round(gof$p,2)
-    sdS1 = round(sd(gof$bootstraps$xmin),0)
-    sdS2 = round(sd(gof$bootstraps$pars),2)
-    errS1 = str_sub(as.character(sdS1),-1,-1)
-    errS2 = str_sub(as.character(sdS2),-1,-1)
+    S1 <- round(m_pl$xmin,2)
+    S2 <- round(m_pl$pars,2)
+    S3 <- round(gof$p,2)
+    sdS1 <- round(sd(gof$bootstraps$xmin),0)
+    sdS2 <- round(sd(gof$bootstraps$pars),2)
+    errS1 <- str_sub(as.character(sdS1),-1,-1)
+    errS2 <- str_sub(as.character(sdS2),-1,-1)
     suppressMessages(
         fitl <-
             TeX(sprintf(

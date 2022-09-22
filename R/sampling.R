@@ -237,7 +237,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
 
 
     RES <- list()
-    k=1
+    k <- 1
     for( i in seq_along(cc) ){
 
       edCC <- intraEdgesM(gg, mem, cc[i], INTRA=TRUE)
@@ -258,7 +258,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
 
         RES[[k]]      <- oo
         names(RES)[k] <- cc[i]
-        k=k+1
+        k <- k+1
       }
 
     }#for
@@ -299,18 +299,18 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
 
     while( counter <= Kmax ){
 
-      found=FALSE;
+      found <- FALSE;
 
       for(v in seq_len(N) ){
         if( as.numeric(ALG2$split[v]) == counter ){
           temp[v] <- Knew;
-          found=TRUE;
+          found <- TRUE;
         }
       }
 
-      if(found) Knew=Knew+1;
+      if(found) Knew <- Knew+1;
 
-      counter=counter+1;
+      counter <- counter+1;
     }
 
     #---final
@@ -337,7 +337,7 @@ recluster <- function( GG, ALGN, CnMAX ){
 
 
     RES <- list()
-    k=1
+    k <- 1
     for( i in seq_along(cc) ){
 
       edCC <- intraEdges(GG, ALG, cc[i], INTRA=TRUE)
@@ -350,7 +350,7 @@ recluster <- function( GG, ALGN, CnMAX ){
 
         RES[[k]]      <- oo
         names(RES)[k] <- cc[i]
-        k=k+1
+        k <- k+1
       }
 
     }#for
@@ -391,18 +391,18 @@ recluster <- function( GG, ALGN, CnMAX ){
 
     while( counter <= Kmax ){
 
-      found=FALSE;
+      found <- FALSE;
 
       for(v in seq_len(N) ){
         if( as.numeric(ALG2[v,3]) == counter ){
           temp[v] <- Knew;
-          found=TRUE;
+          found <- TRUE;
         }
       }
 
-      if(found) Knew=Knew+1;
+      if(found) Knew <- Knew+1;
 
-      counter=counter+1;
+      counter <- counter+1;
     }
 
     #---final

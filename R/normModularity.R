@@ -77,18 +77,18 @@ normModularity <- function(gg,
     Qrnd <- 0
     
     for (i in seq_len(Nint)) {
-        gg.rnd      = igraph::rewire(graph = gg,
+        gg.rnd <- igraph::rewire(graph = gg,
                                      with = keeping_degseq(loops = FALSE, 
                                                            niter = 100))
-        cl.rnd = getClustering(gg.rnd, alg)
-        Qrnd        = Qrnd + max(as.numeric(cl.rnd$modularity))
+        cl.rnd <- getClustering(gg.rnd, alg)
+        Qrnd <- Qrnd + max(as.numeric(cl.rnd$modularity))
         rm(gg.rnd, cl.rnd)
     }
     
     ##--- random modularity for graph given cl clustering
-    Qrnd = Qrnd / Nint
+    Qrnd <- Qrnd / Nint
     
     ##--- normalised modularity for graph given cl clustering
-    Qnorm = (Qobs - Qrnd) / (Qmax - Qrnd)
+    Qnorm <- (Qobs - Qrnd) / (Qmax - Qrnd)
     return(Qnorm)
 }
