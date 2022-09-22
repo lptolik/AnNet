@@ -110,8 +110,8 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
     V(gg)$GeneName<-V(gg)$name
   }
   #--- initial entropy rate
-  V    <- length(V(gg))
-  E    <- length(E(gg))
+  V    <- vcount(gg)
+  E    <- ecount(gg)
   ki   <- as.vector(igraph::degree(gg))
   Kbar <- mean(ki)
 
@@ -149,7 +149,7 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
 
   SRprime <- cbind(V(gg)$name, V(gg)$GeneName, ki, rep("",V), rep("",V))
 
-  for( v in 1:V ){
+  for( v in seq_len(V) ){
 
     #--- name of gene to perturb
     GN     <- as.character(SRprime[v,2])
@@ -166,7 +166,7 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
     NORM <- rep.int(0,length(xx))
 
     #--- calculate norm for PI'
-    for( s in 1:length(lambda) ){
+    for( s in seq_along(lambda) ){
       X               <- rep(xx[s], V)
       X[GNindx[1]]    <- X[GNindx[1]] + lambda[s]
       NORM[s]         <- X %*% A %*% X
@@ -180,14 +180,14 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
 
 
     #--- PI' when v is not N(v)
-    for( s in 1:length(lambda) ){
+    for( s in seq_along(lambda) ){
       PIprime[,s] <- ifelse(oo[,2] == 1, 
                             (1/NORM[s] * xx[s] * xx[s] * as.numeric(oo[,1])), 
                             ".")
     }
 
     #--- PI' when v is v
-    for( s in 1:length(lambda) ){
+    for( s in seq_along(lambda) ){
 
       X   <- as.numeric(xx[s])
       lam <- as.numeric(lambda[s])
@@ -198,7 +198,7 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
     }
 
     #--- PI' when v is N(v)
-    for (s in 1:length(lambda)) {
+    for (s in seq_along(lambda)) {
         PIprime[, s] <- ifelse(oo[, 2] == 0,
                                (1 / NORM[s] * xx[s] * (xx[s] + lambda[s] + (
                                    as.numeric(oo[, 1]) - 1
@@ -207,7 +207,7 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
     
 
     #--- LS' when v is not N(v)
-    for( s in 1:length(lambda) ){
+    for( s in seq_along(lambda) ){
       X <- as.numeric(xx[s])
       LSprime[,s] <- ifelse(oo[,2] == 1, 
                             (-log(X) + log(X*as.numeric(oo[,1]))),".")
@@ -216,12 +216,12 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
     #--- LS' when v is N(v)
     Ni <- grep(0,oo[,2])
 
-    for( i in 1:length(Ni) ){
+    for( i in seq_along(Ni) ){
 
       DEGi <- as.numeric(oo[Ni[i],1])
       SUM  <- DEGi-1
 
-      for( s in 1:length(lambda) ){
+      for( s in seq_along(lambda) ){
 
         X   <- as.numeric(xx[s])
         lam <- as.numeric(lambda[s])
@@ -271,7 +271,7 @@ getEntropyOverExpressed<-function(SRprime,perc=1){
   oo2 <- cbind(SRprime[,2],XX2)
   oo2 <- oo2[order(as.numeric(oo2[,2])),]
   ii  <- floor(perc/100 * V)
-  GN  <- oo2[1:ii,1]
+  GN  <- oo2[seq_len(ii),1]
   DF3 <- SRprime[match(GN,SRprime[,2]),c(1,2,3,4)]
   DF3 <- cbind(DF3,rep(paste0(perc,"%"),length(GN)))
   return(DF3)

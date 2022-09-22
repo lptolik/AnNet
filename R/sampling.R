@@ -149,7 +149,7 @@ layoutByRecluster<-function(gg,remem,layout=layout_with_kk){
   Cn<-table(remem$membership)
   glist<-list()
   laylist<-list()
-  for(i in 1: length(Cn)){
+  for(i in seq_along(Cn)){
     sg<-getClusterSubgraphByID(names(Cn)[i],gg,remem$membership)
     mem1<-remem[remem$membership==names(Cn)[i],c('names','recluster')]
     names(mem1)<-c('names','membership')
@@ -238,7 +238,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
 
     RES <- list()
     k=1
-    for( i in 1:length(cc) ){
+    for( i in seq_along(cc) ){
 
       edCC <- intraEdgesM(gg, mem, cc[i], INTRA=TRUE)
 
@@ -252,7 +252,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
           singidx<-which(!cmem$names %in% oo$names)
           singletones <- data.frame(names=cmem$names[singidx],
                                     membership=max(oo$membership)+
-                                      1:length(singidx))
+                                        seq_along(singidx))
           oo<-rbind(oo,singletones)
         }
 
@@ -276,7 +276,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
 
     CCmax <- max(as.numeric(ALG2$split))
 
-    for( i in 1:length(cc) ){
+    for( i in seq_along(cc) ){
 
       temp     <- RES[[i]]
       temp$membership <- temp$membership + CCmax
@@ -290,7 +290,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
     }
 
     #---reorder ALG2$split
-    N <- length(V(gg));
+    N <- vcount(gg);
 
     temp    <- rep(-1, N)
     counter <- min(as.numeric(ALG2$split))
@@ -301,7 +301,7 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
 
       found=FALSE;
 
-      for(v in 1:N ){
+      for(v in seq_len(N) ){
         if( as.numeric(ALG2$split[v]) == counter ){
           temp[v] <- Knew;
           found=TRUE;
@@ -338,7 +338,7 @@ recluster <- function( GG, ALGN, CnMAX ){
 
     RES <- list()
     k=1
-    for( i in 1:length(cc) ){
+    for( i in seq_along(cc) ){
 
       edCC <- intraEdges(GG, ALG, cc[i], INTRA=TRUE)
 
@@ -367,7 +367,7 @@ recluster <- function( GG, ALGN, CnMAX ){
 
     CCmax <- max(as.numeric(ALG2[,3]))
 
-    for( i in 1:length(cc) ){
+    for( i in seq_along(cc) ){
 
       temp     <- RES[[i]]
       temp[,2] <- as.numeric(temp[,2]) + CCmax
@@ -382,7 +382,7 @@ recluster <- function( GG, ALGN, CnMAX ){
     }
 
     #---reorder ALG2[,3]
-    N <- length(V(GG));
+    N <- vcount(GG)
 
     temp    <- rep(-1, N)
     counter <- min(as.numeric(ALG2[,3]))
@@ -393,7 +393,7 @@ recluster <- function( GG, ALGN, CnMAX ){
 
       found=FALSE;
 
-      for(v in 1:N ){
+      for(v in seq_len(N) ){
         if( as.numeric(ALG2[v,3]) == counter ){
           temp[v] <- Knew;
           found=TRUE;

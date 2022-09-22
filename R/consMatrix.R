@@ -13,7 +13,7 @@
 buildConsensusMatFromFiles <- function(Dir,file.name,skip=1,sep="\t"){
 
   subdirs  = list.files(path=Dir,pattern=file.name);
-  nstudies = length(subdirs);
+  #nstudies = length(subdirs);
 
   N        = NULL
   I        = NULL
@@ -24,7 +24,7 @@ buildConsensusMatFromFiles <- function(Dir,file.name,skip=1,sep="\t"){
   NJobs    = 0
   max_com  = 0
   min_com  = 500
-  for( s in 1:nstudies ){
+  for( s in seq_along(subdirs) ){
     filein = sprintf("%s/%s/%s",Dir,subdirs[s]);
     if( file.exists(filein) && file.info(filein)$size!=0 ){
       tb = read.delim(filein,
@@ -57,7 +57,7 @@ buildConsensusMatFromFiles <- function(Dir,file.name,skip=1,sep="\t"){
 
   ## the consensus matrix
   if( !is.null(N) ){
-    C = do.call( cbind, lapply(1:N, function(s) matrixDiv(M[,s],I[,s])))
+    C = do.call( cbind, lapply(seq_len(N), function(s) matrixDiv(M[,s],I[,s])))
   }
   return(C)
 }
@@ -78,7 +78,7 @@ buildConsensusMatrix<-function(lcc){
   NJobs    = 0
   max_com  = 0
   min_com  = 500
-  for(i in 1:length(lcc)){
+  for(i in seq_along(lcc)){
     tb<-lcc[[i]]
     ## make sure node id == -1 if node com == -1
     indx = tb[,3] == -1
@@ -99,7 +99,7 @@ buildConsensusMatrix<-function(lcc){
     rm(tb,study)
   }
   if( !is.null(N) ){
-    C = do.call( cbind, lapply(1:N, function(s) matrixDiv(M[,s],I[,s])))
+    C = do.call( cbind, lapply(seq_len(N), function(s) matrixDiv(M[,s],I[,s])))
   }
   return(C)
 }
@@ -146,7 +146,7 @@ matrixDiv <- function(x,y){
 #' dim(conmat)
 makeConsensusMatrix<-function(gg,N=500,mask=20,alg,type,
                               reclust=FALSE){
-  lcc<-lapply(1:N, function(.x)sampleGraphClust(gg=gg,
+  lcc<-lapply(seq_len(N), function(.x)sampleGraphClust(gg=gg,
                                             mask=mask,
                                             alg=alg,
                                             type=type,
@@ -170,7 +170,7 @@ calculateConsensusMat <- function( data=NULL ){
     tempI = matrix(0,nrow=N,ncol=N)
     tempM = matrix(0,nrow=N,ncol=N)
 
-    for( i in 1:N ){
+    for( i in seq_len(N) ){
       comi = as.numeric(data[i,3])
       keyi = data[i,2]
       jj   = seq(i,N,1)

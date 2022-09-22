@@ -24,15 +24,15 @@ memrob <- function(x,rm=data.frame()){
 	}
 
 	consensus <- x@cm
-
+   lvlsCM <- levels(as.factor(cmref$cm))
   #BUG - fixed to ensure deals with >100 clusters
-	mem_rob <- matrix(0,dim(consensus)[1],length(levels(as.factor(cmref$cm))),
+	mem_rob <- matrix(0,dim(consensus)[1],length(lvlsCM),
 	                  dimnames = list(row.names(consensus),
-	                                  seq_along(levels(as.factor(cmref$cm)))))
+	                                  seq_along(lvlsCM)))
 
-	for(k in 1:length(levels(as.factor(cmref$cm)))){ 
+	for(k in seq_along(lvlsCM)){ 
 	    #BUG - fixed to ensure deals with >100 clusters
-		for(i in 1:dim(consensus)[1]){
+		for(i in seq_len(dim(consensus)[1])){
 			Ik <- row.names(cmref)[cmref$cm==k] #where k is the cluster number
 
 			ind <- Ik[Ik != row.names(consensus)[i]] 
@@ -62,7 +62,7 @@ memrob <- function(x,rm=data.frame()){
 	#and output the mem_rob for the ref clustering (which is what you 
 	#actually want)
 	mem_rob_list <- list();
-	for(i in 1:dim(mem_rob)[2]){
+	for(i in seq_len(dim(mem_rob)[2])){
 		cl_mem_rob <- (mem_rob[(cmref$cm==i),i])
 		current_list <- data.frame(sort(cl_mem_rob,dec=TRUE))
 		names(current_list) <- 'mem_rob'

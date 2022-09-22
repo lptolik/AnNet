@@ -31,10 +31,10 @@ clusterORA<-function(g,alg,name,vid='name',alpha=0.1,col=COLLAPSE){
               universe = as.character(get.vertex.attribute(g,vid))));
     res$cl<-.i
     l<-dim(res)[2]
-    res<-res[,c(l,1:(l-1))]
+    res<-res[,c(l,seq_len(l-1))]
     return(res)
   }
-  resL<-lapply(1:length(cl),forafun)
+  resL<-lapply(seq_along(cl),forafun)
   res<-do.call(rbind,resL)
   res<-res[res$padj<alpha,]
   #res$overlapGenes<-sapply(res$overlapGenes,paste,collapse = ', ')

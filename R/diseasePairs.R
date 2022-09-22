@@ -128,9 +128,9 @@ degree.binned.GDAs <- function(gg,GDA,dtype){
   map  = cbind(names(deg),as.vector(deg))
   map  = cbind(map,match(map[,2],names(bins)))
 
-  nGDAs=length(dtype)
+  #nGDAs=length(dtype)
 
-  for( i in 1:nGDAs){
+  for( i in seq_along(dtype)){
     map=cbind(map,ifelse(grepl(dtype[i],GDA,fixed=TRUE),1,0))
   }
 
@@ -170,7 +170,7 @@ sample.deg.binned.GDA <- function(org.map,term){
 
     rnd.gene.set = rep(NA,Nset)
     map=org.map
-    for( i in 1:Nset ){
+    for( i in seq_len(Nset) ){
       seq.map  = seq(1,dim(map)[1],1)
       rnd.indx = seq.map[!is.na(match(as.numeric(map[,3]),
                                       as.numeric(gda.set[i])))]
@@ -267,7 +267,7 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,
   }else{
     remove<-c()
     diseases<-escapeAnnotation(diseases)
-    for(d in 1:length(diseases)){
+    for(d in seq_along(diseases)){
       if(!any(grepl(diseases[d],gda))){
         remove<-c(remove,d)
       }
@@ -276,14 +276,15 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,
       diseases<-diseases[-remove]
     }
   }
+  nDiseases<-length(diseases)
   if(permute!='none'){
-    rgda <- matrix(NA,nrow=vcount(gg),ncol=(length(diseases)))
+    rgda <- matrix(NA,nrow=vcount(gg),ncol=(nDiseases))
     colnames(rgda) <- c(diseases)
     if(permute=='binned'){
       map <- degree.binned.GDAs(gg,gda,diseases)
     }
 
-    for( d in 1:length(diseases) ){
+    for( d in seq_along(diseases) ){
 
       IDS <- V(gg)$name[grepl(diseases[d],gda,fixed=TRUE)]
       N   <- length(IDS)
@@ -299,19 +300,19 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,
     gda<-apply(rgda,1,function(.x)paste(diseases[!is.na(.x)],
                                         collapse = COLLAPSE))
   }
-  res           <- matrix(0 ,ncol=4, nrow=length(diseases))
+  res           <- matrix(0 ,ncol=4, nrow=nDiseases)
   colnames(res) <- c("Disease","N","mean_ds","SD_ds")
   res[,1]       <- unescapeAnnotation(diseases)
 
 
   #--- store minimum shorest paths for each gda, and each disease
-  oo <- matrix(".",nrow=length(gda),ncol=(length(diseases)+2))
+  oo <- matrix(".",nrow=length(gda),ncol=(nDiseases+2))
   colnames(oo) <- c("Gene.ID","Gene.Name",diseases)
   oo[,1]       <- V(gg)$name#[gda !=""]
   oo[,2]       <- V(gg)$GeneName#[gda !=""]
 
   ##--- loop over each disease
-  for( d in 1:length(diseases) ){
+  for( d in seq_along(diseases) ){
 
     IDS <- V(gg)$name[grepl(diseases[d],gda,fixed=TRUE)]
     N   <- length(IDS)
@@ -330,7 +331,7 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,
 
   }
 
-  DAB <- matrix(NA,ncol=length(diseases),nrow=length(diseases))
+  DAB <- matrix(NA,ncol=nDiseases,nrow=nDiseases)
   colnames(DAB) <- diseases
   rownames(DAB) <- diseases
 
@@ -341,8 +342,8 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,
   #------------#
 
   ##--- calculate disease-disease overlap
-  for( i in 1:length(diseases) ){
-    for( j in i:length(diseases) ){
+  for( i in seq_along(diseases) ){
+    for( j in seq.int(from=i,to=nDiseases) ){
 
       DAB[i,j] <- 0
 
@@ -422,7 +423,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
   resD<-calcDiseasePairs(gg=gg,name=name,diseases=diseases,permute = 'none')
   ds<-resD$gene_disease_separation
   loc<-resD$disease_localisation
-  resL<-lapply(1:Nperm,function(.x)calcDiseasePairs(gg=gg,name=name,
+  resL<-lapply(seq_len(Nperm),function(.x)calcDiseasePairs(gg=gg,name=name,
                                                     diseases=diseases,
                                                     permute=permute))
   toNum<-function(.x){
@@ -435,7 +436,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
   #  apply(.x$gene_disease_separation[,3:dim(.x$gene_disease_separation)[2]],
   #         c(1,2),as.numeric)))
   m<-apply(resGDS,c(1,2),mean0)
-  RANds<-cbind(as.data.frame(resL[[1]]$gene_disease_separation[,1:2]),
+  RANds<-cbind(as.data.frame(resL[[1]]$gene_disease_separation[,seq_len(2)]),
                as.data.frame(m))
   ##comment out for moment
   disn <- colnames(ds)[3:length(ds[1,])]
@@ -450,7 +451,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
   disease_location_sig[,2]<-loc[match(disease_location_sig[,1],loc[,1]),2]
 
   ## significance of ds for each disease
-  for( i in 1:length(disn) ){
+  for( i in seq_along(disn) ){
 
     ## gda matching indices
     indx <- ds[,(2+i)]!="."
@@ -562,7 +563,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
 
       ## Bonferroni correction for p.value ('stars' can be found in 'setUp.R')
       temp <- "."
-      for (x in 1:length(alpha)) {
+      for (x in seq_along(alpha)) {
           if (as.numeric(zs[(k + 1), 9]) < as.numeric(alpha[x] / Nlevels)) {
               temp <- stars[x]
           }

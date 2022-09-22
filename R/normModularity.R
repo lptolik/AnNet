@@ -76,7 +76,7 @@ normModularity <- function(gg,
     ##    for graph with cl clustering
     Qrnd <- 0
     
-    for (i in 1:Nint) {
+    for (i in seq_len(Nint)) {
         gg.rnd      = igraph::rewire(graph = gg,
                                      with = keeping_degseq(loops = FALSE, 
                                                            niter = 100))

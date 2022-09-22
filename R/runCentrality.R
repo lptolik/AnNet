@@ -3,10 +3,10 @@
 ##   D. Chen et al., Physica A, 2012
 Semilocal <- function(gg){
 
-  N    <- length(V(gg)$name)
+  N    <- vcount(gg)
   meas <- matrix(0, nrow=N, ncol=3)
 
-  for( i in 1:N ){
+  for( i in seq_len(N) ){
 
     ids <- as.character(V(gg)[i]$name)
 
@@ -14,7 +14,7 @@ Semilocal <- function(gg){
 
     if( length(neig) > 0 ){
 
-      for( w in 1:length(neig) ){
+      for( w in seq_along(neig) ){
         neig <- c(neig,igraph::neighbors(gg,
                                          v=as.character(V(gg)$name[neig[w]]),
                                          mode="all"))
@@ -28,7 +28,7 @@ Semilocal <- function(gg){
 
   }
 
-  for( i in 1:N ){
+  for( i in seq_len(N) ){
 
     ids <- as.character(V(gg)[i]$name)
 
@@ -39,7 +39,7 @@ Semilocal <- function(gg){
   }
 
 
-  for( i in 1:N ){
+  for( i in seq_len(N) ){
 
     ids <- as.character(V(gg)[i]$name)
 
@@ -54,25 +54,25 @@ Semilocal <- function(gg){
 }
 
 fSemilocal<-function(gg){
-  N    <- length(V(gg)$name)
+  N    <- vcount(gg)
   meas <- matrix(0, nrow=N, ncol=3)
   meas[,1]<-ego_size(gg,order = 2,mode='all')-1
   neigSum<-function(i,graph,vec){
     neig <- igraph::neighbors(graph,v=i,mode="all")
     return(sum(vec[neig]))
   }
-  meas[,2]<-vapply(1:N,neigSum,c(sum=0),graph=gg,vec=meas[,1])
-  meas[,3]<-vapply(1:N,neigSum,c(sum=0),graph=gg,vec=meas[,2])
+  meas[,2]<-vapply(seq_len(N),neigSum,c(sum=0),graph=gg,vec=meas[,1])
+  meas[,3]<-vapply(seq_len(N),neigSum,c(sum=0),graph=gg,vec=meas[,2])
   return(as.numeric(meas[,3]))
 }
 
 ##calculate the mean and sd of the shortest paths for each gene
 calShorestPaths <- function(gg){
 
-  N    <- length(V(gg)$name)
+  N    <- vcount(gg)
   meas <- matrix(0, nrow=N, ncol=3)
 
-  for( i in 1:N ){
+  for( i in seq_len(N) ){
     sp <- as.numeric(igraph::shortest.paths(gg,i))
     sp <- sp[-i]
     sp <- sp[!sp == Inf]

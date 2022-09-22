@@ -16,7 +16,7 @@ findLCC <- function(GG){
   dec <- decompose.graph(GG)
   d=1
   CC=length(V(dec[[1]]))
-  for( i in 1:length(dec) ){
+  for( i in seq_along(dec) ){
     if(length(V(dec[[i]])) > CC){
       d=i
       CC=length(V(dec[[i]]))
@@ -40,9 +40,8 @@ findTERM <- function(eatt, TERMS){
   eatt  <- as.vector(eatt)
   found <- rep(FALSE, length(eatt))
 
-  Tl <- length(TERMS)
-  for( t in 1:Tl ){
-    temp  <- grepl(eatt[t], eatt)
+  for( t in seq_along(TERMS) ){
+    temp  <- grepl(TERMS[t], eatt)
     found <- as.logical(found) | as.logical(temp)
   }
 
@@ -113,7 +112,7 @@ addEdgeAtts <- function(GG, gg){
 
     VALUES = list()
 
-    for( a in 1:length(ATTS) ){
+    for( a in seq_along(ATTS) ){
       VALUES[[a]] = get.edge.attribute(GG,ATTS[a],E(GG))
       names(VALUES)[a] = ATTS[a]
     }
@@ -122,12 +121,12 @@ addEdgeAtts <- function(GG, gg){
     # cat("scanning edges...")
     RES    = matrix("",nrow=M, ncol=length(ATTS))
 
-    for( e in 1:M ){
+    for( e in seq_len(M) ){
 
       indx = (ed[e,1] == ED[,1] & ed[e,2] == ED[,2]) |
         (ed[e,1] == ED[,2] & ed[e,2] == ED[,1])
 
-      for( a in 1:length(ATTS) ){
+      for( a in seq_along(ATTS) ){
 
         res = VALUES[[a]][indx]
 
@@ -144,7 +143,7 @@ addEdgeAtts <- function(GG, gg){
 
     # cat("done.\n")
 
-    for( a in 1:length(ATTS) ){
+    for( a in seq_along(ATTS) ){
       gg <- set.edge.attribute(gg,ATTS[a],E(gg),as.character(RES[,a]))
     }
 
@@ -176,7 +175,7 @@ addEdgeAtts <- function(GG, gg){
 #' V(gg)$name
 buildNetwork<-function(ff,kw=NA){
   #--- build raw graph
-  GG <- graph.data.frame(ff[,1:2],directed=FALSE)
+  GG <- graph.data.frame(ff[,seq_len(2)],directed=FALSE)
   if( !is.na(kw) ){
     GG = set.edge.attribute(GG,"METHOD",E(GG), as.character(ff[,3]))
     GG = set.edge.attribute(GG,"TYPE",E(GG), as.character(ff[,7]))
