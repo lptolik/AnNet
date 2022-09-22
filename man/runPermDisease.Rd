@@ -50,7 +50,6 @@ Run with care, as large number of permutations could require a lot of
 memory and be timeconsuming.
 }
 \examples{
-\donttest{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 gg <- igraph::read.graph(file,format="gml")
 agg<-annotateGeneNames(gg)
@@ -61,5 +60,4 @@ diseases = c("DOID:10652","DOID:3312","DOID:12849","DOID:1826"),
 Nperm = 10,
 alpha = c(0.05, 0.01, 0.001))
 r$Disease_location_sig
-}
 }

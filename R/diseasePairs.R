@@ -398,7 +398,6 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
 #' gg <- igraph::read.graph(file,format="gml")
 #' agg<-annotateGeneNames(gg)
@@ -409,7 +408,6 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,
 #' Nperm = 10,
 #' alpha = c(0.05, 0.01, 0.001))
 #' r$Disease_location_sig
-#' }
 runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
                          permute=c('random','binned'),
                          alpha=c(0.05,0.01,0.001)){

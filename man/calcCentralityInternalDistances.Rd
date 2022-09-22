@@ -22,22 +22,19 @@ matrix with seven columns containing distances between all pairs of
 Function calculates matrix of distances between elements of list
 }
 \examples{
-\donttest{
-library(synaptome.db)
-cid<-match('Presynaptic',getCompartments()$Name)
-t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
-m<-getCentralityMatrix(gg)
-pa<-list()
+data(karate,package='igraphdata')
+m<-getCentralityMatrix(karate)
+gnp<-list()
 for(i in 1:10){
-    pa[[i]]<-getRandomGraphCentrality(gg,type = 'pa')
+    gnp[[i]]<-getRandomGraphCentrality(karate,type = 'gnp')
 }
-paIDist<-calcCentralityInternalDistances(pa)
-summary(paIDist)
-}
+gnpIDist<-calcCentralityExternalDistances(gnp)
+summary(gnpIDist)
 }
 \seealso{
 getRandomGraphCentrality
 
 getCentralityMatrix
+
+calcCentralityExternalDistances
 }

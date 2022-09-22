@@ -426,20 +426,17 @@ getCM<-function(m,nm,keepOrder){
 #'
 #' @seealso getRandomGraphCentrality
 #' @seealso getCentralityMatrix
+#' @seealso calcCentralityExternalDistances
+#' @export
 #' @examples
-#' \donttest{
-#' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
-#' m<-getCentralityMatrix(gg)
-#' pa<-list()
+#' data(karate,package='igraphdata')
+#' m<-getCentralityMatrix(karate)
+#' gnp<-list()
 #' for(i in 1:10){
-#'     pa[[i]]<-getRandomGraphCentrality(gg,type = 'pa')
+#'     gnp[[i]]<-getRandomGraphCentrality(karate,type = 'gnp')
 #' }
-#' paIDist<-calcCentralityInternalDistances(pa)
-#' summary(paIDist)
-#' }
+#' gnpIDist<-calcCentralityInternalDistances(gnp)
+#' summary(gnpIDist)
 calcCentralityInternalDistances<-function(l,keepOrder=FALSE,dist='euclidean'){
   CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
   resl<-list()
@@ -469,20 +466,17 @@ calcCentralityInternalDistances<-function(l,keepOrder=FALSE,dist='euclidean'){
 #'
 #' @seealso getRandomGraphCentrality
 #' @seealso getCentralityMatrix
+#' @seealso calcCentralityInternalDistances
+#' @export
 #' @examples
-#' \donttest{
-#' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
-#' m<-getCentralityMatrix(gg)
-#' pa<-list()
+#' data(karate,package='igraphdata')
+#' m<-getCentralityMatrix(karate)
+#' gnp<-list()
 #' for(i in 1:10){
-#'     pa[[i]]<-getRandomGraphCentrality(gg,type = 'pa')
+#'     gnp[[i]]<-getRandomGraphCentrality(karate,type = 'gnp')
 #' }
-#' paIDist<-calcCentralityExternalDistances(m,pa)
-#' summary(paIDist)
-#' } 
+#' gnpEDist<-calcCentralityExternalDistances(m,gnp)
+#' summary(gnpEDist)
 calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
   CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
   resl<-list()

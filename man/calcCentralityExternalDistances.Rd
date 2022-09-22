@@ -27,22 +27,19 @@ Function calculates matrix of distances between elements of list and
 the reference matrix
 }
 \examples{
-\donttest{
-library(synaptome.db)
-cid<-match('Presynaptic',getCompartments()$Name)
-t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
-m<-getCentralityMatrix(gg)
-pa<-list()
+data(karate,package='igraphdata')
+m<-getCentralityMatrix(karate)
+gnp<-list()
 for(i in 1:10){
-    pa[[i]]<-getRandomGraphCentrality(gg,type = 'pa')
+    gnp[[i]]<-getRandomGraphCentrality(karate,type = 'gnp')
 }
-paIDist<-calcCentralityExternalDistances(m,pa)
-summary(paIDist)
-} 
+gnpEDist<-calcCentralityExternalDistances(m,gnp)
+summary(gnpEDist)
 }
 \seealso{
 getRandomGraphCentrality
 
 getCentralityMatrix
+
+calcCentralityInternalDistances
 }
