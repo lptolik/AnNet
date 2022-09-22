@@ -32,21 +32,21 @@
 #' rr<-merge(andf,res,by.y='pathway',by.x='ID')
 #' rr[order(rr$cl),]
 clusterORA<-function(g,alg,name,vid='name',alpha=0.1,col=COLLAPSE){
-  anL<-getAnnotationVertexList(g,name)
-  cl<-make_clusters(g,as.numeric(get.vertex.attribute(g,alg)))
-  forafun<-function(.i){
+    anL<-getAnnotationVertexList(g,name)
+    cl<-make_clusters(g,as.numeric(get.vertex.attribute(g,alg)))
+    forafun<-function(.i){
     res<-as.data.frame(fora(anL,
-              get.vertex.attribute(g,vid)[which(membership(cl)==.i)],
-              universe = as.character(get.vertex.attribute(g,vid))));
+                get.vertex.attribute(g,vid)[which(membership(cl)==.i)],
+                universe = as.character(get.vertex.attribute(g,vid))));
     res$cl<-.i
     l<-dim(res)[2]
     res<-res[,c(l,seq_len(l-1))]
     return(res)
-  }
-  resL<-lapply(seq_along(cl),forafun)
-  res<-do.call(rbind,resL)
-  res<-res[res$padj<alpha,]
-  #res$overlapGenes<-sapply(res$overlapGenes,paste,collapse = ', ')
-  res$overlapGenes<-unlist(lapply(res$overlapGenes,paste,collapse = ', '))
-  return(res)
+    }
+    resL<-lapply(seq_along(cl),forafun)
+    res<-do.call(rbind,resL)
+    res<-res[res$padj<alpha,]
+    #res$overlapGenes<-sapply(res$overlapGenes,paste,collapse = ', ')
+    res$overlapGenes<-unlist(lapply(res$overlapGenes,paste,collapse = ', '))
+    return(res)
 }

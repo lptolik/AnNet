@@ -13,18 +13,18 @@
 #' summary(lcc)
 findLCC <- function(GG){
 
-  dec <- decompose.graph(GG)
-  d <- 1
-  CC <- length(V(dec[[1]]))
-  for( i in seq_along(dec) ){
+    dec <- decompose.graph(GG)
+    d <- 1
+    CC <- length(V(dec[[1]]))
+    for( i in seq_along(dec) ){
     if(length(V(dec[[i]])) > CC){
-      d <- i
-      CC <- length(V(dec[[i]]))
+        d <- i
+        CC <- length(V(dec[[i]]))
     }
-  }
+    }
 
-  GG  <- decompose.graph(GG)[[d]]
-  return(GG)
+    GG  <- decompose.graph(GG)[[d]]
+    return(GG)
 
 }
 
@@ -37,15 +37,15 @@ findLCC <- function(GG){
 #' @noRd
 findTERM <- function(eatt, TERMS){
 
-  eatt  <- as.vector(eatt)
-  found <- rep(FALSE, length(eatt))
+    eatt  <- as.vector(eatt)
+    found <- rep(FALSE, length(eatt))
 
-  for( t in seq_along(TERMS) ){
+    for( t in seq_along(TERMS) ){
     temp  <- grepl(TERMS[t], eatt)
     found <- as.logical(found) | as.logical(temp)
-  }
+    }
 
-  return(found)
+    return(found)
 
 }
 
@@ -102,9 +102,9 @@ findTERM <- function(eatt, TERMS){
 #' edge_attr_names(gg)
 addEdgeAtts <- function(GG, gg){
 
-  ATTS <- names(edge.attributes(GG))
+    ATTS <- names(edge.attributes(GG))
 
-  if( !is.null(ATTS) ){
+    if( !is.null(ATTS) ){
 
     ed <- get.edgelist(gg)
     M <- length(E(gg))
@@ -113,8 +113,8 @@ addEdgeAtts <- function(GG, gg){
     VALUES <- list()
 
     for( a in seq_along(ATTS) ){
-      VALUES[[a]] <- get.edge.attribute(GG,ATTS[a],E(GG))
-      names(VALUES)[a] <- ATTS[a]
+        VALUES[[a]] <- get.edge.attribute(GG,ATTS[a],E(GG))
+        names(VALUES)[a] <- ATTS[a]
     }
 
     # cat("\n")
@@ -123,33 +123,33 @@ addEdgeAtts <- function(GG, gg){
 
     for( e in seq_len(M) ){
 
-      indx  <-  (ed[e,1] == ED[,1] & ed[e,2] == ED[,2]) |
+        indx  <-  (ed[e,1] == ED[,1] & ed[e,2] == ED[,2]) |
         (ed[e,1] == ED[,2] & ed[e,2] == ED[,1])
 
-      for( a in seq_along(ATTS) ){
+        for( a in seq_along(ATTS) ){
 
         res <- VALUES[[a]][indx]
 
         if( res != "" ){
-          res <- unique(res)
-          if( length(res) == 1 ){
+            res <- unique(res)
+            if( length(res) == 1 ){
             RES[e,a] <- res
-          } else {
+            } else {
             RES[e,a] <- paste(as.character(res),collapse=';')
-          }
+            }
         }
-      }
+        }
     }
 
     # cat("done.\n")
 
     for( a in seq_along(ATTS) ){
-      gg <- set.edge.attribute(gg,ATTS[a],E(gg),as.character(RES[,a]))
+        gg <- set.edge.attribute(gg,ATTS[a],E(gg),as.character(RES[,a]))
     }
 
-  }
+    }
 
-  return(gg)
+    return(gg)
 
 }
 
@@ -174,14 +174,14 @@ addEdgeAtts <- function(GG, gg){
 #' gg<-buildNetwork(f)
 #' V(gg)$name
 buildNetwork<-function(ff,kw=NA){
-  #--- build raw graph
-  GG <- graph.data.frame(ff[,seq_len(2)],directed=FALSE)
-  if( !is.na(kw) ){
+    #--- build raw graph
+    GG <- graph.data.frame(ff[,seq_len(2)],directed=FALSE)
+    if( !is.na(kw) ){
     GG <- set.edge.attribute(GG,"METHOD",E(GG), as.character(ff[,3]))
     GG <- set.edge.attribute(GG,"TYPE",E(GG), as.character(ff[,7]))
 
     PMIDS <- ifelse(!grepl("unassigned",ff[,4]),
-                   sprintf("PMID:%s",ff[,4]), ff[,4])
+                    sprintf("PMID:%s",ff[,4]), ff[,4])
     GG <- set.edge.attribute(GG,"PUBMED",E(GG), PMIDS)
 
     YEARS <- kw[match(gsub("PMID:","",E(GG)$PUBMED),kw[,1]),3]
@@ -189,12 +189,12 @@ buildNetwork<-function(ff,kw=NA){
     GG <- set.edge.attribute(GG,"YEAR",E(GG), YEARS)
     #---
 
-  }
-  #--- build igraph, removing multiple edges and loops
-  gg <- simplify(GG,remove.multiple=TRUE,remove.loops=TRUE)
-  #---Find Largest CC
-  gg  <- findLCC(gg)
-  gg <- addEdgeAtts(GG,gg)
+    }
+    #--- build igraph, removing multiple edges and loops
+    gg <- simplify(GG,remove.multiple=TRUE,remove.loops=TRUE)
+    #---Find Largest CC
+    gg  <- findLCC(gg)
+    gg <- addEdgeAtts(GG,gg)
 }
 
 #' Utility function to create network from 
@@ -211,9 +211,9 @@ buildNetwork<-function(ff,kw=NA){
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 buildFromSynaptomeByEntrez<-function(entrez){
-  t<-findGenesByEntrez(entrez)
-  gg<-buildFromSynaptomeGeneTable(t)
-  return(gg)
+    t<-findGenesByEntrez(entrez)
+    gg<-buildFromSynaptomeGeneTable(t)
+    return(gg)
 }
 
 #' Utility function to create network from 
@@ -229,11 +229,11 @@ buildFromSynaptomeByEntrez<-function(entrez){
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t)
 buildFromSynaptomeGeneTable<-function(t){
-  p<-getPPIbyIDs(t$GeneID,type = 'limited')
-  aidx<-match(p$A,t$GeneID)
-  bidx<-match(p$B,t$GeneID)
-  gg<-buildNetwork(data.frame(A=t$HumanEntrez[aidx],B=t$HumanEntrez[bidx]))
-  return(gg)
+    p<-getPPIbyIDs(t$GeneID,type = 'limited')
+    aidx<-match(p$A,t$GeneID)
+    bidx<-match(p$B,t$GeneID)
+    gg<-buildNetwork(data.frame(A=t$HumanEntrez[aidx],B=t$HumanEntrez[bidx]))
+    return(gg)
 }
 
 #' Calculate sparsness of the graph.
@@ -252,8 +252,8 @@ buildFromSynaptomeGeneTable<-function(t){
 #' gg<-buildFromSynaptomeByEntrez(t)
 #' calcSparsness(gg)
 calcSparsness<-function(gg){
-  N<-igraph::vcount(gg)
-  E<-igraph::ecount(gg)
-  sp<-2.0*E/(N*(N-1))
-  return(sp)
+    N<-igraph::vcount(gg)
+    E<-igraph::ecount(gg)
+    sp<-2.0*E/(N*(N-1))
+    return(sp)
 }

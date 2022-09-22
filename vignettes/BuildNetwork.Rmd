@@ -3,17 +3,17 @@ title: "AnNet: library for comprehensive network analysis"
 author: "Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong, Oksana Sorokina"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{AnNet: library for comprehensive network analysis}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+    %\VignetteIndexEntry{AnNet: library for comprehensive network analysis}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  warning = FALSE,
-  message = FALSE,
-  comment = "#>"
+    collapse = TRUE,
+    warning = FALSE,
+    message = FALSE,
+    comment = "#>"
 )
 ```
 
@@ -192,7 +192,7 @@ low-degree gene(presynaptic: -0.16).
 
 ```{r powerLaw,fig.height=9,fig.width=9}
 pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),
-                   plot=TRUE,WIDTH=2480, HEIGHT=2480)
+                    plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
 
 ## Get entropy rate
@@ -312,8 +312,8 @@ with the follownig values:
 ```{r clusterSummary}
 ggc <- calcAllClustering(gg)
 m<-clusteringSummary(ggc,att=c('lec','wt','fc',
-                               'infomap','louvain',
-                               'sgG1','sgG2','sgG5'))
+                                'infomap','louvain',
+                                'sgG1','sgG2','sgG5'))
 pander(m)
 ```
 
@@ -322,11 +322,11 @@ way is to color each cluster in its own color and plot the graph:
 ```{r plot.color.graph,fig.height=8,fig.width=8}
 palette <- distinctColorPalette(max(as.numeric(mem.df$membership)))
 plot(gg,vertex.size=3,layout=layout_nicely,
-     vertex.label=NA,
-     vertex.color=palette[as.numeric(mem.df$membership)],
-     edge.color='grey95')
+        vertex.label=NA,
+        vertex.color=palette[as.numeric(mem.df$membership)],
+        edge.color='grey95')
 legend('topright',legend=names(table(mem.df$membership)),
-       col=palette,pch=19,ncol = 2)
+        col=palette,pch=19,ncol = 2)
 ```
 
 On the plot we can see some distinctive clusters but most nodes are 
@@ -335,11 +335,11 @@ graph clusterwise:
 ```{r plot.clusterwise.graph,fig.height=8,fig.width=8}
 lay<-layoutByCluster(gg,mem.df,layout = layout_nicely)
 plot(gg,vertex.size=3,layout=lay,
-     vertex.label=NA,
-     vertex.color=palette[as.numeric(mem.df$membership)],
-     edge.color='grey95')
+        vertex.label=NA,
+        vertex.color=palette[as.numeric(mem.df$membership)],
+        edge.color='grey95')
 legend('topright',legend=names(table(mem.df$membership)),
-       col=palette,pch=19,ncol = 2)
+        col=palette,pch=19,ncol = 2)
 ```
 
 It is also possible to visualize the interaction between communities:
@@ -363,11 +363,11 @@ And we can apply second order clustering layout:
 ```{r plot.recluster.layout,fig.height=8,fig.width=8}
 lay<-AnNet:::layoutByRecluster(gg,remem,layout_nicely)
 plot(gg,vertex.size=3,layout=lay,
-     vertex.label=NA,
-     vertex.color=palette[as.numeric(mem.df$membership)],
-     edge.color='grey95')
+        vertex.label=NA,
+        vertex.color=palette[as.numeric(mem.df$membership)],
+        edge.color='grey95')
 legend('topright',legend=names(table(mem.df$membership)),
-       col=palette,pch=19,ncol = 2)
+        col=palette,pch=19,ncol = 2)
 ```
 
 
@@ -386,9 +386,9 @@ preformed (if reClust=TRUE).
 ```{r cons_mat}
 #Build consensus matrix for louvain clustering
 conmat <- makeConsensusMatrix(gg, N=100,
-                              alg = alg, type = 2, 
-                              mask = 10,reclust = FALSE, 
-                              Cnmax = 10)
+                                alg = alg, type = 2, 
+                                mask = 10,reclust = FALSE, 
+                                Cnmax = 10)
 
 ```
 
@@ -401,16 +401,16 @@ X<-seq(0,1,length.out=steps+1)
 cdf<-Fn(X)
 dt<-data.frame(cons=X,cdf=cdf)
 ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
-      theme(            
+        theme(            
         axis.title.x=element_text(face="bold",size=rel(2.5)),
         axis.title.y=element_text(face="bold",size=rel(2.5)),
         legend.title=element_text(face="bold",size=rel(1.5)),
         legend.text=element_text(face="bold",size=rel(1.5)),
         legend.key=element_blank())+
     theme(panel.grid.major = element_line(colour="grey40",size=0.2),
-          panel.grid.minor = element_line(colour="grey40",size=0.1),
-          panel.background = element_rect(fill="white"),
-          panel.border = element_rect(linetype="solid",fill=NA))
+            panel.grid.minor = element_line(colour="grey40",size=0.1),
+            panel.background = element_rect(fill="white"),
+            panel.border = element_rect(linetype="solid",fill=NA))
 ```
 
 ## Cluster robustness
@@ -457,24 +457,24 @@ but also communicating with a few other specific communities
 two communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
 ```{r plot.bridgeness,fig.height=8,fig.width=8}
 scale <- function(x, VALUE=NULL){
-  
-  x = as.numeric(as.vector(x))
-  
-  xmin <- min(x,na.rm=TRUE)
-  xmax <- max(x,na.rm=TRUE)
-  
-  if( is.null(VALUE) ){
+    
+    x = as.numeric(as.vector(x))
+    
+    xmin <- min(x,na.rm=TRUE)
+    xmax <- max(x,na.rm=TRUE)
+    
+    if( is.null(VALUE) ){
     
     x  <- x-xmin
     x  <- ifelse(!is.na(x), x/(xmax-xmin), NA) 
     
     return(x)
-  }
-  
-  value = as.numeric(as.vector(value)[1])
-  value = value-xmin
-  value = ifelse(!is.na(value), value/(xmax-xmin), NA) 
-  return(value)
+    }
+    
+    value = as.numeric(as.vector(value)[1])
+    value = value-xmin
+    value = ifelse(!is.na(value), value/(xmax-xmin), NA) 
+    return(value)
 }
 VIPs=c('8495','22999','8927','8573','26059','8497','27445','8499')
 # VIPs=c('81876','10890','51552','5874','5862','11021','54734','5865','5864',
@@ -510,19 +510,19 @@ PSDColor="magenta"
 
 ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_point(data=dt_vips,
-               aes(x=X,y=Y),colour=baseColor,size = 7,
-               shape=15,show.legend=FALSE)+
+                aes(x=X,y=Y),colour=baseColor,size = 7,
+                shape=15,show.legend=FALSE)+
     geom_point(data=dt_res,
-               aes(x=X,y=Y, alpha=(X*Y)), size = 3,
-               shape=16,show.legend=FALSE)+
+                aes(x=X,y=Y, alpha=(X*Y)), size = 3,
+                shape=16,show.legend=FALSE)+
     geom_label_repel(aes(label=as.vector(lbls)),
-                     fontface='bold',color='black',
-                     fill='white',box.padding=0.1,
-                     point.padding=NA,label.padding=0.15,
-                     segment.color='black',
-                     force=1,size=rel(3.8),show.legend=FALSE,
-                     max.overlaps=200)+
-      labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
+                        fontface='bold',color='black',
+                        fill='white',box.padding=0.1,
+                        point.padding=NA,label.padding=0.15,
+                        segment.color='black',
+                        force=1,size=rel(3.8),show.legend=FALSE,
+                        max.overlaps=200)+
+        labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
     scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
     scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
     theme(            
@@ -532,13 +532,13 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
         legend.text=element_text(face="bold",size=rel(1.5)),
         legend.key=element_blank())+
     theme(panel.grid.major = element_line(colour="grey40",size=0.2),
-          panel.grid.minor = element_line(colour="grey40",size=0.1),
-          panel.background = element_rect(fill="white"),
-          panel.border = element_rect(linetype="solid",fill=NA))+
+            panel.grid.minor = element_line(colour="grey40",size=0.1),
+            panel.background = element_rect(fill="white"),
+            panel.border = element_rect(linetype="solid",fill=NA))+
         geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,
-                   linetype=2,show.legend=FALSE)+
+                    linetype=2,show.legend=FALSE)+
     geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,
-               linetype=2,show.legend=FALSE)
+                linetype=2,show.legend=FALSE)
 
 ```
 
@@ -547,10 +547,10 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
 library(plotly)
 p<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_point(data=dt_vips,
-               aes(x=X,y=Y),colour=baseColor,shape=15,show.legend=FALSE)+
+                aes(x=X,y=Y),colour=baseColor,shape=15,show.legend=FALSE)+
     geom_point(data=dt_res,
-               aes(x=X,y=Y, alpha=(X*Y)),shape=16,show.legend=FALSE)+
-      labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
+                aes(x=X,y=Y, alpha=(X*Y)),shape=16,show.legend=FALSE)+
+        labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
     scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
     scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
     theme(            
@@ -560,13 +560,13 @@ p<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
         legend.text=element_text(face="bold",size=rel(1.5)),
         legend.key=element_blank())+
     theme(panel.grid.major = element_line(colour="grey40",size=0.2),
-          panel.grid.minor = element_line(colour="grey40",size=0.1),
-          panel.background = element_rect(fill="white"),
-          panel.border = element_rect(linetype="solid",fill=NA))+
+            panel.grid.minor = element_line(colour="grey40",size=0.1),
+            panel.background = element_rect(fill="white"),
+            panel.border = element_rect(linetype="solid",fill=NA))+
         geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,
-                   linetype=2,show.legend=FALSE)+
+                    linetype=2,show.legend=FALSE)+
     geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,
-               linetype=2,show.legend=FALSE)
+                linetype=2,show.legend=FALSE)
 ggplotly(p)
 ```
 
@@ -620,7 +620,7 @@ cat('Platform\n\n')
 pander::pander(si$platform)
 cat('Packages\n\n')
 knitr::kable(as.data.frame(si$packages)[,c('ondiskversion',
-                                           'loadedversion','date',
-                                           'source')],align = c('l','l'))
+                                            'loadedversion','date',
+                                            'source')],align = c('l','l'))
 ```
 

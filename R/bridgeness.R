@@ -1,24 +1,24 @@
 #' Calculate bridginess from consensus matrix
-#' 
-#' Bridginess takes into account a vertices shared community membership 
-#' together with its local neighbourhood. It was proposed in 
+#'
+#' Bridginess takes into account a vertices shared community membership
+#' together with its local neighbourhood. It was proposed in
 #' Nepusz et al., 2008 <doi:10.1103/PhysRevE.77.016107>.
-#' 
-#' Algorithm assume that clustering was already calculated and its 
-#' membership is stored in the appropriate vertex attribute. If 
+#'
+#' Algorithm assume that clustering was already calculated and its
+#' membership is stored in the appropriate vertex attribute. If
 #' \link{\code{alg}} attribute is not found error will be issued.
-#' 
+#'
 #' @param gg igraph object
 #' @param alg clustering algorithm
 #' @param conmat consensus matrix calculated with that algorithm
-#' 
-#' @return data.frame with first column contains vertex ID, if GeneName 
+#'
+#' @return data.frame with first column contains vertex ID, if GeneName
 #'         attribute assigned to the vertices its value will be stored as a
 #'         second column, the last column contains bridginess values for the
 #          selected clustering algorithm.
 #' @export
 #' @importFrom igraph get.edgelist get.vertex.attribute
-#' @examples 
+#' @examples
 #' library(AnNet)
 #' data(karate,package='igraphdata')
 #' gg <- calcClustering(karate, 'louvain')
@@ -30,15 +30,19 @@ getBridgeness <- function(gg, alg, conmat) {
     #---number of edges/PPIs
     M    <- length(E(gg))
     if (!alg %in% names(vertex.attributes(gg))) {
-        stop('Clustering membership attribute "',alg,'" not found.\n',
-             'Please run calcClustering and makeConsensusMatrix before ',
-             'bridginess calculations.\n')
+        stop(
+            'Clustering membership attribute "',
+            alg,
+            '" not found.\n',
+            'Please run calcClustering and makeConsensusMatrix before ',
+            'bridginess calculations.\n'
+        )
     }
     #---container column names
     if ("GeneName" %in% names(vertex.attributes(gg))) {
         CN   <- c('ID',
-                  'GENE.NAME',
-                  sprintf("BRIDGENESS.%s", alg))
+                    'GENE.NAME',
+                    sprintf("BRIDGENESS.%s", alg))
         FROM <- 3
     } else{
         CN   <- c('ID',  sprintf("BRIDGENESS.%s", alg))
@@ -58,10 +62,10 @@ getBridgeness <- function(gg, alg, conmat) {
     ##get community assigned to each vertex in edgelist from the algorithm 'alg'
     elA <- get.vertex.attribute(gg, alg,
                                 V(gg))[match(get.edgelist(gg)[, 1],
-                                             V(gg)$name)]
+                                                V(gg)$name)]
     elB <- get.vertex.attribute(gg, alg,
                                 V(gg))[match(get.edgelist(gg)[, 2],
-                                             V(gg)$name)]
+                                                V(gg)$name)]
     ##for each edge record the community assigned to each vertex and it's
     ##consensus matrix value
     ed      <- matrix(ncol = 6, nrow = length(E(gg)))
@@ -111,25 +115,25 @@ getBridgeness <- function(gg, alg, conmat) {
         ##BRIDGENESS.
         meas[i, (FROM)]  <- 1 - sqrt(Cmax / (Cmax - 1) * b)
     }
-    res<-as.data.frame(meas)
-    res[,FROM]<-as.numeric(res[,FROM])
+    res <- as.data.frame(meas)
+    res[, FROM] <- as.numeric(res[, FROM])
     return(res)
 }
 
 #### Code for plot ####
 scale <- function(x, VALUE = NULL) {
     x <- as.numeric(as.vector(x))
-
+    
     xmin <- min(x, na.rm = TRUE)
     xmax <- max(x, na.rm = TRUE)
-
+    
     if (is.null(VALUE)) {
         x  <- x - xmin
         x  <- ifelse(!is.na(x), x / (xmax - xmin), NA)
-
+        
         return(x)
     }
-
+    
     value <- as.numeric(as.vector(value)[1])
     value <- value - xmin
     value <- ifelse(!is.na(value), value / (xmax - xmin), NA)

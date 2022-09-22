@@ -19,7 +19,7 @@ memrob <- function(x, rm = data.frame()) {
     else{
         if (length(rm) == 0) {
             stop('You need to specify a reference matrix',
-                 'for a merge consensus matrix')
+                    'for a merge consensus matrix')
         }
         else{
             cmref <- rm
@@ -30,10 +30,10 @@ memrob <- function(x, rm = data.frame()) {
     lvlsCM <- levels(as.factor(cmref$cm))
     #BUG - fixed to ensure deals with >100 clusters
     mem_rob <- matrix(0,
-                      dim(consensus)[1],
-                      length(lvlsCM),
-                      dimnames = list(row.names(consensus),
-                                      seq_along(lvlsCM)))
+                        dim(consensus)[1],
+                        length(lvlsCM),
+                        dimnames = list(row.names(consensus),
+                                        seq_along(lvlsCM)))
     
     for (k in seq_along(lvlsCM)) {
         #BUG - fixed to ensure deals with >100 clusters

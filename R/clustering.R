@@ -16,16 +16,16 @@
 #' m<-calcMembership(karate,'lec')
 #' head(m)
 calcMembership<-function(gg,
-                         alg=c('lec','wt','fc','infomap',
-                               'louvain','sgG1','sgG2','sgG5','spectral')){
-  ids <- V(gg)$name
-  cl<-getClustering(gg,alg)
-  if(!is.null(cl)){
+                            alg=c('lec','wt','fc','infomap',
+                                'louvain','sgG1','sgG2','sgG5','spectral')){
+    ids <- V(gg)$name
+    cl<-getClustering(gg,alg)
+    if(!is.null(cl)){
     cc       <- data.frame(names=cl$names,membership=cl$membership)
-  }else{
+    }else{
     cc <- data.frame(names='names',membership=0)[FALSE,]
-  }
-  return(cc)
+    }
+    return(cc)
 }
 
 #' Calculate memberships for all clustering algorithms and store them on the
@@ -48,23 +48,23 @@ calcMembership<-function(gg,
 #' g1<-calcAllClustering(g1)
 #' clusteringSummary(g1)
 calcAllClustering<-function(gg){
-  ids <- V(gg)$name
-  cnames<-c('ID','lec','wt','fc','infomap',
+    ids <- V(gg)$name
+    cnames<-c('ID','lec','wt','fc','infomap',
             'louvain','sgG1','sgG2','sgG5','spectral')
-  l<-list()
-  l[[cnames[1]]]<-ids
-  for(ai in 2:length(cnames)){
+    l<-list()
+    l[[cnames[1]]]<-ids
+    for(ai in 2:length(cnames)){
     an<-cnames[ai]
     cm<-calcMembership(gg,an)
     if(dim(cm)[1]>0){
-      l[[an]]<-as.character(cm$membership)
-      mod<-modularity(gg,cm$membership)
-      gg<-set.graph.attribute(gg,an,mod)
+        l[[an]]<-as.character(cm$membership)
+        mod<-modularity(gg,cm$membership)
+        gg<-set.graph.attribute(gg,an,mod)
     }
-  }
-  m<-do.call(cbind,l)
-  ggm<-applpMatrixToGraph(gg,m)
-  return(ggm)
+    }
+    m<-do.call(cbind,l)
+    ggm<-applpMatrixToGraph(gg,m)
+    return(ggm)
 }
 
 #' Calculate memberships for particular clustering algorithms and store 
@@ -98,8 +98,8 @@ calcAllClustering<-function(gg){
 #' vertex_attr_names(g)
 #' graph_attr(g,'louvain')
 calcClustering<-function(gg,alg){
-  cl<-getClustering(gg,alg)
-  if(!is.null(cl)){
+    cl<-getClustering(gg,alg)
+    if(!is.null(cl)){
     ids <- V(gg)$name
     m      <- matrix(NA, ncol=2, nrow=length(ids))
     colnames(m)<-c('ID',alg)
@@ -109,9 +109,9 @@ calcClustering<-function(gg,alg){
     mod<-modularity(ggm,cl$membership)
     ggm<-set.graph.attribute(ggm,alg,mod)
     return(ggm)
-  }else{
+    }else{
     return(gg)
-  }
+    }
 }
 
 #' Get clustering results for the graph.
@@ -151,36 +151,36 @@ calcClustering<-function(gg,alg){
 #' c$modularity
 getClustering<-function(gg,
                         alg=c('lec','wt','fc','infomap',
-                              'louvain','sgG1','sgG2','sgG5','spectral')){
-  alg <- match.arg(alg)
-  lec<-function(gg){
+                                'louvain','sgG1','sgG2','sgG5','spectral')){
+    alg <- match.arg(alg)
+    lec<-function(gg){
     lec     <- igraph::leading.eigenvector.community(gg)
     ll      <- igraph::leading.eigenvector.community(gg, start=membership(lec))
-  }
-  cl <- try(switch(
-      alg,
-      lec = lec(gg),
-      wt = igraph::walktrap.community(gg),
-      fc = igraph::fastgreedy.community(gg),
-      infomap = igraph::cluster_infomap(gg),
-      louvain = igraph::cluster_louvain(gg),
-      sgG1 = igraph::spinglass.community(gg,
-                                         spins = as.numeric(500), gamma =
-                                             1),
-      sgG2 = igraph::spinglass.community(gg,
-                                         spins = as.numeric(500), gamma =
-                                             2),
-      sgG5 = igraph::spinglass.community(gg,
-                                         spins = as.numeric(500), gamma =
-                                             5),
-      spectral = rSpectral::spectral_igraph_communities(gg)
-  ))
-  if(inherits(cl, "try-error")){
+    }
+    cl <- try(switch(
+        alg,
+        lec = lec(gg),
+        wt = igraph::walktrap.community(gg),
+        fc = igraph::fastgreedy.community(gg),
+        infomap = igraph::cluster_infomap(gg),
+        louvain = igraph::cluster_louvain(gg),
+        sgG1 = igraph::spinglass.community(gg,
+                                            spins = as.numeric(500), gamma =
+                                                1),
+        sgG2 = igraph::spinglass.community(gg,
+                                            spins = as.numeric(500), gamma =
+                                                2),
+        sgG5 = igraph::spinglass.community(gg,
+                                            spins = as.numeric(500), gamma =
+                                                5),
+        spectral = rSpectral::spectral_igraph_communities(gg)
+    ))
+    if(inherits(cl, "try-error")){
     warning('Clustering calculations for algorithm "',alg,
             '" failed. NULL is returned')
     return(NULL)
-  }
-  return(cl)
+    }
+    return(cl)
 }
 
 #' Matrix of cluster characteristics
@@ -211,12 +211,12 @@ getClustering<-function(gg,
 #' clusteringSummary(g)
 clusteringSummary<-function(gg,
                             att=c('lec','wt','fc','infomap',
-                                  'louvain','sgG1','sgG2','sgG5','spectral')){
-  attN<-vertex_attr_names(gg)
-  idx<-match(attN,att)
-  clusterings<-attN[!is.na(idx)]
-  res<-list()
-  for(c in clusterings){
+                                    'louvain','sgG1','sgG2','sgG5','spectral')){
+    attN<-vertex_attr_names(gg)
+    idx<-match(attN,att)
+    clusterings<-attN[!is.na(idx)]
+    res<-list()
+    for(c in clusterings){
     cmem<-as.numeric(vertex_attr(gg,c))
     mod<-modularity(gg,cmem)
     Cn<-table(cmem)
@@ -231,6 +231,6 @@ clusteringSummary<-function(gg,
     r1<-c(mod,C,Cn1,Cn100,mu)
     names(r1)<-c('mod','C','Cn1','Cn100','mu')
     res[[c]]<-c(r1,s)
-  }
-  return(do.call(rbind,res))
+    }
+    return(do.call(rbind,res))
 }
