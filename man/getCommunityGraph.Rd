@@ -16,7 +16,7 @@ community graph
 }
 \description{
 The idea based upon
-\href{https://stackoverflow.com/questions/62553280/visualizing-the-result-of-dividing-the-network-into-communities}{this StackOverflow answer}
+\href{https://shorturl.at/flv35}{this StackOverflow answer}
 }
 \examples{
 data(karate,package='igraphdata')

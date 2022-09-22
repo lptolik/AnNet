@@ -1,6 +1,6 @@
 ---
 title: "Case 2. Andrew's network"
-author: "Oksana Sorokina"
+author: "Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong, Oksana Sorokina"
 date: '2022-07-27'
 output: rmarkdown::html_vignette
 vignette: >
@@ -12,6 +12,10 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+# Title   AnNet: library for comprehensive network analysis
+##  Authors: Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong 
+## and Oksana Sorokina    
+
 
 ## R Markdown
 
@@ -26,7 +30,9 @@ library(pander)
 library(ggplot2)
 library(ggrepel)
 
-
+```
+```
+{r}
 gg <- igraph::read.graph("~/Downloads/NRCMASC.gml",format="gml")
 summary(gg)
 g <- gg
@@ -42,7 +48,8 @@ ggc <- calcAllClustering(g)
 ```
 
 ## Estimate clustering similiarity by RMI (Newman’s Reduced Mutual Information)
-```{r rmi}
+```
+{r rmi}
 
 library(clustAnalytics)
 alg<-c('lec','wt','fc','infomap','louvain','sgG1','sgG2','sgG5','spectral')

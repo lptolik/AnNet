@@ -456,8 +456,8 @@ calcCentralityInternalDistances<-function(l,keepOrder=FALSE,dist='euclidean'){
 #'
 #' @param m reference matrix, for example centrality obtained by invocation 
 #'         \code{\link{getCentralityMatrix}}
-#' @param l list of permuted matrix, for example centrality obtained by invocation 
-#'         \code{\link{getRandomGraphCentrality}}
+#' @param l list of permuted matrix, for example centrality obtained by 
+#'         invocation \code{\link{getRandomGraphCentrality}}
 #' @param keepOrder if FALSE valuess will be sorted
 #' @param dist methods available from dist function
 #'
@@ -506,8 +506,9 @@ calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
 #' original graph centralities
 #'
 #' @return list of lists for each centrality value in the input matrix three
-#' element list is created where \code{ks} contains Kolmogorov-Smirnov test result
-#' from class \code{ks.test}; \code{pval} contains Kolmogorov-Smirnov test pvalue; 
+#' element list is created where \code{ks} contains Kolmogorov-Smirnov test 
+#' result from class \code{ks.test}; \code{pval} contains Kolmogorov-Smirnov 
+#' test pvalue; 
 #' and \code{dt} contains input distribution.
 #' @export
 #' @seealso ks.test

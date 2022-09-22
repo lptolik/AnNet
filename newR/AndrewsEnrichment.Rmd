@@ -46,6 +46,21 @@ scale <- function(x, VALUE=NULL){
 # Title   AnNet: library for comprehensive network analysis
 ##  Authors: Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong and Oksana Sorokina    
 
+## Get modularity. Normalised modularity.
+Normalised modularity allows comparison the networks with different structure.
+Qm based on the previous studies by Parter et al., 2007, Takemoto, 2012,
+Takemoto, 2013, Takemoto and Borjigin, 2011, which was defined as:
+
+$$Qm = \frac{Q_{real}-Q_{rand}}{Q_{max}-Q_{rand}}$$
+
+Where $Q_{real}$ is the network modularity of a real-world signaling network and,
+$Q_{rand}$ is the average network modularity value obtained from 10,000 randomized
+networks constructed from its real-world network. 
+$Q_{max}$ was estimated as: $$Q_{max}=1 − \frac{1}{M}$$, where $M$ is the number of 
+modules in the real network.
+Randomized networks were generated from a real-world network using the
+edge-rewiring algorithm (Maslov and Sneppen, 2002).
+
 #Introduction
 
 ```{r read.net}

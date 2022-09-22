@@ -172,7 +172,7 @@ layoutByRecluster<-function(gg,remem,layout=layout_with_kk){
 #' Create new graph with communities as a nodes.
 #'
 #' The idea based upon
-#' \href{https://stackoverflow.com/questions/62553280/visualizing-the-result-of-dividing-the-network-into-communities}{this StackOverflow answer}
+#' \href{https://shorturl.at/flv35}{this StackOverflow answer}
 #'
 #' @param gg graph to convert
 #' @param membership participation list for new graph

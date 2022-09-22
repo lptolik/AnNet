@@ -15,8 +15,9 @@ original graph centralities}
 }
 \value{
 list of lists for each centrality value in the input matrix three
-element list is created where \code{ks} contains Kolmogorov-Smirnov test result
-from class \code{ks.test}; \code{pval} contains Kolmogorov-Smirnov test pvalue;
+element list is created where \code{ks} contains Kolmogorov-Smirnov test
+result from class \code{ks.test}; \code{pval} contains Kolmogorov-Smirnov
+test pvalue;
 and \code{dt} contains input distribution.
 }
 \description{

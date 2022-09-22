@@ -22,6 +22,15 @@
 #'   }
 #' @export
 #' @importFrom fgsea fora
+#' @examples 
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "AnNet")
+#' g <- igraph::read.graph(file,format="gml")
+#' anL<-getAnnotationVertexList(g,'TopOntoOVGHDOID')
+#' res<-clusterORA(gg1,alg='louvain',name='TopOntoOVGHDOID',vid='name')
+#' andf<-unique(data.frame(ID=get.vertex.attribute(g,'TopOntoOVGHDOID'),
+#' Term=get.vertex.attribute(g,'TopOntoOVG')))
+#' rr<-merge(andf,res,by.y='pathway',by.x='ID')
+#' rr[order(rr$cl),]
 clusterORA<-function(g,alg,name,vid='name',alpha=0.1,col=COLLAPSE){
   anL<-getAnnotationVertexList(g,name)
   cl<-make_clusters(g,as.numeric(get.vertex.attribute(g,alg)))

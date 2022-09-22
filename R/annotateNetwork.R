@@ -169,7 +169,9 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
 annotateGeneNames <- function(gg) {
     ids <- V(gg)$name
 
-    gn <- AnnotationDbi::mapIds(org.Hs.eg.db, ids, column = "SYMBOL", keytype = "ENTREZID")
+    gn <- AnnotationDbi::mapIds(org.Hs.eg.db, ids, 
+                                column = "SYMBOL", 
+                                keytype = "ENTREZID")
 
     gg <- removeVertexTerm(gg, "GeneName")
 
@@ -295,13 +297,13 @@ annotate_vertex <- function(gg, name, values) {
     return(ggm)
 }
 
-#' Escapes elements of list in annotation, so they'll be searchable by grep.
+#' Escapes elements of list in annotation.
 #'
 #' In the case when annotation has not carefully planned, some annotation terms
-#' could be substring of other, for example search fo DOID:14 could return
-#' DOID:143, DOID:1433, and DOID:14330. To avoid this all terms should be
-#' enclosed in escape characters, which unlikely to find within annotation
-#' itself.
+#' could be substring of other, for example \code{\link{grep}} search fo 
+#' DOID:14 could return DOID:143, DOID:1433, and DOID:14330. To avoid this a
+#' ll terms should be enclosed in escape characters, which unlikely to find 
+#' within annotation itself.
 #' 
 #' NOTE: spaces are treated as regular
 #' characters, no trimming is applied before or after escaping.

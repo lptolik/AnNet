@@ -114,8 +114,8 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE,
          panel.first=graphics::grid(col="grey60"),
          pch=22, bg='black', axes = FALSE, cex.lab = 1.5, yaxt='n' )
     graphics::box(col='black')
-    graphics::axis(1, cex.axis = 1.5, font = 1.5, family = 'arial')
-    graphics::axis(2, cex.axis = 1.5, font = 1.5, family = 'arial', at=yTICKS,
+    graphics::axis(1, cex.axis = 1.5, font = 1.5, family = 'sans')
+    graphics::axis(2, cex.axis = 1.5, font = 1.5, family = 'sans', at=yTICKS,
          labels=yLABELS)
     poweRlaw::lines(m_pl, col=2, lwd=3)
     S1 <- round(m_pl$xmin,2)

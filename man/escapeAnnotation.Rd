@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotateNetwork.R
 \name{escapeAnnotation}
 \alias{escapeAnnotation}
-\title{Escapes elements of list in annotation, so they'll be searchable by grep.}
+\title{Escapes elements of list in annotation.}
 \usage{
 escapeAnnotation(annVec, col = COLLAPSE, esc = ESC)
 }
@@ -18,10 +18,10 @@ vector of annotation strings with elements escaped
 }
 \description{
 In the case when annotation has not carefully planned, some annotation terms
-could be substring of other, for example search fo DOID:14 could return
-DOID:143, DOID:1433, and DOID:14330. To avoid this all terms should be
-enclosed in escape characters, which unlikely to find within annotation
-itself.
+could be substring of other, for example \code{\link{grep}} search fo
+DOID:14 could return DOID:143, DOID:1433, and DOID:14330. To avoid this a
+ll terms should be enclosed in escape characters, which unlikely to find
+within annotation itself.
 }
 \details{
 NOTE: spaces are treated as regular

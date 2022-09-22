@@ -11,8 +11,8 @@ calcCentralityExternalDistances(m, l, keepOrder = FALSE, dist = "euclidean")
 \item{m}{reference matrix, for example centrality obtained by invocation
 \code{\link{getCentralityMatrix}}}
 
-\item{l}{list of permuted matrix, for example centrality obtained by invocation
-\code{\link{getRandomGraphCentrality}}}
+\item{l}{list of permuted matrix, for example centrality obtained by
+invocation \code{\link{getRandomGraphCentrality}}}
 
 \item{keepOrder}{if FALSE valuess will be sorted}
 

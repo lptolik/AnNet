@@ -62,7 +62,8 @@ dot_numeric<-function(x){
 ##
 # Calculate each diease-pair overlap/seperation on a selected
 # synaptic PPI network models, based on analysis described in:
-# Menche, J. et al. Uncovering disease-disease relationships through the incomplete interactome.
+# Menche, J. et al. Uncovering disease-disease relationships 
+# through the incomplete interactome.
 # Science, 347, (6224):1257601 (2015).
 ##
 

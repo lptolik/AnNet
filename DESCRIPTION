@@ -1,6 +1,6 @@
 Package: AnNet
 Title: Analysis of Networks
-Version: 0.99.008
+Version: 0.99.009
 Authors@R: c(
     person("Colin", "Mclean", 
         email="Colin.D.Mclean@ed.ac.uk", role=c("aut", "cre")), 
