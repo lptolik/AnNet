@@ -139,7 +139,9 @@ summary(sgg)
 ```
 
 #Esimate node centrality measures
+
 ## Estimate centrality measures with values added as node attributes. 
+
 Centrality measures are as following:
 * DEG - degree, 
 * BET - betweenness, 
@@ -155,15 +157,18 @@ summary(gg)
 ```
 
 ##Get node centralities as a matrix. 
+
 In the case you don't want save centrality values on the graph, for example 
 you going to provide different names for the attributes, the same centrality
 measures as before could be obtained in a matrix form:
+
 ```{r matrix_cent}
 mc <- getCentralityMatrix(gg)
 head(mc)
 ```
 
 ##Get the centrality measures for random graph
+
 Sometimes one needs to compare the graph properties of the given network 
 with the ones of the randomized graph. Command below provides three ways 
 of randomization, including G(n,p) Erdos-Renyi model , Barabasi-Albert model 
