@@ -27,7 +27,7 @@ buildConsensusMatFromFiles <- function(Dir,file.name,skip=1,sep="\t"){
   for( s in seq_along(subdirs) ){
     filein <- sprintf("%s/%s/%s",Dir,subdirs[s]);
     if( file.exists(filein) && file.info(filein)$size!=0 ){
-      tb <- read.delim(filein,
+      tb <- utils::read.delim(filein,
                       skip=skip,
                       header=FALSE,
                       sep=sep);
@@ -134,6 +134,8 @@ matrixDiv <- function(x,y){
 #' @param type edges=>1 or nodes=>2  to mask
 #' @param reclust logical to decide wether to invoke reclustering via 
 #'        \code{\link{recluster}}
+#' @param Cnmax maximus size of the cluster in \code{mem} that will not be 
+#'        processed if reclustering is invoked
 #'
 #' @return consensus matrix of Nvert X Nvert
 #' @export
@@ -145,12 +147,12 @@ matrixDiv <- function(x,y){
 #' conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
 #' dim(conmat)
 makeConsensusMatrix<-function(gg,N=500,mask=20,alg,type,
-                              reclust=FALSE){
+                              reclust=FALSE,Cnmax=10){
   lcc<-lapply(seq_len(N), function(.x)sampleGraphClust(gg=gg,
                                             mask=mask,
                                             alg=alg,
                                             type=type,
-                                            reclust=reclust))
+                                            reclust=reclust,Cnmax=Cnmax))
   mm<-buildConsensusMatrix(lcc)
   colnames(mm)<-V(gg)$name
   rownames(mm)<-V(gg)$name

@@ -97,7 +97,7 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE,
   est <- estimate_xmin(m_pl)
   m_pl$setXmin(est)
   suppressMessages(
-    gof <- poweRlaw::bootstrap_p(m_pl, no_of_sims = Nsim, threads=threads)
+      gof <- poweRlaw::bootstrap_p(m_pl, no_of_sims = Nsim, threads=threads)
   )
   if(plot){
     op<-options(warn= -1)
@@ -110,19 +110,19 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE,
     yTICKS <- round(lseqBy(min(d$y),1,0.5),4)
     yLABELS <- changeSciNot(yTICKS)
 
-    plot(m_pl, xlab=sprintf("%s",x_lab), ylab=y_lab,
-         panel.first=grid(col="grey60"),
+    poweRlaw::plot(m_pl, xlab=sprintf("%s",x_lab), ylab=y_lab,
+         panel.first=graphics::grid(col="grey60"),
          pch=22, bg='black', axes = FALSE, cex.lab = 1.5, yaxt='n' )
-    box(col='black')
-    axis(1, cex.axis = 1.5, font = 1.5, family = 'arial')
-    axis(2, cex.axis = 1.5, font = 1.5, family = 'arial', at=yTICKS,
+    graphics::box(col='black')
+    graphics::axis(1, cex.axis = 1.5, font = 1.5, family = 'arial')
+    graphics::axis(2, cex.axis = 1.5, font = 1.5, family = 'arial', at=yTICKS,
          labels=yLABELS)
-    lines(m_pl, col=2, lwd=3)
+    poweRlaw::lines(m_pl, col=2, lwd=3)
     S1 <- round(m_pl$xmin,2)
     S2 <- round(m_pl$pars,2)
     S3 <- round(gof$p,2)
-    sdS1 <- round(sd(gof$bootstraps$xmin),0)
-    sdS2 <- round(sd(gof$bootstraps$pars),2)
+    sdS1 <- round(stats::sd(gof$bootstraps$xmin),0)
+    sdS2 <- round(stats::sd(gof$bootstraps$pars),2)
     errS1 <- str_sub(as.character(sdS1),-1,-1)
     errS2 <- str_sub(as.character(sdS2),-1,-1)
     suppressMessages(
@@ -135,7 +135,7 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE,
                 errS1
             ))
     )
-    legend(legpos,c(DATAleg,fitl),lty=c(1,1),lwd=c(4,4),
+    graphics::legend(legpos,c(DATAleg,fitl),lty=c(1,1),lwd=c(4,4),
            col=c('black',2),merge=TRUE, cex = 1.5)
     options(op)
   }
@@ -143,7 +143,7 @@ FitDegree <- function(DEG,Nsim=100,  plot=FALSE,
              fit=m_pl,
              p=as.numeric(gof$p),
              alpha=as.numeric(est$pars),
-             SDxmin=as.numeric(sd(gof$bootstraps$xmin)),
-             SDalpha=as.numeric(sd(gof$bootstraps$pars)))
+             SDxmin=as.numeric(stats::sd(gof$bootstraps$xmin)),
+             SDalpha=as.numeric(stats::sd(gof$bootstraps$pars)))
   )
 }

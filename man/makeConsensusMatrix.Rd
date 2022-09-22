@@ -4,7 +4,15 @@
 \alias{makeConsensusMatrix}
 \title{Function to build consensus matrix in memory}
 \usage{
-makeConsensusMatrix(gg, N = 500, mask = 20, alg, type, reclust = FALSE)
+makeConsensusMatrix(
+  gg,
+  N = 500,
+  mask = 20,
+  alg,
+  type,
+  reclust = FALSE,
+  Cnmax = 10
+)
 }
 \arguments{
 \item{gg}{graph to perturb}
@@ -19,6 +27,9 @@ makeConsensusMatrix(gg, N = 500, mask = 20, alg, type, reclust = FALSE)
 
 \item{reclust}{logical to decide wether to invoke reclustering via
 \code{\link{recluster}}}
+
+\item{Cnmax}{maximus size of the cluster in \code{mem} that will not be
+processed if reclustering is invoked}
 }
 \value{
 consensus matrix of Nvert X Nvert

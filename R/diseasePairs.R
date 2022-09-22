@@ -3,7 +3,7 @@ qscore <- function(zz,FDR){
 
   LL <- FDR[FDR[,1] < as.numeric(zz),2]
 
-  if( length(LL) != 0 ){ return(LL[end(LL)[1]]); }
+  if( length(LL) != 0 ){ return(LL[stats::end(LL)[1]]); }
 
   return(1)
 }
@@ -340,7 +340,7 @@ calcDiseasePairs<-function(gg,name,diseases=NULL,
 
     res[d,2] <- as.character(N)
     res[d,3] <- as.character(mean(ds))
-    res[d,4] <- as.character(sd(ds))
+    res[d,4] <- as.character(stats::sd(ds))
 
   }
 
@@ -429,7 +429,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
     return(mean(zeroNA(x)))
   }
   sd0<-function(x){
-    return(sd(zeroNA(x)))
+    return(stats::sd(zeroNA(x)))
   }
   resD<-calcDiseasePairs(gg=gg,name=name,diseases=diseases,permute = 'none')
   ds<-resD$gene_disease_separation
@@ -473,7 +473,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
     ## observed ds values
     DS       <- as.numeric(as.vector(ds[indx,(2+i)]))
     disease_location_sig[i,3] <- as.numeric(mean(DS))
-    disease_location_sig[i,4] <- as.numeric(sd(DS))
+    disease_location_sig[i,4] <- as.numeric(stats::sd(DS))
 
     indy <- match(ids,RANds[,1])
 
@@ -490,7 +490,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
         !is.na(DS) &&  !is.infinite(RDS) &&
         !is.nan(RDS) && !is.na(RDS) ){
       if( length(DS) != 0 && length(RDS) != 0 ){
-        wt       <- wilcox.test(DS,RDS)
+        wt       <- stats::wilcox.test(DS,RDS)
         disease_location_sig[i,7] <- as.numeric(wt$p.value)
       }
     }
@@ -544,7 +544,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
 
       ## compute p.value from the normal distribution
       ## See also http://www.cyclismo.org/tutorial/R/pValues.html
-      pval <- pnorm(-abs(zScore))
+      pval <- stats::pnorm(-abs(zScore))
       pval <- 2 * pval
 
       zs[(k+1),1] <- disn[i]
@@ -605,10 +605,10 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
 
   }
   ## save p.adjusted value in output container
-  zs[,12] <- p.adjust(as.numeric(zs[,9]),method="BY")
+  zs[,12] <- stats::p.adjust(as.numeric(zs[,9]),method="BY")
 
   ## if calFDR is FALSE, we'll use WGCNA's qvalue calculation for FDR
-  zs[,13] <- qvalue(as.numeric(zs[,9]))$qvalue
+  zs[,13] <- WGCNA::qvalue(as.numeric(zs[,9]))$qvalue
 
   return(list(Disease_overlap_sig=zs,
               Disease_location_sig=disease_location_sig))

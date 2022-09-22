@@ -59,7 +59,7 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
             set.vertex.attribute(GG, NAME[f], V(GG), "")
 
             annoF    <-
-                read.table(
+                utils::read.table(
                     FILES[f],
                     sep = "\t",
                     skip = 1,
@@ -169,7 +169,7 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
 annotateGeneNames <- function(gg) {
     ids <- V(gg)$name
 
-    gn <- mapIds(org.Hs.eg.db, ids, column = "SYMBOL", keytype = "ENTREZID")
+    gn <- AnnotationDbi::mapIds(org.Hs.eg.db, ids, column = "SYMBOL", keytype = "ENTREZID")
 
     gg <- removeVertexTerm(gg, "GeneName")
 
@@ -843,7 +843,7 @@ annotate_bridgeness_regions <- function(gg, str) {
         #gg <- removeVertexTerm(gg,gsub("_","",fn[i]))
 
         if (file.exists(sprintf("%s/%s", str, files[i]))) {
-            ff <- read.table(sprintf("%s/%s", str, files[i]),
+            ff <- utils::read.table(sprintf("%s/%s", str, files[i]),
                              sep = "\t",
                              header = FALSE)
 

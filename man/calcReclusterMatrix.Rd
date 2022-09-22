@@ -4,7 +4,7 @@
 \alias{calcReclusterMatrix}
 \title{Hierarchial graph clustering}
 \usage{
-calcReclusterMatrix(gg, mem, alg, CnMAX, keepSplit = FALSE)
+calcReclusterMatrix(gg, mem, alg, CnMAX = 10, keepSplit = FALSE)
 }
 \arguments{
 \item{gg}{graph to cluster}

@@ -78,7 +78,7 @@ calShorestPaths <- function(gg){
     sp <- sp[!sp == Inf]
     meas[i,1] <- min(sp)
     meas[i,2] <- round(mean(sp),3)
-    meas[i,3] <- round(sd(sp),3)
+    meas[i,3] <- round(stats::sd(sp),3)
   }
 
   return(meas)
@@ -159,7 +159,7 @@ formatLogLogPlot <- function( X, GROUP ){
 
   X <- as.vector(X)
 
-  mm <- ecdf(X)
+  mm <- stats::ecdf(X)
 
   df <- data.frame(x=sort(X),y=1-mm(sort(X)),group=GROUP)
 
@@ -191,9 +191,9 @@ MAD <- function( X ){
 
   X <- as.numeric(X)
 
-  Xmd <- median(X)
+  Xmd <- stats::median(X)
 
-  MAD <- median(abs(X-Xmd))
+  MAD <- stats::median(abs(X-Xmd))
 
   return(MAD)
 }
@@ -388,7 +388,7 @@ getGraphCentralityECDF<-function(m){
   l<-list()
   for(i in 2:8){
     n<-colnames(m)[i]
-    l[[n]]<-ecdf(as.numeric(m[,i]))
+    l[[n]]<-stats::ecdf(as.numeric(m[,i]))
   }
   return(l)
 }
@@ -531,7 +531,7 @@ evalCentralitySignificance<-function(dmi,dme){
   for(nm in nms){
     mi<-dmi[,colnames(dmi)==nm]
     me<-dme[,colnames(dme)==nm]
-    ks<-ks.test(mi,me)
+    ks<-stats::ks.test(mi,me)
     l[[nm]]<-list(pval=ks$p.value,ks=ks,
                   dt=data.frame(val=c(mi,me),
                                 cl=factor(c(rep('perm',length(mi)),

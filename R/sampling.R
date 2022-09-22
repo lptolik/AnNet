@@ -1,4 +1,5 @@
 #---Get all edges internal to a community
+# @importFrom igraph `[.igraph.es`
 intraEdges <- function(GG, ALG, CC, INTRA=NULL, INTER=NULL){
 
   intra <- NULL #edges in the community CC
@@ -10,7 +11,7 @@ intraEdges <- function(GG, ALG, CC, INTRA=NULL, INTER=NULL){
 
     if( length(which(coms == CC)) != 0 ){
 
-      ed_cc <- E(GG)[inc(coms == CC)]
+      ed_cc <- E(GG)[.inc(coms == CC)]
 
       all_edges_m <- get.edges(GG, ed_cc) #matrix representation
 
@@ -47,7 +48,7 @@ intraEdgesM <- function(GG, mem, CC, INTRA=NULL, INTER=NULL){
   idx<- (mem$membership == CC)
     if( length(which(idx)) != 0 ){
 
-      ed_cc <- E(GG)[inc(idx)]
+      ed_cc <- E(GG)[.inc(idx)]
 
       all_edges_m <- get.edges(GG, ed_cc) #matrix representation
 
@@ -219,7 +220,7 @@ getCommunityGraph<-function(gg,membership){
 #' alg<-'louvain'
 #' mem<-calcMembership(karate,alg = alg)
 #' remem<-calcReclusterMatrix(karate,mem,alg,10)
-calcReclusterMatrix<-function(gg,mem,alg,CnMAX,keepSplit=FALSE){
+calcReclusterMatrix<-function(gg,mem,alg,CnMAX=10,keepSplit=FALSE){
 
   if(is.matrix(mem)){
     mem<-as.data.frame(mem)
@@ -340,12 +341,12 @@ recluster <- function( GG, ALGN, CnMAX ){
     k <- 1
     for( i in seq_along(cc) ){
 
-      edCC <- intraEdges(GG, ALG, cc[i], INTRA=TRUE)
+      edCC <- intraEdges(GG, ALGN, cc[i], INTRA=TRUE)
 
       if( !is.null(edCC) ){
 
         ggLCC    <- graph_from_data_frame(d=edCC, directed=FALSE)
-        res <- getClustering(ggLCC,alg)
+        res <- getClustering(ggLCC,ALGN)
         oo       <- cbind(res$names, res$membership)
 
         RES[[k]]      <- oo
@@ -436,6 +437,8 @@ recluster <- function( GG, ALGN, CnMAX ){
 #' @param type edges=>1 or nodes=>2  to mask
 #' @param reclust logical to decide wether to invoke reclustering via 
 #'        \code{\link{recluster}}
+#' @param Cnmax maximus size of the cluster in \code{mem} that will not be 
+#'        processed if reclustering is invoked
 #'
 #' @return list of Nx3 matrices
 #'
@@ -445,7 +448,7 @@ recluster <- function( GG, ALGN, CnMAX ){
 #' alg<-'louvain'
 #' mem<-calcMembership(karate,alg = alg)
 #' smpl<-AnNet:::sampleGraphClust(karate,mask=10,alg,type=2)
-sampleGraphClust<-function(gg,mask=20,alg,type,reclust=FALSE){
+sampleGraphClust<-function(gg,mask=20,alg,type,reclust=FALSE,Cnmax=10){
   IDS <- V(gg)$name;
   ids <- V(gg)$name;
 
