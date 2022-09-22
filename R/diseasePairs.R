@@ -46,6 +46,19 @@ zeroNA<-function(x){
   return(x)
 }
 
+#' Utility function to convert string matrices without warnings
+#' 
+#' The function handles special version of string matrix where '.' is
+#' used instead of NAN.
+#'
+#' @param x value to convert
+#'
+#' @return double version of x, or NA
+#' @noRd
+dot_numeric<-function(x){
+    ifelse('.'==x,NA,as.numeric(x))
+}
+
 ##
 # Calculate each diease-pair overlap/seperation on a selected
 # synaptic PPI network models, based on analysis described in:
@@ -426,7 +439,7 @@ runPermDisease<-function(gg,name,diseases=NULL,Nperm=100,
                                                     permute=permute))
   toNum<-function(.x){
       Nc<-dim(.x$gene_disease_separation)[2]
-      apply(.x$gene_disease_separation[,seq(3,Nc)],c(1,2),as.numeric)
+      apply(.x$gene_disease_separation[,seq(3,Nc)],c(1,2),dot_numeric)
   }
   resGDS<-vapply(resL,toNum, FUN.VALUE = toNum(resL[[1]]))
  
