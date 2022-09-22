@@ -494,6 +494,35 @@ calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
   return(resm)
 }
 
+#' Compare distance distributions of internal and external distances
+#' 
+#' Compare distance distributions of internal distances between random graph
+#' centralities and external distances between random and original graph 
+#' centralities. Kolmogorov-Smirnov test is used for comparison
+#'
+#' @param dmi distribution of internal distances between random graph
+#' centralities 
+#' @param dme distribution of external distances between random and 
+#' original graph centralities
+#'
+#' @return list of lists for each centrality value in the input matrix three
+#' element list is created where \code{ks} contains Kolmogorov-Smirnov test result
+#' from class \code{ks.test}; \code{pval} contains Kolmogorov-Smirnov test pvalue; 
+#' and \code{dt} contains input distribution.
+#' @export
+#' @seealso ks.test
+#' @examples
+#' data(karate,package='igraphdata')
+#' m<-getCentralityMatrix(karate)
+#' gnp<-list()
+#' for(i in 1:10){
+#'     gnp[[i]]<-getRandomGraphCentrality(karate,type = 'gnp')
+#' }
+#' gnpIDist<-calcCentralityExternalDistances(gnp)
+#' gnpEDist<-calcCentralityExternalDistances(m,gnp)
+#' 
+#' simSig<-evalCentralitySignificance(gnpIDist,gnpEDist)
+#' sapply(simSig,function(.x).x$ks$p.value)
 evalCentralitySignificance<-function(dmi,dme){
   nmi<-colnames(dmi)
   nme<-colnames(dme)
@@ -503,7 +532,7 @@ evalCentralitySignificance<-function(dmi,dme){
     mi<-dmi[,colnames(dmi)==nm]
     me<-dme[,colnames(dme)==nm]
     ks<-ks.test(mi,me)
-    l[[nm]]<-list(ks=ks,
+    l[[nm]]<-list(pval=ks$p.value,ks=ks,
                   dt=data.frame(val=c(mi,me),
                                 cl=factor(c(rep('perm',length(mi)),
                                      rep('graph',length(me))))))
